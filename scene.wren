@@ -20,7 +20,7 @@ import "./actions" for BumpAction
 import "./systems" for VisionSystem, DefeatSystem
 import "./generator" for Generator
 import "./combat" for AttackEvent
-import "./renderer" for AsciiRenderer
+import "./renderer" for AsciiRenderer, HealthBar
 import "./inputs" for
   DIR_INPUTS,
   ESC_INPUT,
@@ -67,6 +67,7 @@ class TextInputState is State {
     return this
   }
 }
+
 class PlayerInputState is State {
 
   construct new(world) {
@@ -125,7 +126,8 @@ class GameScene is Scene {
 
     world.start()
     _state = PlayerInputState.new(_world)
-    addElement(AsciiRenderer.new(Vec.new(50, 0)))
+    addElement(AsciiRenderer.new(Vec.new(0, 10)))
+    addElement(HealthBar.new(Vec.new(0, 0), player.ref))
   }
 
   world { _world }

@@ -120,7 +120,7 @@ class Entity is Stateful {
   name { data["name"] }
   toString { name ? name : "%(this.type.name) (id: %(id))" }
 
-  ref { EntityRef.new(ctx, entity.id) }
+  ref { EntityRef.new(ctx, id) }
 }
 
 class BehaviourEntity is Entity {
@@ -426,7 +426,7 @@ class World is Stateful {
     return this
   }
 
-  getEntityById(id) { _entities[id] || _ghosts[id] }
+  getEntityById(id) { _entities[getId(id)] || _ghosts[getId(id)] }
   getEntityByTag(tag) { _entities[_tagged[tag]] }
   getEntitiesAtPosition(x, y) { getEntitiesAtPosition(Vec.new(x, y)) }
   getEntitiesAtPosition(vec) { entities().where {|entity| entity.occupies(vec) }.toList }
@@ -462,15 +462,20 @@ class World is Stateful {
     return EntityRef.new(this, entity.id)
   }
 
-  removeEntity(ref) {
+  getId(ref) {
     var id
-    var entity
     if (ref is Entity || ref is EntityRef) {
       id = ref.id
     }
     if (ref is Num) {
       id = ref
     }
+    return id
+  }
+
+  removeEntity(ref) {
+    var id = getId(ref)
+    var entity
 
     entity = _entities.remove(id)
     if (entity == null) {

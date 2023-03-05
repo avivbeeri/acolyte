@@ -5,6 +5,31 @@ import "parcel" for
 
 var DEBUG = false
 
+
+class HealthBar is Element {
+  construct new(pos, entity) {
+    super()
+    _pos = pos
+    _entity = entity
+  }
+
+  update() {
+    _world = parent.world
+  }
+
+  draw() {
+    var offset = Canvas.offset
+    var stats = _world.getEntityById(_entity)["stats"]
+    var hp = stats.get("hp")
+    var hpMax = stats.get("hpMax")
+    Canvas.offset(_pos.x,_pos.y)
+
+    Canvas.print("HP: %(hp) / %(hpMax)", 0, 0, Color.lightgray)
+
+    Canvas.offset(offset.x, offset.y)
+  }
+}
+
 class AsciiRenderer is Element {
   construct new(pos) {
     super()
