@@ -14,7 +14,7 @@ class AsciiRenderer is Element {
 
   draw() {
     var offset = Canvas.offset
-//    Canvas.offset(_pos.x,_pos.y)
+    Canvas.offset(_pos.x,_pos.y)
     var map = _world.zone.map
 
     for (y in map.yRange) {
@@ -46,11 +46,15 @@ class AsciiRenderer is Element {
       if (!entity.pos) {
         continue
       }
-      var symbol = entity["symbol"] || entity.name[0] || "?"
+      if (map[entity.pos]["visible"] != true) {
+        continue
+      }
+
+      var symbol = entity["symbol"] || entity.name && entity.name[0] || "?"
       Canvas.print(symbol, entity.pos.x * 16 + 4, entity.pos.y * 16 + 4, Color.white)
     }
 
- //   Canvas.offset(offset.x, offset.y)
+    Canvas.offset(offset.x, offset.y)
   }
 
 }

@@ -101,14 +101,17 @@ class GameScene is Scene {
     _t = 0
 
     var world = _world = World.new()
-    var zone = Generator.generateDungeon([ 1 ])
     _world.systems.add(VisionSystem.new())
+
+    var zone = Generator.generateDungeon([ 1 ])
     world.addZone(zone)
+    for (entity in zone["entities"]) {
+      world.addEntity(entity)
+    }
     world.addEntity("player", Player.new())
     var player = world.getEntityByTag("player")
     player.pos = zone["start"]
 
-    // world.addEntity(Entity.new())
     _name = ""
     _currentText = ""
 

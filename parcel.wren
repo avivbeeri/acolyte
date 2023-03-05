@@ -320,6 +320,20 @@ class EntityRef {
     }
   }
 
+  pos {
+    var actor = _ctx.getEntityById(_id)
+    if (actor != null) {
+      return actor.pos
+    }
+    return Vec.new()
+  }
+  pos=(v) {
+    var actor = _ctx.getEntityById(_id)
+    if (actor != null) {
+      actor.pos = v
+    }
+  }
+
   serialize() {
     return ({ "id": _id })
   }

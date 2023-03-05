@@ -1,4 +1,4 @@
-import "parcel" for TileMap8, Tile, Zone, Line, RNG
+import "parcel" for TileMap8, Tile, Zone, Line, RNG, Entity
 import "math" for Vec
 
 class RectangularRoom {
@@ -56,10 +56,12 @@ class Generator {
     var maxRooms = 18
     var minSize = 5
     var maxSize = 10
+    var monstersPerRoom = 2
 
     var map = TileMap8.new()
     var level = args[0]
     var zone = Zone.new(map)
+    zone["entities"] = []
     zone["level"] = level
     zone["title"] = "The Courtyard"
 
@@ -93,6 +95,8 @@ class Generator {
         zone["start"] = room.center
       }
       rooms.add(room)
+
+      Generator.placeEntities(zone, room, monstersPerRoom)
     }
     // Add a cycle
     if (rooms.count > 3) {
@@ -101,8 +105,28 @@ class Generator {
       Generator.tunnelBetween(map, rooms[start].center, rooms[end].center)
     }
 
+
+
     return zone
   }
+  static placeEntities(zone, room, maxMonsters) {
+    var totalMonsters = RNG.int(maxMonsters + 1)
+    var entities = zone["entities"]
+    for (i in 0...totalMonsters) {
+      var x = RNG.int(room.p0.x + 1, room.p1.x - 1)
+      var y = RNG.int(room.p0.y + 1, room.p1.y - 1)
+
+      var pos = Vec.new(x, y )
+
+      if (entities.isEmpty || !entities.any{|entity| entity.pos == pos }) {
+        var entity = Entity.new()
+        entity["solid"] = true
+        entity.pos = pos
+        entities.add(entity)
+      }
+    }
+  }
+
   static generate(args) {
 
     var map = TileMap8.new()

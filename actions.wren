@@ -6,10 +6,14 @@ class SimpleMoveAction is Action {
     _dir = dir
   }
   evaluate() {
-    if (ctx.zone.map.neighbours(src.pos).contains(src.pos + _dir)) {
-      return ActionResult.valid
+    if (!ctx.zone.map.neighbours(src.pos).contains(src.pos + _dir)) {
+      return ActionResult.invalid
     }
-    return ActionResult.invalid
+    if (ctx.entities().any{|other| other.occupies(src.pos  + _dir) && other["solid"] }) {
+      return ActionResult.invalid
+    }
+
+    return ActionResult.valid
   }
 
   perform() {
