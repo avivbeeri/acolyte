@@ -12,5 +12,6 @@ var DIR_INPUTS = [
 ]
 
 var ESC_INPUT = InputGroup.new(Keyboard["escape"])
+var OPEN_LOG = InputGroup.new(Keyboard["v"])
 var CONFIRM = InputGroup.new(Keyboard["return"])
 var REJECT = InputGroup.new(Keyboard["escape"])

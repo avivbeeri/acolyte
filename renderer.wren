@@ -1,4 +1,5 @@
 import "graphics" for Color, Canvas
+import "math" for Vec
 import "input" for Mouse
 import "parcel" for
   Element,
@@ -37,19 +38,41 @@ class HoverText is Element {
   }
 }
 
+class HistoryViewer is Element {
+  construct new(pos, size, log) {
+    super()
+    _pos = pos
+    _size = size
+    addElement(LogViewer.new(pos + Vec.new(4, 4), log, (size.y / 12).floor))
+  }
+  draw() {
+    Canvas.rectfill(_pos.x, _pos.y, _size.x, _size.y, INK["bg"])
+    Canvas.rect(_pos.x, _pos.y, _size.x, _size.y, INK["border"])
+    super.draw()
+  }
+}
 
 class LogViewer is Element {
   construct new(pos, log) {
     super()
+    init(pos, log, 5)
+  }
+  construct new(pos, log, size) {
+    super()
+    init(pos, log, size)
+  }
+
+  init(pos, log, size)  {
     _pos = pos
     _messageLog = log
-    _max = 5
+    _max = size
     _invert = (_pos.y + _max * 12) > (Canvas.height / 2)
+    _messages = _messageLog.history(_max) || []
   }
 
   update() {
-    _world = parent.world
-    _messages = _messageLog.history(_max)
+    _world = top.world
+    _messages = _messageLog.history(_max) || []
   }
 
   draw() {
@@ -62,6 +85,7 @@ class LogViewer is Element {
     var startLine = 0
     var endLine = _messages.count
 
+/*
     if (_invert) {
       var swap = endLine - 1
       endLine = startLine
@@ -70,14 +94,13 @@ class LogViewer is Element {
       start = _max * 12
       dir = -1
     }
-    var line = 0
+    */
     for (i in startLine...endLine) {
       var message = _messages[i]
-      line = i
       if (message.count > 1) {
-        Canvas.print("%(message.text) (x%(message.count))", 4, start + dir * 12 * line, message.color)
+        Canvas.print("%(message.text) (x%(message.count))", 4, start + dir * 12 * i, message.color)
       } else {
-        Canvas.print("%(message.text)", 4, start + dir * 12 * line, message.color)
+        Canvas.print("%(message.text)", 4, start + dir * 12 * i, message.color)
       }
     }
 
@@ -132,19 +155,20 @@ class AsciiRenderer is Element {
     var hover = (Mouse.pos - _pos) / 16
     hover.x = hover.x.floor
     hover.y = hover.y.floor
-
     var found = false
-    for (entity in _world.entities()) {
-      if (entity.pos == null) {
-        continue
-      }
-      if (hover == entity.pos) {
-        found = true
-        parent.process(HoverEvent.new(entity))
+    if (_world.zone.map[hover]["visible"] == true) {
+      for (entity in _world.entities()) {
+        if (entity.pos == null) {
+          continue
+        }
+        if (hover == entity.pos) {
+          found = true
+          top.process(HoverEvent.new(entity))
+        }
       }
     }
     if (!found) {
-      parent.process(HoverEvent.new(null))
+      top.process(HoverEvent.new(null))
     }
   }
 

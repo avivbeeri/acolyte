@@ -21,9 +21,15 @@ import "./actions" for BumpAction
 import "./systems" for VisionSystem, DefeatSystem
 import "./generator" for Generator
 import "./combat" for AttackEvent
-import "./renderer" for AsciiRenderer, HealthBar, LogViewer, HoverText
+import "./renderer" for
+  AsciiRenderer,
+  HealthBar,
+  LogViewer,
+  HistoryViewer,
+  HoverText
 import "./palette" for INK
 import "./inputs" for
+  OPEN_LOG,
   DIR_INPUTS,
   ESC_INPUT,
   CONFIRM,
@@ -45,11 +51,32 @@ class TextChanged is Event {
   text { data["text"] }
 }
 
+class ModalWindowState is State {
+  construct new(scene) {
+    super()
+    _scene = scene
+  }
+  onEnter() {
+    var border = 24
+    _window = HistoryViewer.new(Vec.new(border, border), Vec.new(Canvas.width - border*2, Canvas.height - border*2), _scene.messages)
+    _scene.addElement(_window)
+  }
+  onExit() {
+    _scene.removeElement(_window)
+  }
+  update() {
+    if (CONFIRM.firing) {
+      return PlayerInputState.new(_scene)
+    }
+    return this
+  }
+}
 class TextInputState is State {
 
-  construct new(world) {
+  construct new(scene) {
     super()
-    _world = world
+    _scene = scene
+    _world = scene.world
     _kb = TextInputReader.new()
     _kb.enable()
   }
@@ -59,11 +86,11 @@ class TextInputState is State {
     if (Keyboard["return"].justPressed) {
       _kb.disable()
       events.add(TextComplete.new(_kb.text))
-      return PlayerInputState.new(_world)
+      return PlayerInputState.new(_scene)
     }
     if (Keyboard["escape"].justPressed) {
       _kb.disable()
-      return PlayerInputState.new(_world)
+      return PlayerInputState.new(_scene)
     }
     events.add(TextChanged.new(_kb.text))
     return this
@@ -72,19 +99,23 @@ class TextInputState is State {
 
 class PlayerInputState is State {
 
-  construct new(world) {
+  construct new(scene) {
     super()
-    _world = world
+    _scene = scene
+    _world = scene.world
   }
 
   update() {
      /* TODO temp */
+    if (OPEN_LOG.firing) {
+      return ModalWindowState.new(_scene)
+    }
     if (ESC_INPUT.firing) {
       Process.exit()
       return
     }
     if (Keyboard["return"].justPressed) {
-      return TextInputState.new(_world)
+      return TextInputState.new(_scene)
     }
 
     if (_world.complete) {
@@ -129,15 +160,16 @@ class GameScene is Scene {
     _currentText = ""
 
     world.start()
-    _state = PlayerInputState.new(_world)
-    addElement(AsciiRenderer.new(Vec.new(0, 10)))
+    _state = PlayerInputState.new(this)
+    addElement(AsciiRenderer.new(Vec.new(0, 20)))
     addElement(HealthBar.new(Vec.new(0, 0), player.ref))
-    addElement(LogViewer.new(Vec.new(0, 32), _messages))
     addElement(HoverText.new(Vec.new(Canvas.width - 64, 0)))
+    addElement(LogViewer.new(Vec.new(0, Canvas.height - 60), _messages))
     //addElement(LogViewer.new(Vec.new(0, Canvas.height - 12 * 7), _messages))
   }
 
   world { _world }
+  messages { _messages }
   events { _state.events }
 
   update() {
@@ -169,13 +201,13 @@ class GameScene is Scene {
         _messages.add("The game has ended", INK["playerDie"], false)
       }
       if (event is AttackEvent) {
-        _messages.add("An attack occurred", INK["enemyAtk"], true)
+        _messages.add("An attack occurred", INK["enemyAtk"], false)
       }
     }
   }
 
   draw() {
-    var color = INK["dark"]
+    var color = INK["black"]
     Canvas.cls(color)
     super.draw()
 

@@ -609,6 +609,7 @@ class Element {
 
   z { _z }
   z=(v) { _z = v }
+  top { (_parent ? _parent.top : this) }
   parent { _parent }
   parent=(v) { _parent = v }
   elements { _elements }
