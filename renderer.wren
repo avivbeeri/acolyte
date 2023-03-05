@@ -5,6 +5,55 @@ import "parcel" for
 
 var DEBUG = false
 
+import "./palette" for INK
+
+class LogViewer is Element {
+  construct new(pos, log) {
+    super()
+    _pos = pos
+    _messageLog = log
+    _max = 5
+    _invert = (_pos.y + _max * 12) > (Canvas.height / 2)
+    System.print(_invert)
+  }
+
+  update() {
+    _world = parent.world
+    _messages = _messageLog.history(_max)
+  }
+
+  draw() {
+    var offset = Canvas.offset
+    Canvas.offset(_pos.x,_pos.y)
+
+    var dir = 1
+    var start = 0
+
+    var startLine = 0
+    var endLine = _messages.count
+
+    if (_invert) {
+      var swap = endLine - 1
+      endLine = startLine
+      startLine = swap
+
+      start = _max * 12
+      dir = -1
+    }
+    var line = 0
+    for (i in startLine...endLine) {
+      var message = _messages[i]
+      line = i
+      if (message.count > 1) {
+        Canvas.print("%(message.text) (x%(message.count))", 4, start + dir * 12 * line, message.color)
+      } else {
+        Canvas.print("%(message.text)", 4, start + dir * 12 * line, message.color)
+      }
+    }
+
+    Canvas.offset(offset.x, offset.y)
+  }
+}
 
 class HealthBar is Element {
   construct new(pos, entity) {
@@ -19,12 +68,16 @@ class HealthBar is Element {
 
   draw() {
     var offset = Canvas.offset
+    Canvas.offset(_pos.x,_pos.y)
     var stats = _world.getEntityById(_entity)["stats"]
     var hp = stats.get("hp")
     var hpMax = stats.get("hpMax")
-    Canvas.offset(_pos.x,_pos.y)
+    var width = 10
+    var current = hp / hpMax * width
 
-    Canvas.print("HP: %(hp) / %(hpMax)", 0, 0, Color.lightgray)
+    Canvas.rectfill(0, 0, width * 16, 16, INK["barEmpty"])
+    Canvas.rectfill(0, 0, current * 16, 16, INK["barFilled"])
+    Canvas.print("HP: %(hp) / %(hpMax)", 4, 4, INK["barText"])
 
     Canvas.offset(offset.x, offset.y)
   }
@@ -50,16 +103,16 @@ class AsciiRenderer is Element {
         if (!map[x, y]["visible"]) {
           continue
         }
-        var color = Color.white
+        var color = INK["wall"]
         if (map[x, y]["visible"] == "maybe") {
-          color = Color.darkgray
+          color = INK["obscured"]
         }
         if (DEBUG) {
           if (map[x, y]["seen"]) {
             color = Color.red
           }
           if (map[x, y]["cost"]) {
-            Canvas.rectfill(x * 16, y*16, 16, 16, Color.darkgray)
+            Canvas.rectfill(x * 16, y*16, 16, 16, INK["burgandy"])
             Canvas.print(map[x, y]["cost"], x * 16 + 4, y * 16 + 4, color)
           }
         }

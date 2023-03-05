@@ -633,7 +633,7 @@ class Element {
     element.z = _elements.count
     _elements.add(element)
     element.parent = this
-    _elements.sort {|a, b| a.z > b.z}
+    _elements.sort {|a, b| a.z < b.z}
   }
   removeSelf() {
     if (parent) {

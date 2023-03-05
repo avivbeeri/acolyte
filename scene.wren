@@ -15,12 +15,14 @@ import "parcel" for
   GameEndEvent,
   Palette
 
+import "./messages" for MessageLog
 import "./entities" for Player
 import "./actions" for BumpAction
 import "./systems" for VisionSystem, DefeatSystem
 import "./generator" for Generator
 import "./combat" for AttackEvent
-import "./renderer" for AsciiRenderer, HealthBar
+import "./renderer" for AsciiRenderer, HealthBar, LogViewer
+import "./palette" for INK
 import "./inputs" for
   DIR_INPUTS,
   ESC_INPUT,
@@ -106,6 +108,8 @@ class GameScene is Scene {
   construct new(args) {
     super(args)
     _t = 0
+    _messages = MessageLog.new()
+    _messages.add("Welcome, acolyte, to the catacombs. It's time to decend.", INK["welcomeText"], false)
 
     var world = _world = World.new()
     _world.systems.add(DefeatSystem.new())
@@ -128,6 +132,8 @@ class GameScene is Scene {
     _state = PlayerInputState.new(_world)
     addElement(AsciiRenderer.new(Vec.new(0, 10)))
     addElement(HealthBar.new(Vec.new(0, 0), player.ref))
+    addElement(LogViewer.new(Vec.new(0, 32), _messages))
+    //addElement(LogViewer.new(Vec.new(0, Canvas.height - 12 * 7), _messages))
   }
 
   world { _world }
@@ -158,19 +164,17 @@ class GameScene is Scene {
     _world.advance()
     for (event in _world.events) {
       if (event is GameEndEvent) {
-        Log.i("The game has ended.")
-      }
-      if (event is TurnEvent) {
-        var t = event["turn"]
+        _messages.add("The game has ended", INK["playerDie"], false)
       }
       if (event is AttackEvent) {
-        Log.warn("An attack occurred")
+        _messages.add("An attack occurred", INK["enemyAtk"], true)
       }
     }
   }
 
   draw() {
-    Canvas.cls()
+    var color = INK["dark"]
+    Canvas.cls(color)
     super.draw()
 
     Canvas.print(_name, 0, Canvas.height - 17, Color.white)
