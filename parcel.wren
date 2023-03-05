@@ -128,6 +128,7 @@ class BehaviourEntity is Entity {
     super()
     _behaviours = Stack.new()
   }
+  behaviours { _behaviours }
 
   getAction() {
     // behaviours can push their own actions onto the queue
@@ -777,6 +778,8 @@ class TileMap is Graph {
 
   inBounds(vec) { inBounds(vec.x, vec.y) }
   inBounds(x, y) { !this[x, y]["void"] }
+  isOccupied(vec) { isOccupied(vec.x, vec.y) }
+  isOccupied(x, y) { this[x, y]["occupied"] }
   isSolid(vec) { isSolid(vec.x, vec.y) }
   isSolid(x, y) { !inBounds(x, y) || this[x, y]["solid"] }
   isFloor(vec) { isFloor(vec.x, vec.y) }
@@ -831,6 +834,9 @@ class TileMap8 is TileMap {
     return DIR_EIGHT.map {|dir| pos + dir }.where{|pos| this.inBounds(pos) }.toList
   }
   cost(a, b) {
+    if (isOccupied(b)) {
+      return 10
+    }
     if (a.x == b.x || a.y == b.y) {
       return _cardinal
     }
@@ -934,9 +940,10 @@ class BreadthFirst {
 
     var path = []
     while (!start.contains(current)) {
-      path.add(current)
+      path.insert(0, current)
       current = cameFrom[current]
     }
+    path.insert(0, current)
     for (pos in path) {
       map[pos]["seen"] = true
     }
@@ -982,12 +989,14 @@ class Dijkstra {
 
     var path = []
     while (!start.contains(current)) {
-      path.add(current)
+      path.insert(0, current)
       current = cameFrom[current]
     }
+    path.insert(0, current)
     for (pos in path) {
       map[pos]["seen"] = true
     }
+
     return path
   }
   static map(map, start) {
@@ -1065,9 +1074,10 @@ class AStar {
 
     var path = []
     while (!start.contains(current)) {
-      path.add(current)
+      path.insert(0, current)
       current = cameFrom[current]
     }
+    path.insert(0, current)
     for (pos in path) {
       map[pos]["seen"] = true
     }
@@ -1088,7 +1098,7 @@ class JPS {
     return cardinal * dy + dMinus * dx
   }
 
-  static fastSearch(map, start, goal) {
+  static search(map, start, goal) {
     if (goal == null) {
       Fiber.abort("JPS doesn't work without a goal")
     }
@@ -1096,7 +1106,7 @@ class JPS {
     var cameFrom = HashMap.new()
     var costSoFar = HashMap.new()
     if (start is Sequence) {
-      Fiber.abort("fastSearch doesn't support multiple goals")
+      Fiber.abort("JPS doesn't support multiple goals")
     }
     frontier.add(start, 0)
     cameFrom[start] = null
@@ -1130,9 +1140,9 @@ class JPS {
     return cameFrom
   }
 
-  static buildFastPath(map, start, goal, cameFrom) {
+  static buildPath(map, start, goal, cameFrom) {
     if (!(map is TileMap8)) {
-      Fiber.abort("fast path only works with TileMap8")
+      Fiber.abort("JPS only works with TileMap8")
     }
     var current = goal
     if (!cameFrom) {
@@ -1154,15 +1164,16 @@ class JPS {
 
       var intermediate = current
       while (intermediate != next && intermediate != start) {
-        path.add(intermediate)
+        path.insert(0, intermediate)
         intermediate = intermediate + unit
       }
       current = next
     }
+    path.insert(0, current)
     for (pos in path) {
       map[pos]["seen"] = true
     }
-
+    return path
   }
 }
 

@@ -1,4 +1,4 @@
-import "parcel" for Action, ActionResult, MAX_TURN_SIZE
+import "parcel" for Action, ActionResult, MAX_TURN_SIZE, JPS
 import "./combat" for AttackEvent
 
 class MeleeAttackAction is Action {
@@ -45,7 +45,9 @@ class SimpleMoveAction is Action {
   }
 
   perform() {
+    ctx.zone.map[src.pos]["occupied"] = false
     src.pos = src.pos + _dir
+    ctx.zone.map[src.pos]["occupied"] = true
     return ActionResult.success
   }
 }

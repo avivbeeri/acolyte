@@ -22,6 +22,7 @@ class Damage {
 class AttackResult {
   static success { "success" }
   static blocked { "blocked" }
+  static missed { "missed" }
   static inert { "inert" }
 }
 

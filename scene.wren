@@ -109,6 +109,7 @@ class GameScene is Scene {
     for (entity in zone["entities"]) {
       world.addEntity(entity)
     }
+    zone.data.remove("entities")
     world.addEntity("player", Player.new())
     var player = world.getEntityByTag("player")
     player.pos = zone["start"]

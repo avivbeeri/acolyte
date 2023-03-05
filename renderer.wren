@@ -2,6 +2,9 @@ import "graphics" for Color, Canvas
 import "parcel" for
   Element,
   Palette
+
+var DEBUG = false
+
 class AsciiRenderer is Element {
   construct new(pos) {
     super()
@@ -26,16 +29,18 @@ class AsciiRenderer is Element {
         if (map[x, y]["visible"] == "maybe") {
           color = Color.darkgray
         }
-        if (map[x, y]["seen"]) {
-          color = Color.red
+        if (DEBUG) {
+          if (map[x, y]["seen"]) {
+            color = Color.red
+          }
+          if (map[x, y]["cost"]) {
+            Canvas.rectfill(x * 16, y*16, 16, 16, Color.darkgray)
+            Canvas.print(map[x, y]["cost"], x * 16 + 4, y * 16 + 4, color)
+          }
         }
         if (map[x, y]["void"]) {
         } else if (map[x, y]["solid"]) {
           Canvas.print("#", x * 16 + 4, y * 16 + 4, color)
-        } else if (map[x, y]["cost"]) {
-          Canvas.rectfill(x * 16, y*16, 16, 16, Color.darkgray)
-          Canvas.print(map[x, y]["cost"], x * 16 + 4, y * 16 + 4, color)
-
         } else {
           Canvas.print(".", x * 16 + 4, y * 16 + 4, color)
         }
