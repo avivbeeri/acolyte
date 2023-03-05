@@ -1,5 +1,6 @@
+import "dome" for Process
 import "graphics" for Canvas, Color
-import "input" for Keyboard, Mouse, InputGroup
+import "input" for Keyboard
 import "math" for Vec
 import "parcel" for
   TextInputReader,
@@ -18,17 +19,12 @@ import "./actions" for SimpleMoveAction
 import "./systems" for VisionSystem
 import "./generator" for Generator
 import "./renderer" for AsciiRenderer
+import "./inputs" for
+  DIR_INPUTS,
+  ESC_INPUT,
+  CONFIRM,
+  REJECT
 
-var DIR_INPUTS = [
-  InputGroup.new([Keyboard["up"], Keyboard["k"], Keyboard["keypad 8"], Keyboard["8"]]),
-  InputGroup.new([Keyboard["right"], Keyboard["l"], Keyboard["keypad 6"], Keyboard["6"] ]),
-  InputGroup.new([Keyboard["down"], Keyboard["j"], Keyboard["keypad 2"], Keyboard["2"] ]),
-  InputGroup.new([Keyboard["left"], Keyboard["h"], Keyboard["keypad 4"] , Keyboard["4"]]),
-  InputGroup.new([Keyboard["y"], Keyboard["keypad 7"], Keyboard["7"] ]),
-  InputGroup.new([Keyboard["u"], Keyboard["keypad 9"], Keyboard["9"] ]),
-  InputGroup.new([Keyboard["n"], Keyboard["keypad 3"], Keyboard["3"] ]),
-  InputGroup.new([Keyboard["b"], Keyboard["keypad 1"], Keyboard["1"] ])
-]
 
 class TextComplete is Event {
   construct new(text) {
@@ -78,6 +74,10 @@ class PlayerInputState is State {
 
   update() {
      /* TODO temp */
+    if (ESC_INPUT.firing) {
+      Process.exit()
+      return
+    }
     if (Keyboard["return"].justPressed) {
       return TextInputState.new(_world)
     }
@@ -101,10 +101,13 @@ class GameScene is Scene {
     _t = 0
 
     var world = _world = World.new()
-    var zone = Generator.generate([ 1 ])
+    var zone = Generator.generateDungeon([ 1 ])
     _world.systems.add(VisionSystem.new())
     world.addZone(zone)
     world.addEntity("player", Player.new())
+    var player = world.getEntityByTag("player")
+    player.pos = zone["start"]
+
     // world.addEntity(Entity.new())
     _name = ""
     _currentText = ""

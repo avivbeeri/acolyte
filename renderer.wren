@@ -14,8 +14,7 @@ class AsciiRenderer is Element {
 
   draw() {
     var offset = Canvas.offset
-    Canvas.offset(_pos.x,_pos.y)
-    var player = _world.getEntityByTag("player")
+//    Canvas.offset(_pos.x,_pos.y)
     var map = _world.zone.map
 
     for (y in map.yRange) {
@@ -51,11 +50,7 @@ class AsciiRenderer is Element {
       Canvas.print(symbol, entity.pos.x * 16 + 4, entity.pos.y * 16 + 4, Color.white)
     }
 
-    if (player) {
-      Canvas.print("@", player.pos.x * 16 + 4, player.pos.y * 16 + 4, Color.white)
-    }
-
-    Canvas.offset(offset.x, offset.y)
+ //   Canvas.offset(offset.x, offset.y)
   }
 
 }
