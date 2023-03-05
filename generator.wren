@@ -1,5 +1,6 @@
 import "parcel" for TileMap8, Tile, Zone, Line, RNG, Entity
 import "math" for Vec
+import "./entities" for Rat
 
 class RectangularRoom {
 
@@ -119,8 +120,7 @@ class Generator {
       var pos = Vec.new(x, y )
 
       if (entities.isEmpty || !entities.any{|entity| entity.pos == pos }) {
-        var entity = Entity.new()
-        entity["solid"] = true
+        var entity = Rat.new()
         entity.pos = pos
         entities.add(entity)
       }

@@ -138,6 +138,7 @@ class Modifier {
   }
 }
 
+/*
 class AttackAction is Action {
   construct new(attack, locations) {
     super()
@@ -188,3 +189,4 @@ class AttackAction is Action {
     return ActionResult.success
   }
 }
+*/

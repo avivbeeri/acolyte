@@ -1,4 +1,4 @@
-import "dome" for Process
+import "dome" for Process, Log
 import "graphics" for Canvas, Color
 import "input" for Keyboard
 import "math" for Vec
@@ -15,9 +15,10 @@ import "parcel" for
   Palette
 
 import "./entities" for Player
-import "./actions" for SimpleMoveAction
+import "./actions" for BumpAction
 import "./systems" for VisionSystem
 import "./generator" for Generator
+import "./combat" for AttackEvent
 import "./renderer" for AsciiRenderer
 import "./inputs" for
   DIR_INPUTS,
@@ -86,7 +87,7 @@ class PlayerInputState is State {
     var i = 0
     for (input in DIR_INPUTS) {
       if (input.firing) {
-        player.pushAction(SimpleMoveAction.new(DIR_EIGHT[i]))
+        player.pushAction(BumpAction.new(DIR_EIGHT[i]))
       }
       i = i + 1
     }
@@ -149,6 +150,9 @@ class GameScene is Scene {
     for (event in _world.events) {
       if (event is TurnEvent) {
         var t = event["turn"]
+      }
+      if (event is AttackEvent) {
+        Log.warn("An attack occurred")
       }
     }
   }

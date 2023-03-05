@@ -21,3 +21,10 @@ class Player is Entity {
   }
 }
 
+class Rat is Entity {
+ construct new() {
+    super()
+    this["symbol"] = "r"
+    this["solid"] = true
+  }
+}
