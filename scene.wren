@@ -21,7 +21,7 @@ import "./actions" for BumpAction
 import "./systems" for VisionSystem, DefeatSystem
 import "./generator" for Generator
 import "./combat" for AttackEvent
-import "./renderer" for AsciiRenderer, HealthBar, LogViewer
+import "./renderer" for AsciiRenderer, HealthBar, LogViewer, HoverText
 import "./palette" for INK
 import "./inputs" for
   DIR_INPUTS,
@@ -133,10 +133,12 @@ class GameScene is Scene {
     addElement(AsciiRenderer.new(Vec.new(0, 10)))
     addElement(HealthBar.new(Vec.new(0, 0), player.ref))
     addElement(LogViewer.new(Vec.new(0, 32), _messages))
+    addElement(HoverText.new(Vec.new(Canvas.width - 64, 0)))
     //addElement(LogViewer.new(Vec.new(0, Canvas.height - 12 * 7), _messages))
   }
 
   world { _world }
+  events { _state.events }
 
   update() {
     super.update()

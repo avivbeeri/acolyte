@@ -79,4 +79,5 @@ class Rat is BehaviourEntity {
 
     behaviours.add(SeekBehaviour.new())
   }
+  name { "Rat" }
 }

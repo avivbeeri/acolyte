@@ -1,11 +1,42 @@
 import "graphics" for Color, Canvas
+import "input" for Mouse
 import "parcel" for
   Element,
+  Event,
   Palette
 
 var DEBUG = false
 
 import "./palette" for INK
+class HoverText is Element {
+  construct new(pos) {
+    super()
+    _pos = pos
+    _text = ""
+  }
+
+  update() {
+    _world = parent.world
+  }
+
+  process(event) {
+    if (event is HoverEvent) {
+      _text = event.entity ? event.entity.name : ""
+    }
+    super.process(event)
+  }
+
+  draw() {
+    var offset = Canvas.offset
+    Canvas.offset(_pos.x,_pos.y)
+    if (_text) {
+      Canvas.print(_text, 0, 0, INK["text"])
+    }
+
+    Canvas.offset(offset.x, offset.y)
+  }
+}
+
 
 class LogViewer is Element {
   construct new(pos, log) {
@@ -14,7 +45,6 @@ class LogViewer is Element {
     _messageLog = log
     _max = 5
     _invert = (_pos.y + _max * 12) > (Canvas.height / 2)
-    System.print(_invert)
   }
 
   update() {
@@ -83,6 +113,14 @@ class HealthBar is Element {
   }
 }
 
+class HoverEvent is Event {
+  construct new(entity) {
+    super()
+    _src = entity
+  }
+  entity { _src }
+}
+
 class AsciiRenderer is Element {
   construct new(pos) {
     super()
@@ -91,6 +129,23 @@ class AsciiRenderer is Element {
 
   update() {
     _world = parent.world
+    var hover = (Mouse.pos - _pos) / 16
+    hover.x = hover.x.floor
+    hover.y = hover.y.floor
+
+    var found = false
+    for (entity in _world.entities()) {
+      if (entity.pos == null) {
+        continue
+      }
+      if (hover == entity.pos) {
+        found = true
+        parent.process(HoverEvent.new(entity))
+      }
+    }
+    if (!found) {
+      parent.process(HoverEvent.new(null))
+    }
   }
 
   draw() {
