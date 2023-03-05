@@ -20,7 +20,7 @@ class VisionSystem is GameSystem {
         }
       }
     }
-    Vision2.new(map, player.pos).compute()
+    Vision2.new(map, player.pos, 8).compute()
     // search(map, player.pos)
   }
 

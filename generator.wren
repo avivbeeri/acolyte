@@ -88,15 +88,17 @@ class Generator {
         })
       }
       if (rooms.count > 0) {
-        var target = rooms[-1]
-        if (rooms.count > 3 && i == maxRooms - 1) {
-          target = rooms[-3]
-        }
-        Generator.tunnelBetween(map, room.center, target.center)
+        Generator.tunnelBetween(map, room.center, rooms[-1].center)
       } else {
         zone["start"] = room.center
       }
       rooms.add(room)
+    }
+    // Add a cycle
+    if (rooms.count > 3) {
+      var start = RNG.int(0, rooms.count - 3)
+      var end = start + 3
+      Generator.tunnelBetween(map, rooms[start].center, rooms[end].center)
     }
 
     return zone
