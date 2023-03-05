@@ -1,5 +1,5 @@
 import "parcel" for Action, ActionResult, MAX_TURN_SIZE, JPS
-import "./combat" for AttackEvent
+import "./combat" for AttackEvent, Damage, DefeatEvent
 
 class MeleeAttackAction is Action {
   construct new(dir) {
@@ -21,7 +21,16 @@ class MeleeAttackAction is Action {
     var targetPos = src.pos + _dir
     var targets = ctx.getEntitiesAtPosition(targetPos)
     for (target in targets) {
+      var atk = src["stats"].get("str")
+      var def = target["stats"].get("dex")
+      var damage = Damage.calculate(atk, def)
+      target["stats"].decrease("hp", damage)
       ctx.addEvent(AttackEvent.new())
+      if (target["stats"].get("hp") <= 0) {
+        ctx.addEvent(DefeatEvent.new(target))
+        // TODO remove entity elsewhere?
+        ctx.removeEntity(target)
+      }
     }
 
     return ActionResult.success

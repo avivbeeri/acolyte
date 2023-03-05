@@ -36,8 +36,8 @@ class Behaviour is GameSystem {
   }
   pathTo(ctx, start, end) {
     var map = ctx.zone.map
-    var path = AStar.search(map, start, end)
-    //var path = JPS.buildPath(map, start, end, search)
+    var search = JPS.search(map, start, end)
+    var path = JPS.buildPath(map, start, end, search)
     return path
   }
 }
@@ -49,8 +49,10 @@ class SeekBehaviour is Behaviour {
   update(ctx, actor) {
 
     var player = ctx.getEntityByTag("player")
+    if (!player) {
+      return false
+    }
     var path = pathTo(ctx, actor.pos, player.pos)
-    System.print("%(actor) %(actor.pos) %(path)")
     if (path == null || path.count < 2) {
       return false
     }
@@ -58,11 +60,6 @@ class SeekBehaviour is Behaviour {
     var dir = next - actor.pos
     var dx = M.mid(-1, dir.x, 1)
     var dy = M.mid(-1, dir.y, 1)
-    if (dir.length == 0) {
-      System.print(path)
-      Fiber.abort("zero")
-    }
-    System.print("%(dx), %(dy)")
     actor.pushAction(BumpAction.new(Vec.new(dx, dy)))
     return true
   }

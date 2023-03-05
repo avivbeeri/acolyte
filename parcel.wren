@@ -484,7 +484,7 @@ class World is Stateful {
     // remove all tags for entity
     var entityTags = []
     for (tag in _tagged.keys) {
-      if (_tagged[tag].id == id) {
+      if (_tagged[tag] == id) {
         entityTags.add(tag)
         break
       }
@@ -505,6 +505,10 @@ class World is Stateful {
     if (!_started) {
       Fiber.abort("Attempting to advance the world before start() has been called")
     }
+    if (complete) {
+      events.clear()
+      return
+    }
     var actor = null
     var actorId
     var turn
@@ -513,6 +517,9 @@ class World is Stateful {
       turn = _queue.peekPriority()
       actorId = _queue.remove()
       actor = getEntityById(actorId)
+      if (actor.state < 2) {
+        actor = null
+      }
     }
     if (actor == null) {
       // No actors, no actions to perform
@@ -553,7 +560,7 @@ class World is Stateful {
     result = action.perform()
     actor.endTurn()
     actor.lastTurn = turn
-    if (actor.pos == null || actor.zone == _zoneIndex) {
+    if (actor.state != 2 || actor.pos == null || actor.zone == _zoneIndex) {
       Log.d("%(actor): next turn is  %(turn + action.cost())")
       _queue.add(actorId, turn + action.cost())
     }

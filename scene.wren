@@ -12,11 +12,12 @@ import "parcel" for
   Event,
   Tile,
   TurnEvent,
+  GameEndEvent,
   Palette
 
 import "./entities" for Player
 import "./actions" for BumpAction
-import "./systems" for VisionSystem
+import "./systems" for VisionSystem, DefeatSystem
 import "./generator" for Generator
 import "./combat" for AttackEvent
 import "./renderer" for AsciiRenderer
@@ -83,6 +84,10 @@ class PlayerInputState is State {
       return TextInputState.new(_world)
     }
 
+    if (_world.complete) {
+      return this
+    }
+
     var player = _world.getEntityByTag("player")
     var i = 0
     for (input in DIR_INPUTS) {
@@ -102,6 +107,7 @@ class GameScene is Scene {
     _t = 0
 
     var world = _world = World.new()
+    _world.systems.add(DefeatSystem.new())
     _world.systems.add(VisionSystem.new())
 
     var zone = Generator.generateDungeon([ 1 ])
@@ -149,6 +155,9 @@ class GameScene is Scene {
 
     _world.advance()
     for (event in _world.events) {
+      if (event is GameEndEvent) {
+        Log.i("The game has ended.")
+      }
       if (event is TurnEvent) {
         var t = event["turn"]
       }

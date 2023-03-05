@@ -1,6 +1,16 @@
 import "fov" for Vision, Vision2
-import "parcel" for GameSystem, JPS
+import "parcel" for GameSystem, JPS, GameEndEvent
 
+class DefeatSystem is GameSystem {
+  construct new() { super() }
+  postUpdate(ctx, actor) {
+    var player = ctx.getEntityByTag("player")
+    if (!player) {
+      ctx.complete = true
+      ctx.addEvent(GameEndEvent.new())
+    }
+  }
+}
 class VisionSystem is GameSystem {
   construct new() { super() }
   postUpdate(ctx, actor) {
