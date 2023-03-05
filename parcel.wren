@@ -184,6 +184,10 @@ class EntityRemovedEvent is EntityEvent {
 
 
 class State is Stateful {
+  construct new() {
+    _events = Queue.new()
+  }
+  events { _events }
   onEnter() {}
   update() { this }
   onExit() {}
