@@ -100,18 +100,18 @@ class GameScene is Scene {
     super(args)
     _t = 0
 
-    addElement(AsciiRenderer.new(Vec.new(50, 0)))
     var world = _world = World.new()
     var zone = Generator.generate([ 1 ])
     _world.systems.add(VisionSystem.new())
     world.addZone(zone)
     world.addEntity("player", Player.new())
-    world.addEntity(Entity.new())
+    // world.addEntity(Entity.new())
     _name = ""
     _currentText = ""
 
     world.start()
     _state = PlayerInputState.new(_world)
+    addElement(AsciiRenderer.new(Vec.new(50, 0)))
   }
 
   world { _world }

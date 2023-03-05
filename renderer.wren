@@ -43,6 +43,14 @@ class AsciiRenderer is Element {
       }
     }
 
+    for (entity in _world.entities()) {
+      if (!entity.pos) {
+        continue
+      }
+      var symbol = entity["symbol"] || entity.name[0] || "?"
+      Canvas.print(symbol, entity.pos.x * 16 + 4, entity.pos.y * 16 + 4, Color.white)
+    }
+
     if (player) {
       Canvas.print("@", player.pos.x * 16 + 4, player.pos.y * 16 + 4, Color.white)
     }

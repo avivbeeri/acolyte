@@ -118,7 +118,7 @@ class Entity is Stateful {
   }
 
   name { data["name"] }
-  toString { name ? name : "%(this.type.name) (id: %(_id))" }
+  toString { name ? name : "%(this.type.name) (id: %(id))" }
 
   ref { EntityRef.new(ctx, entity.id) }
 }
