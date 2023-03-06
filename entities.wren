@@ -35,7 +35,7 @@ class Behaviour is GameSystem {
     super()
   }
   pathTo(ctx, start, end) {
-    var map = ctx.zone.map
+    var map = ctx.zone
     var search = JPS.search(map, start, end)
     var path = JPS.buildPath(map, start, end, search)
     return path

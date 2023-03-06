@@ -353,6 +353,13 @@ class Zone is Stateful {
     out["map"] = _map.serialize()
     return out
   }
+
+  cost(a, b) {
+    if (ctx.getEntitiesAtPosition(b).isEmpty) {
+      return _map.cost(a, b)
+    }
+    return 10
+  }
 }
 
 class World is Stateful {
@@ -792,8 +799,6 @@ class TileMap is Graph {
 
   inBounds(vec) { inBounds(vec.x, vec.y) }
   inBounds(x, y) { !this[x, y]["void"] }
-  isOccupied(vec) { isOccupied(vec.x, vec.y) }
-  isOccupied(x, y) { this[x, y]["occupied"] }
   isSolid(vec) { isSolid(vec.x, vec.y) }
   isSolid(x, y) { !inBounds(x, y) || this[x, y]["solid"] }
   isFloor(vec) { isFloor(vec.x, vec.y) }
@@ -848,9 +853,6 @@ class TileMap8 is TileMap {
     return DIR_EIGHT.map {|dir| pos + dir }.where{|pos| this.inBounds(pos) }.toList
   }
   cost(a, b) {
-    if (isOccupied(b)) {
-      return 10
-    }
     if (a.x == b.x || a.y == b.y) {
       return _cardinal
     }
@@ -1112,7 +1114,14 @@ class JPS {
     return cardinal * dy + dMinus * dx
   }
 
-  static search(map, start, goal) {
+  static search(zone, start, goal) {
+    var map
+    if (zone is TileMap) {
+      map = zone
+    } else if (zone is Zone) {
+      map = zone.map
+    }
+
     if (goal == null) {
       Fiber.abort("JPS doesn't work without a goal")
     }
@@ -1141,7 +1150,7 @@ class JPS {
 
         // Add the distance too as current and next aren't always
         // adjacent
-        var newCost = currentCost + map.cost(current, jump) + Line.chebychev(current, jump)
+        var newCost = currentCost + zone.cost(current, jump) + Line.chebychev(current, jump)
         if (!costSoFar.containsKey(jump) || newCost < costSoFar[jump]) {
           map[jump]["cost"] = newCost
           var priority = newCost + JPS.octileHeuristic(jump, goal, 1, 1)
@@ -1154,8 +1163,14 @@ class JPS {
     return cameFrom
   }
 
-  static buildPath(map, start, goal, cameFrom) {
-    if (!(map is TileMap8)) {
+  static buildPath(zone, start, goal, cameFrom) {
+    var map
+    if (zone is TileMap) {
+      map = zone
+    } else if (zone is Zone) {
+      map = zone.map
+    }
+    if (!(map is TileMap8) && !(map is Zone && map.map is TileMap8)) {
       Fiber.abort("JPS only works with TileMap8")
     }
     var current = goal
