@@ -21,7 +21,8 @@ import "./actions" for BumpAction, RestAction
 import "./events" for RestEvent
 import "./systems" for VisionSystem, DefeatSystem
 import "./generator" for Generator
-import "./combat" for AttackEvent
+import "./combat" for AttackEvent, DefeatEvent, HealEvent
+import "./items" for ItemAction, HealthPotion
 import "./renderer" for
   AsciiRenderer,
   HealthBar,
@@ -135,6 +136,9 @@ class PlayerInputState is State {
     if (REST_INPUT.firing) {
       player.pushAction(RestAction.new())
     }
+    if (Keyboard["q"].justPressed) {
+      player.pushAction(ItemAction.new(HealthPotion.new()))
+    }
 
     return this
   }
@@ -207,6 +211,12 @@ class GameScene is Scene {
       }
       if (event is AttackEvent) {
         _messages.add("An attack occurred", INK["enemyAtk"], false)
+      }
+      if (event is DefeatEvent) {
+        _messages.add("%(event.target) was defeated.", INK["text"], false)
+      }
+      if (event is HealEvent) {
+        _messages.add("%(event.target) was healed for %(event.amount)", INK["healthRecovered"], false)
       }
       if (event is RestEvent) {
         _messages.add("%(event.src) rests.", INK["text"], false)

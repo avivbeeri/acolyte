@@ -22,15 +22,15 @@ class MessageLog {
   count { _messages.count }
   add(text, color, stack) {
     if (stack && _messages.count > 0) {
-      var last = _messages[0]
-      if (last.text == text) {
-        last.stack()
+      var first = _messages[0]
+      if (first.text == text) {
+        first.stack()
         return
       }
     }
 
     _messages.insert(0, Message.new(text, color))
-    Log.i(text)
+    Log.w(text)
   }
 
   history(start, length) {

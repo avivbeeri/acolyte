@@ -1,12 +1,22 @@
 import "parcel" for Action, ActionResult, Event
 import "math" for M
 
+class HealEvent is Event {
+  construct new(entity, amount) {
+    super()
+    _src = entity
+    _amount = amount
+  }
+  target { _src }
+  amount { _amount }
+}
+
 class DefeatEvent is Event {
   construct new(entity) {
     super()
     _src = entity
   }
-  src { _src }
+  target { _src }
 }
 class AttackEvent is Event {
   construct new() { super() }

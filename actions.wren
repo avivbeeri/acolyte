@@ -1,5 +1,5 @@
 import "parcel" for Action, ActionResult, MAX_TURN_SIZE, JPS
-import "./combat" for AttackEvent, Damage, DefeatEvent
+import "./combat" for AttackEvent, Damage, DefeatEvent, HealEvent
 import "./events" for RestEvent
 
 class RestAction is Action {
@@ -16,6 +16,34 @@ class RestAction is Action {
   }
 }
 
+class HealAction is Action {
+  construct new(target, amount) {
+    super()
+    _target = target
+    _amount = amount
+  }
+  target { _target || src }
+  evaluate() {
+    // Check if it's sensible to heal?
+    var hpMax = target["stats"].get("hpMax")
+    var hp = target["stats"].get("hp")
+    if (hpMax == hp) {
+      return ActionResult.invalid
+    }
+
+    return ActionResult.valid
+  }
+
+  perform() {
+    var hpMax = target["stats"].get("hpMax")
+    var hp = target["stats"].get("hp")
+    var amount = _amount.min(hpMax - hp)
+    target["stats"].increase("hp", amount)
+    ctx.addEvent(HealEvent.new(target, amount))
+
+    return ActionResult.success
+  }
+}
 class MeleeAttackAction is Action {
   construct new(dir) {
     super()

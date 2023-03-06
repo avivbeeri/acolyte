@@ -133,16 +133,6 @@ class LogViewer is Element {
     var startLine = 0
     var endLine = _messages.count
 
-/*
-    if (_invert) {
-      var swap = endLine - 1
-      endLine = startLine
-      startLine = swap
-
-      start = _max * 12
-      dir = -1
-    }
-    */
     var line = 0
     var width = Canvas.width
     var glyphWidth = 8
@@ -161,7 +151,7 @@ class LogViewer is Element {
           line = line + 1
         }
         var y = start + dir * lineHeight * line
-        if (y <= 0 && y + lineHeight <= Canvas.height) {
+        if (y >= 0 && y + lineHeight <= Canvas.height) {
           Canvas.print(word, x * glyphWidth, start + dir * lineHeight * line, message.color)
         } else {
           break
