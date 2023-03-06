@@ -11,7 +11,12 @@ var DIR_INPUTS = [
   InputGroup.new([Keyboard["b"], Keyboard["keypad 1"], Keyboard["1"] ])
 ]
 
+var SCROLL_UP = InputGroup.new([ Keyboard["up"], Keyboard["page up"], Keyboard["k"] ])
+var SCROLL_DOWN = InputGroup.new([ Keyboard["down"], Keyboard["page down"], Keyboard["j"]] )
+var SCROLL_BEGIN = InputGroup.new(Keyboard["home"])
+var SCROLL_END = InputGroup.new(Keyboard["end"])
 var ESC_INPUT = InputGroup.new(Keyboard["escape"])
 var OPEN_LOG = InputGroup.new(Keyboard["v"])
 var CONFIRM = InputGroup.new(Keyboard["return"])
 var REJECT = InputGroup.new(Keyboard["escape"])
+var REST_INPUT = InputGroup.new([Keyboard["space"], Keyboard["."], Keyboard["keypad ."]])

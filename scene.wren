@@ -17,7 +17,8 @@ import "parcel" for
 
 import "./messages" for MessageLog
 import "./entities" for Player
-import "./actions" for BumpAction
+import "./actions" for BumpAction, RestAction
+import "./events" for RestEvent
 import "./systems" for VisionSystem, DefeatSystem
 import "./generator" for Generator
 import "./combat" for AttackEvent
@@ -31,6 +32,7 @@ import "./palette" for INK
 import "./inputs" for
   OPEN_LOG,
   DIR_INPUTS,
+  REST_INPUT,
   ESC_INPUT,
   CONFIRM,
   REJECT
@@ -130,6 +132,9 @@ class PlayerInputState is State {
       }
       i = i + 1
     }
+    if (REST_INPUT.firing) {
+      player.pushAction(RestAction.new())
+    }
 
     return this
   }
@@ -202,6 +207,9 @@ class GameScene is Scene {
       }
       if (event is AttackEvent) {
         _messages.add("An attack occurred", INK["enemyAtk"], false)
+      }
+      if (event is RestEvent) {
+        _messages.add("%(event.src) rests.", INK["text"], false)
       }
     }
   }

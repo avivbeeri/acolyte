@@ -19,22 +19,28 @@ class MessageLog {
   construct new() {
     _messages = []
   }
+  count { _messages.count }
   add(text, color, stack) {
     if (stack && _messages.count > 0) {
-      var last = _messages[-1]
+      var last = _messages[0]
       if (last.text == text) {
         last.stack()
         return
       }
     }
 
-    _messages.add(Message.new(text, color))
+    _messages.insert(0, Message.new(text, color))
     Log.i(text)
   }
 
-  history(count) {
-    count = count.min(_messages.count)
-    return _messages[(-count)..-1]
+  history(start, length) {
+    start = start.clamp(0, _messages.count)
+    var end = (start + length).clamp(0, _messages.count)
+    return _messages[start...end]
+  }
+  previous(count) {
+    count = count.clamp(0, _messages.count)
+    return _messages[0...count]
   }
 
 }

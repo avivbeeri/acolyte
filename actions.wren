@@ -1,5 +1,20 @@
 import "parcel" for Action, ActionResult, MAX_TURN_SIZE, JPS
 import "./combat" for AttackEvent, Damage, DefeatEvent
+import "./events" for RestEvent
+
+class RestAction is Action {
+  construct new() {
+    super()
+  }
+  evaluate() {
+    return ActionResult.valid
+  }
+
+  perform() {
+    ctx.addEvent(RestEvent.new(src))
+    return ActionResult.success
+  }
+}
 
 class MeleeAttackAction is Action {
   construct new(dir) {

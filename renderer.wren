@@ -1,14 +1,17 @@
 import "graphics" for Color, Canvas
 import "math" for Vec
 import "input" for Mouse
-import "parcel" for
+import "./parcel" for
   Element,
   Event,
   Palette
+import "./palette" for INK
+
+import "./inputs" for SCROLL_UP, SCROLL_DOWN, SCROLL_BEGIN, SCROLL_END
+
 
 var DEBUG = false
 
-import "./palette" for INK
 class HoverText is Element {
   construct new(pos) {
     super()
@@ -38,12 +41,43 @@ class HoverText is Element {
   }
 }
 
+class ScrollEvent is Event {
+  construct new(start) {
+    super()
+    _start = start
+  }
+  start { _start }
+}
+
 class HistoryViewer is Element {
   construct new(pos, size, log) {
     super()
     _pos = pos
     _size = size
-    addElement(LogViewer.new(pos + Vec.new(4, 4), log, (size.y / 12).floor))
+    _scroll = 0
+    _log = log
+    _height = (size.y / 12).floor
+    _viewer = addElement(LogViewer.new(pos + Vec.new(4, 4), log, _height))
+    _viewer.full = true
+  }
+
+  update() {
+    if (SCROLL_BEGIN.firing) {
+      _scroll = 0
+    }
+    if (SCROLL_END.firing) {
+      _scroll = _log.count - 1
+    }
+    if (SCROLL_UP.firing) {
+      _scroll = _scroll - 1
+    }
+    if (SCROLL_DOWN.firing) {
+      _scroll = _scroll + 1
+    }
+    _scroll = _scroll.clamp(0, _log.count - _height)
+    _viewer.start = _scroll
+    super.update()
+    _scroll = _viewer.start
   }
   draw() {
     Canvas.rectfill(_pos.x, _pos.y, _size.x, _size.y, INK["bg"])
@@ -63,16 +97,30 @@ class LogViewer is Element {
   }
 
   init(pos, log, size)  {
+    _full = false
     _pos = pos
     _messageLog = log
     _max = size
+    _start = 0
     _invert = (_pos.y + _max * 12) > (Canvas.height / 2)
-    _messages = _messageLog.history(_max) || []
+    _messages = _messageLog.previous(_max) || []
   }
 
+  start { _start }
+  start=(v) { _start = v }
+  full=(v) { _full = v }
+  full { _full }
+
   update() {
-    _world = top.world
-    _messages = _messageLog.history(_max) || []
+    _start = _start.clamp(0, _messageLog.count - _max)
+    if (_messageLog.count < _max) {
+      _start = 0
+    }
+    if (_full) {
+      _messages = _messageLog.history(_start, _max) || []
+    } else {
+      _messages = _messageLog.previous(_max) || []
+    }
   }
 
   draw() {

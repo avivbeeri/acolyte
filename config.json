@@ -1,4 +1,5 @@
 {
   "title": "Acolyte's Pledge",
-  "logLevel": "info"
+  "logLevel": "info",
+  "version": "0.0.1"
 }
