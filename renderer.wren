@@ -143,13 +143,34 @@ class LogViewer is Element {
       dir = -1
     }
     */
+    var line = 0
+    var width = Canvas.width
+    var glyphWidth = 8
+    var lineHeight = 12
     for (i in startLine...endLine) {
       var message = _messages[i]
+      var x = 0
+      var text = message.text
       if (message.count > 1) {
-        Canvas.print("%(message.text) (x%(message.count))", 4, start + dir * 12 * i, message.color)
-      } else {
-        Canvas.print("%(message.text)", 4, start + dir * 12 * i, message.color)
+        text = "%(text) (x%(message.count))"
       }
+      var words = text.split(" ")
+      for (word in words) {
+        if (width - x * glyphWidth < word.count * glyphWidth) {
+          x = 0
+          line = line + 1
+        }
+        var y = start + dir * lineHeight * line
+        if (y <= 0 && y + lineHeight <= Canvas.height) {
+          Canvas.print(word, x * glyphWidth, start + dir * lineHeight * line, message.color)
+        } else {
+          break
+        }
+        x = x + (word.count + 1)
+      }
+
+      line = line + 1
+      x = 0
     }
 
     Canvas.offset(offset.x, offset.y)
