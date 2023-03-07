@@ -9,6 +9,7 @@ INK.addColor("purple", Color.hex("#4f3a54"))
 INK.addColor("dark", Color.hex("#1b0326"))
 
 INK.addColor("red", Color.hex("#9c173b"))
+INK.addColor("gold", Color.hex("#f5b713"))
 INK.addColor("burgandy", Color.hex("#450327"))
 
 INK.setPurpose("white", "white")
@@ -28,4 +29,5 @@ INK.setPurpose("invalid", "burgandy")
 INK.setPurpose("impossible", "lilac")
 INK.setPurpose("error", "red")
 INK.setPurpose("healthRecovered", "white")
+INK.setPurpose("treasure", "gold")
 

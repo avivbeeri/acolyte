@@ -4,8 +4,10 @@ import "input" for Mouse
 import "./parcel" for
   Element,
   Event,
+  Entity,
   Palette
 import "./palette" for INK
+import "./items" for Item
 
 import "./inputs" for SCROLL_UP, SCROLL_DOWN, SCROLL_BEGIN, SCROLL_END
 
@@ -16,6 +18,7 @@ class HoverText is Element {
   construct new(pos) {
     super()
     _pos = pos
+    _align = "right"
     _text = ""
   }
 
@@ -25,7 +28,15 @@ class HoverText is Element {
 
   process(event) {
     if (event is HoverEvent) {
-      _text = event.entity ? event.entity.name : ""
+      if (event.target && event.target is Entity) {
+        _text = event.target.name
+      } else if (event.target is Item) {
+        _text = event.target.name
+      } else if (event.target is String) {
+        _text = event.target
+      } else {
+        _text = ""
+      }
     }
     super.process(event)
   }
@@ -33,8 +44,13 @@ class HoverText is Element {
   draw() {
     var offset = Canvas.offset
     Canvas.offset(_pos.x,_pos.y)
+
+    var start = 0
+    if (_align == "right") {
+      start = - (_text.count * 8)
+    }
     if (_text) {
-      Canvas.print(_text, 0, 0, INK["text"])
+      Canvas.print(_text, start, 0, INK["text"])
     }
 
     Canvas.offset(offset.x, offset.y)
@@ -86,6 +102,58 @@ class HistoryViewer is Element {
   }
 }
 
+class LineViewer is Element {
+  construct new(pos, log, size, lines) {
+    super()
+    _pos = pos
+    _messageLog = log
+    _max = size
+    _lines = lines
+  }
+
+  draw() {
+    var offset = Canvas.offset
+    Canvas.offset(_pos.x,_pos.y)
+
+    var dir = 1
+    var start = 0
+
+    var startLine = 0
+    var endLine = _lines.count
+
+    var line = 0
+    var width = Canvas.width
+    var glyphWidth = 8
+    var lineHeight = 12
+    for (i in startLine...endLine) {
+      var message = _lines[i]
+      var x = 0
+      var text = message.text
+      if (message.count > 1) {
+        text = "%(text) (x%(message.count))"
+      }
+      var words = text.split(" ")
+      for (word in words) {
+        if (width - x * glyphWidth < word.count * glyphWidth) {
+          x = 0
+          line = line + 1
+        }
+        var y = start + dir * lineHeight * line
+        if (y >= 0 && y + lineHeight <= Canvas.height) {
+          Canvas.print(word, x * glyphWidth, start + dir * lineHeight * line, message.color)
+        } else {
+          break
+        }
+        x = x + (word.count + 1)
+      }
+
+      line = line + 1
+      x = 0
+    }
+
+    Canvas.offset(offset.x, offset.y)
+  }
+}
 class LogViewer is Element {
   construct new(pos, log) {
     super()
@@ -102,7 +170,6 @@ class LogViewer is Element {
     _messageLog = log
     _max = size
     _start = 0
-    _invert = (_pos.y + _max * 12) > (Canvas.height / 2)
     _messages = _messageLog.previous(_max) || []
   }
 
@@ -196,11 +263,11 @@ class HealthBar is Element {
 }
 
 class HoverEvent is Event {
-  construct new(entity) {
+  construct new(target) {
     super()
-    _src = entity
+    _src = target
   }
-  entity { _src }
+  target { _src }
 }
 
 class AsciiRenderer is Element {
@@ -215,7 +282,8 @@ class AsciiRenderer is Element {
     hover.x = hover.x.floor
     hover.y = hover.y.floor
     var found = false
-    if (_world.zone.map[hover]["visible"] == true) {
+    var tile = _world.zone.map[hover]
+    if (tile["visible"] == true) {
       for (entity in _world.entities()) {
         if (entity.pos == null) {
           continue
@@ -224,6 +292,12 @@ class AsciiRenderer is Element {
           found = true
           top.process(HoverEvent.new(entity))
         }
+      }
+      if (!found && tile["items"] && !tile["items"].isEmpty) {
+        found = true
+        var itemId = tile["items"][0].id
+        var item = _world["items"][itemId]
+        top.process(HoverEvent.new(item))
       }
     }
     if (!found) {
@@ -258,7 +332,14 @@ class AsciiRenderer is Element {
         } else if (map[x, y]["solid"]) {
           Canvas.print("#", x * 16 + 4, y * 16 + 4, color)
         } else {
-          Canvas.print(".", x * 16 + 4, y * 16 + 4, color)
+          var items = map[x, y]["items"]
+          if (items && items.count > 0) {
+            if (items[0].id == "potion") {
+              Canvas.print("!", x * 16 + 4, y * 16 + 4, INK["treasure"])
+            }
+          } else {
+            Canvas.print(".", x * 16 + 4, y * 16 + 4, color)
+          }
         }
       }
     }

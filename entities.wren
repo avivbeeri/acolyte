@@ -1,13 +1,17 @@
-import "parcel" for Entity, BehaviourEntity, GameSystem, JPS,  AStar
+import "parcel" for Entity, BehaviourEntity, GameSystem, JPS, Stateful
 import "math" for Vec, M
 import "combat" for StatGroup
 import "actions" for BumpAction
+import "items" for InventoryEntry
 
 class Player is Entity {
   construct new() {
     super()
     this["symbol"] = "@"
     this["solid"] = true
+    this["inventory"] = [
+      InventoryEntry.new("potion", 1)
+    ]
     this["stats"] =  StatGroup.new({
       "hpMax": 5,
       "hp": 5,

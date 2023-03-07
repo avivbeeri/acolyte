@@ -1,6 +1,15 @@
 import "fov" for Vision, Vision2
 import "parcel" for GameSystem, JPS, GameEndEvent
 
+class InventorySystem is GameSystem {
+  construct new() { super() }
+  postUpdate(ctx, actor) {
+    if (actor.has("inventory")) {
+      actor["inventory"] = actor["inventory"].where {|entry| entry.qty > 0 }.toList
+    }
+  }
+}
+
 class DefeatSystem is GameSystem {
   construct new() { super() }
   postUpdate(ctx, actor) {

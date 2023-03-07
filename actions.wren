@@ -97,12 +97,11 @@ class SimpleMoveAction is Action {
   }
 
   perform() {
-    ctx.zone.map[src.pos]["occupied"] = false
     src.pos = src.pos + _dir
-    ctx.zone.map[src.pos]["occupied"] = true
     return ActionResult.success
   }
 }
+
 
 class BumpAction is Action {
   construct new(dir) {

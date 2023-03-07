@@ -1,6 +1,7 @@
 import "parcel" for TileMap8, Tile, Zone, Line, RNG, Entity
 import "math" for Vec
 import "./entities" for Rat
+import "./items" for InventoryEntry
 
 class RectangularRoom {
 
@@ -58,6 +59,7 @@ class Generator {
     var minSize = 5
     var maxSize = 10
     var monstersPerRoom = 2
+    var itemsPerRoom = 1
 
     var map = TileMap8.new()
     var level = args[0]
@@ -97,7 +99,7 @@ class Generator {
       }
       rooms.add(room)
 
-      Generator.placeEntities(zone, room, monstersPerRoom)
+      Generator.placeEntities(zone, room, monstersPerRoom, itemsPerRoom)
     }
     // Add a cycle
     if (rooms.count > 3) {
@@ -106,12 +108,11 @@ class Generator {
       Generator.tunnelBetween(map, rooms[start].center, rooms[end].center)
     }
 
-
-
     return zone
   }
-  static placeEntities(zone, room, maxMonsters) {
+  static placeEntities(zone, room, maxMonsters, maxItems) {
     var totalMonsters = RNG.int(maxMonsters + 1)
+    var totalItems = RNG.int(maxItems + 1)
     var entities = zone["entities"]
     for (i in 0...totalMonsters) {
       var x = RNG.int(room.p0.x + 1, room.p1.x - 1)
@@ -123,6 +124,16 @@ class Generator {
         var entity = Rat.new()
         entity.pos = pos
         entities.add(entity)
+      }
+    }
+    for (i in 0...totalItems) {
+      var x = RNG.int(room.p0.x + 1, room.p1.x - 1)
+      var y = RNG.int(room.p0.y + 1, room.p1.y - 1)
+
+      var pos = Vec.new(x, y)
+
+      if (entities.isEmpty || !entities.any{|entity| entity.pos == pos }) {
+        zone.map[pos]["items"] = [ InventoryEntry.new("potion", 1) ]
       }
     }
   }

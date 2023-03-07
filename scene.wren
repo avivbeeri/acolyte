@@ -18,11 +18,11 @@ import "parcel" for
 import "./messages" for MessageLog
 import "./entities" for Player
 import "./actions" for BumpAction, RestAction
-import "./events" for RestEvent
-import "./systems" for VisionSystem, DefeatSystem
+import "./events" for RestEvent, PickupEvent
+import "./systems" for VisionSystem, DefeatSystem, InventorySystem
 import "./generator" for Generator
 import "./combat" for AttackEvent, DefeatEvent, HealEvent
-import "./items" for ItemAction, HealthPotion
+import "./items" for ItemAction, HealthPotion, PickupAction
 import "./renderer" for
   AsciiRenderer,
   HealthBar,
@@ -34,6 +34,7 @@ import "./inputs" for
   OPEN_LOG,
   DIR_INPUTS,
   REST_INPUT,
+  PICKUP_INPUT,
   ESC_INPUT,
   CONFIRM,
   REJECT
@@ -136,8 +137,11 @@ class PlayerInputState is State {
     if (REST_INPUT.firing) {
       player.pushAction(RestAction.new())
     }
+    if (PICKUP_INPUT.firing) {
+      player.pushAction(PickupAction.new())
+    }
     if (Keyboard["q"].justPressed) {
-      player.pushAction(ItemAction.new(HealthPotion.new()))
+      player.pushAction(ItemAction.new("potion"))
     }
 
     return this
@@ -152,8 +156,12 @@ class GameScene is Scene {
     _messages.add("Welcome, acolyte, to the catacombs. It's time to decend.", INK["welcomeText"], false)
 
     var world = _world = World.new()
+    _world.systems.add(InventorySystem.new())
     _world.systems.add(DefeatSystem.new())
     _world.systems.add(VisionSystem.new())
+    _world["items"] = {
+      "potion": HealthPotion.new()
+    }
 
     var zone = Generator.generateDungeon([ 1 ])
     world.addZone(zone)
@@ -172,7 +180,7 @@ class GameScene is Scene {
     _state = PlayerInputState.new(this)
     addElement(AsciiRenderer.new(Vec.new(0, 20)))
     addElement(HealthBar.new(Vec.new(0, 0), player.ref))
-    addElement(HoverText.new(Vec.new(Canvas.width - 64, 0)))
+    addElement(HoverText.new(Vec.new(Canvas.width, 0)))
     addElement(LogViewer.new(Vec.new(0, Canvas.height - 60), _messages))
     //addElement(LogViewer.new(Vec.new(0, Canvas.height - 12 * 7), _messages))
   }
@@ -210,7 +218,7 @@ class GameScene is Scene {
         _messages.add("The game has ended", INK["playerDie"], false)
       }
       if (event is AttackEvent) {
-        _messages.add("An attack occurred", INK["enemyAtk"], false)
+        _messages.add("An attack occurred", INK["enemyAtk"], true)
       }
       if (event is DefeatEvent) {
         _messages.add("%(event.target) was defeated.", INK["text"], false)
@@ -219,7 +227,11 @@ class GameScene is Scene {
         _messages.add("%(event.target) was healed for %(event.amount)", INK["healthRecovered"], false)
       }
       if (event is RestEvent) {
-        _messages.add("%(event.src) rests.", INK["text"], false)
+        _messages.add("%(event.src) rests.", INK["text"], true)
+      }
+      if (event is PickupEvent) {
+        var itemName = _world["items"][event.item]["name"]
+        _messages.add("%(event.src) picked up %(event.qty) %(itemName)", INK["text"], false)
       }
     }
   }
