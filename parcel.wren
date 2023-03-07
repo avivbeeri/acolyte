@@ -540,6 +540,8 @@ class World is Stateful {
     events.clear()
     Log.d("Begin %(actor) turn %(turn)")
 
+    systems.each{|system| system.preUpdate(this, actor) }
+
     var action = actor.getAction()
     if (action == null) {
         _queue.add(actorId, turn)
@@ -603,7 +605,9 @@ class World is Stateful {
 
 class GameSystem {
   construct new() {}
+  preUpdate(ctx, actor) {}
   update(ctx, actor) {}
+  postUpdate(ctx, actor) {}
   process(ctx, event) {}
 }
 
@@ -1101,10 +1105,7 @@ class AStar {
   }
 }
 class JPS {
-  static heuristic(a, b) {
-    return Line.chebychev(a, b)
-  }
-  static octileHeuristic(a, b, cardinal, diagonal) {
+  static heuristic(a, b, cardinal, diagonal) {
     var dMinus = diagonal - cardinal
     var dx = (a.x - b.x).abs
     var dy = (a.y - b.y).abs
@@ -1138,11 +1139,11 @@ class JPS {
     while (!frontier.isEmpty) {
       var current = frontier.remove()
       if (current == goal) {
-        break
+        continue
       }
       var currentCost = costSoFar[current]
       var list = []
-      for (next in map.allNeighbours(current)) {
+      for (next in map.neighbours(current)) {
         var jump = map.successor(next, current, start, goal)
         if (jump == null) {
           continue
@@ -1153,7 +1154,7 @@ class JPS {
         var newCost = currentCost + zone.cost(current, jump) + Line.chebychev(current, jump)
         if (!costSoFar.containsKey(jump) || newCost < costSoFar[jump]) {
           map[jump]["cost"] = newCost
-          var priority = newCost + JPS.octileHeuristic(jump, goal, 1, 1)
+          var priority = newCost + JPS.heuristic(jump, goal, 1, 1)
           costSoFar[jump] = newCost
           frontier.add(jump, priority)
           cameFrom[jump] = current
@@ -1376,7 +1377,7 @@ class Palette {
     _keys[purpose] = colorName
   }
 
-  [key] { _palette[_keys[key]]}
+  [key] { _palette[_keys[key]] || Color.white }
 }
 // ==================================
 

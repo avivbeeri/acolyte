@@ -1,5 +1,6 @@
 import "fov" for Vision, Vision2
 import "parcel" for GameSystem, JPS, GameEndEvent
+import "./entities" for Player
 
 class InventorySystem is GameSystem {
   construct new() { super() }
@@ -22,6 +23,7 @@ class DefeatSystem is GameSystem {
 }
 class VisionSystem is GameSystem {
   construct new() { super() }
+
   postUpdate(ctx, actor) {
     var player = ctx.getEntityByTag("player")
     if (!player) {
@@ -30,8 +32,6 @@ class VisionSystem is GameSystem {
     var map = ctx.zone.map
     for (y in map.yRange) {
       for (x in map.xRange) {
-        map[x, y]["seen"] = false
-        map[x, y]["cost"] = null
         if (map[x, y]["visible"]) {
           map[x, y]["visible"] = "maybe"
         } else {
@@ -40,21 +40,6 @@ class VisionSystem is GameSystem {
       }
     }
     Vision2.new(map, player.pos, 8).compute()
-    // search(map, player.pos)
-  }
-
-  search(map, origin, target) {
-    if (!origin) {
-      return
-    }
-    for (y in map.yRange) {
-      for (x in map.xRange) {
-        map[x, y]["seen"] = false
-        map[x, y]["cost"] = null
-      }
-    }
-    var search = JPS.fastSearch(map, origin, target)
-    JPS.buildFastPath(map, origin, target, search)
   }
 }
 

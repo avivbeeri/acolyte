@@ -193,7 +193,7 @@ class GameScene is Scene {
     super(args)
     _t = 0
     _messages = MessageLog.new()
-    _messages.add("Welcome, acolyte, to the catacombs. It's time to decend.", INK["welcomeText"], false)
+    _messages.add("Welcome, acolyte, to the catacombs. It's time to decend.", INK["welcome"], false)
 
     var world = _world = World.new()
     _world.systems.add(InventorySystem.new())
