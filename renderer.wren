@@ -126,12 +126,8 @@ class LineViewer is Element {
     var glyphWidth = 8
     var lineHeight = 12
     for (i in startLine...endLine) {
-      var message = _lines[i]
+      var text = _lines[i]
       var x = 0
-      var text = message.text
-      if (message.count > 1) {
-        text = "%(text) (x%(message.count))"
-      }
       var words = text.split(" ")
       for (word in words) {
         if (width - x * glyphWidth < word.count * glyphWidth) {
@@ -140,7 +136,7 @@ class LineViewer is Element {
         }
         var y = start + dir * lineHeight * line
         if (y >= 0 && y + lineHeight <= Canvas.height) {
-          Canvas.print(word, x * glyphWidth, start + dir * lineHeight * line, message.color)
+          Canvas.print(word, x * glyphWidth, start + dir * lineHeight * line, INK["text"])
         } else {
           break
         }

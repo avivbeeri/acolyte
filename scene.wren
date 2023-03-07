@@ -26,11 +26,13 @@ import "./items" for ItemAction, HealthPotion, PickupAction
 import "./renderer" for
   AsciiRenderer,
   HealthBar,
+  LineViewer,
   LogViewer,
   HistoryViewer,
   HoverText
 import "./palette" for INK
 import "./inputs" for
+  OPEN_INVENTORY,
   OPEN_LOG,
   DIR_INPUTS,
   REST_INPUT,
@@ -55,6 +57,32 @@ class TextChanged is Event {
   text { data["text"] }
 }
 
+class InventoryWindowState is State {
+  construct new(scene) {
+    super()
+    _scene = scene
+  }
+  onEnter() {
+    var border = 24
+    var world = _scene.world
+    var worldItems = world["items"]
+
+    var player = _scene.world.getEntityByTag("player")
+    var playerItems = player["inventory"]
+    var items = playerItems.map {|entry| "%(entry.qty)x %(worldItems[entry.id].name)" }.toList
+    _window = LineViewer.new(Vec.new(border, border), Vec.new(Canvas.width - border*2, Canvas.height - border*2), items.count, items)
+    _scene.addElement(_window)
+  }
+  onExit() {
+    _scene.removeElement(_window)
+  }
+  update() {
+    if (CONFIRM.firing) {
+      return PlayerInputState.new(_scene)
+    }
+    return this
+  }
+}
 class ModalWindowState is State {
   construct new(scene) {
     super()
@@ -111,6 +139,9 @@ class PlayerInputState is State {
 
   update() {
      /* TODO temp */
+    if (OPEN_INVENTORY.firing) {
+      return InventoryWindowState.new(_scene)
+    }
     if (OPEN_LOG.firing) {
       return ModalWindowState.new(_scene)
     }
