@@ -70,7 +70,16 @@ class InventoryWindowState is State {
     var player = _scene.world.getEntityByTag("player")
     var playerItems = player["inventory"]
     var items = playerItems.map {|entry| "%(entry.qty)x %(worldItems[entry.id].name)" }.toList
-    _window = LineViewer.new(Vec.new(border, border), Vec.new(Canvas.width - border*2, Canvas.height - border*2), items.count, items)
+    items.insert(0, "---- ITEMS ----")
+    items.insert(1, "")
+    var max = 0
+    for (line in items) {
+      if (line.count > max) {
+        max = line.count
+      }
+    }
+    var x = Canvas.width - (max * 8 + 8)
+    _window = LineViewer.new(Vec.new(x, border), Vec.new(Canvas.width - border*2, Canvas.height - border*2), items.count, items)
     _scene.addElement(_window)
   }
   onExit() {
