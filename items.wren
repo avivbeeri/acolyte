@@ -1,6 +1,4 @@
 import "parcel" for Action, ActionResult, Stateful, Log
-import "./actions" for HealAction, LightningAttackAction
-import "./events" for PickupEvent, UseItemEvent
 
 class InventoryEntry is Stateful {
   construct new(id, count) {
@@ -59,6 +57,13 @@ class ItemAction is Action {
     super()
     _itemId = id
     _itemAction = null
+    _args = null
+  }
+  construct new(id, args) {
+    super()
+    _itemId = id
+    _itemAction = null
+    _args = args
   }
 
   evaluate() {
@@ -73,7 +78,7 @@ class ItemAction is Action {
     }
 
     var result = null
-    var action = ctx["items"][_itemId].default
+    var action = ctx["items"][_itemId].default(_args)
     while (true) {
       result = action.bind(src).evaluate()
       if (result.invalid) {
@@ -118,14 +123,22 @@ class Item is Stateful {
   consumable { true }
   name { data["name"] || this.type.name }
   toString { name }
+  query(action) {
+    if (action == "use") {
+      return {
+        "range": 8
+      }
+    }
+    return null
+  }
 
-  default {}
+  default(args) {}
 
-  use {}
-  attack {}
-  defend {}
-  drink {}
-  throw {}
+  use(args) {}
+  attack(args) {}
+  defend(args) {}
+  drink(args) {}
+  throw(args) {}
 }
 
 class HealthPotion is Item {
@@ -134,8 +147,8 @@ class HealthPotion is Item {
     data["name"] = "Health Potion"
   }
 
-  default { drink }
-  drink { HealAction.new(null, 1) }
+  default(args) { drink(args) }
+  drink(args) { HealAction.new(null, 1) }
 }
 class LightningScroll is Item {
   construct new() {
@@ -143,12 +156,25 @@ class LightningScroll is Item {
     data["name"] = "Lightning Scroll"
   }
 
-  default { use }
-  use { LightningAttackAction.new(8, 2) }
+  default(args) { use(args) }
+  use(args) { LightningAttackAction.new(8, 2) }
+}
+class ConfusionScroll is Item {
+  construct new() {
+    super()
+    data["name"] = "Confusion Scroll"
+  }
+
+  default(args) { use(args) }
+  use(args) { InflictConfusionAction.new(args[0]) }
+
 }
 
 class Items {
   static healthPotion { HealthPotion.new() }
   static lightningScroll { LightningScroll.new() }
+  static confusionScroll { ConfusionScroll.new() }
 }
 
+import "./actions" for HealAction, LightningAttackAction, InflictConfusionAction
+import "./events" for PickupEvent, UseItemEvent

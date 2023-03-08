@@ -1,5 +1,25 @@
 import "parcel" for Event
 
+class ConditionEvent is Event {
+  construct new(target, condition) {
+    super()
+    data["src"] = target
+    data["condition"] = condition
+  }
+  target { data["src"] }
+  condition { data["condition"] }
+}
+class ExtendConditionEvent is ConditionEvent {
+  construct new(target, condition) {
+    super(target, condition)
+  }
+}
+class InflictConditionEvent is ConditionEvent {
+  construct new(target, condition) {
+    super(target, condition)
+  }
+}
+
 class LightningEvent is Event {
   construct new(target) {
     super()
@@ -41,3 +61,11 @@ class RestEvent is Event {
   src { data["src"] }
 }
 
+class Events {
+  static rest { RestEvent }
+  static pickup { PickupEvent }
+  static useItem { UseItemEvent }
+  static extendCondition { ExtendConditionEvent }
+  static inflictCondition { InflictConditionEvent }
+  static lightningCondition { LightningEvent }
+}

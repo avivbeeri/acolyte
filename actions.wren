@@ -1,6 +1,6 @@
 import "parcel" for Action, ActionResult, MAX_TURN_SIZE, JPS, Line
-import "./combat" for AttackEvent, Damage, DefeatEvent, HealEvent
-import "./events" for RestEvent, LightningEvent
+import "./combat" for AttackEvent, Damage, DefeatEvent, HealEvent, Condition
+import "./events" for Events, RestEvent, LightningEvent
 
 class RestAction is Action {
   construct new() {
@@ -12,6 +12,35 @@ class RestAction is Action {
 
   perform() {
     ctx.addEvent(RestEvent.new(src))
+    return ActionResult.success
+  }
+}
+
+class InflictConfusionAction is Action {
+  construct new(target) {
+    super()
+    _targetPos = target
+  }
+
+  evaluate() {
+    if (ctx.getEntitiesAtPosition(_targetPos).isEmpty) {
+      return ActionResult.invalid
+    }
+    return ActionResult.valid
+  }
+
+  perform() {
+    ctx.getEntitiesAtPosition(_targetPos).each {|target|
+      if (target["conditions"].containsKey("confusion")) {
+        target["conditions"]["confusion"].extend(3)
+        ctx.addEvent(Events.extendCondition.new(target, "confusion"))
+      } else {
+        target["conditions"]["confusion"] = Condition.new("confusion", 3, true)
+        target.behaviours.add(ConfusedBehaviour.new())
+        ctx.addEvent(Events.inflictCondition.new(target, "confusion"))
+      }
+    }
+
     return ActionResult.success
   }
 }
@@ -75,7 +104,6 @@ class LightningAttackAction is Action {
 
   perform() {
     var target = _nearby.reduce(null) {|acc, item|
-      System.print(item)
       if (item == src) {
         return acc
       }
@@ -168,3 +196,5 @@ class BumpAction is Action {
     return ActionResult.alternate(SimpleMoveAction.new(_dir))
   }
 }
+
+import "./behaviour" for ConfusedBehaviour

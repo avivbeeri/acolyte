@@ -12,14 +12,10 @@ import "parcel" for
   Line,
   GameEndEvent
 
+import "./palette" for INK
+import "./inputs" for VI_SCHEME as INPUT
 import "./messages" for MessageLog
-import "./entities" for Player
-import "./actions" for BumpAction, RestAction
-import "./events" for RestEvent, PickupEvent, UseItemEvent, LightningEvent
-import "./systems" for VisionSystem, DefeatSystem, InventorySystem
-import "./generator" for Generator
-import "./combat" for AttackEvent, DefeatEvent, HealEvent
-import "./items" for ItemAction, PickupAction, Items
+import "./ui" for TextComplete, TextChanged, TargetEvent, TargetBeginEvent, TargetEndEvent, HoverEvent
 import "./renderer" for
   AsciiRenderer,
   HealthBar,
@@ -27,11 +23,15 @@ import "./renderer" for
   LogViewer,
   HistoryViewer,
   HoverText
-import "./palette" for INK
-import "./inputs" for VI_SCHEME as INPUT
 
-import "./ui" for TextComplete, TextChanged, TargetEvent, TargetBeginEvent, TargetEndEvent, HoverEvent
 
+import "./actions" for BumpAction, RestAction
+import "./entities" for Player
+import "./events" for Events,RestEvent, PickupEvent, UseItemEvent, LightningEvent
+import "./systems" for VisionSystem, DefeatSystem, InventorySystem
+import "./generator" for Generator
+import "./combat" for AttackEvent, DefeatEvent, HealEvent
+import "./items" for ItemAction, PickupAction, Items
 
 class InventoryWindowState is State {
   construct new(scene) {
@@ -77,9 +77,10 @@ class InventoryWindowState is State {
   }
 }
 
-class TargetingState is State {
-  construct new(scene) {
+class TargetQueryState is State {
+  construct new(scene, query) {
     super()
+    _query = query
     _range = 8
     _scene = scene
     var player = scene.world.getEntityByTag("player")
@@ -125,7 +126,8 @@ class TargetingState is State {
       return PlayerInputState.new(_scene)
     }
     if (INPUT["confirm"].firing || Mouse["left"].justPressed) {
-      // TODO push position and action into state
+      var player = _scene.world.getEntityByTag("player")
+      player.pushAction(ItemAction.new(_query["item"], [ _cursorPos ]))
       return PlayerInputState.new(_scene)
     }
 
@@ -219,8 +221,15 @@ class PlayerInputState is State {
     if (Keyboard["s"].justPressed) {
       player.pushAction(ItemAction.new("scroll"))
     }
+    if (Keyboard["f"].justPressed) {
+      var itemId = "wand"
+      var query = _scene.world["items"][itemId].query("use")
+      query["item"] = itemId
+      return TargetQueryState.new(_scene, query)
+
+    }
     if (Keyboard["t"].justPressed) {
-      return TargetingState.new(_scene)
+      //return TargetQueryState.new(_scene)
     }
 
     return this
@@ -240,7 +249,8 @@ class GameScene is Scene {
     _world.systems.add(VisionSystem.new())
     _world["items"] = {
       "potion": Items.healthPotion,
-      "scroll": Items.lightningScroll
+      "scroll": Items.lightningScroll,
+      "wand": Items.confusionScroll
     }
 
     var zone = Generator.generateDungeon([ 1 ])
@@ -324,6 +334,12 @@ class GameScene is Scene {
       if (event is UseItemEvent) {
         var itemName = _world["items"][event.item]["name"]
         _messages.add("%(event.src) used %(itemName)", INK["text"], false)
+      }
+      if (event is Events.inflictCondition) {
+        _messages.add("%(event.target) became confused.", INK["text"], false)
+      }
+      if (event is Events.extendCondition) {
+        _messages.add("%(event.target)'s confusion was extended.", INK["text"], false)
       }
     }
   }

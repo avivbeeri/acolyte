@@ -126,7 +126,7 @@ class Entity is Stateful {
 class BehaviourEntity is Entity {
   construct new() {
     super()
-    _behaviours = []
+    _behaviours = Stack.new()
   }
   behaviours { _behaviours }
   removeBehaviour(b) { _behaviours.remove(b) }
@@ -136,6 +136,7 @@ class BehaviourEntity is Entity {
     // Variants could use a priority queue to do the
     // most critical thing if there's multiple options
     for (behaviour in _behaviours) {
+      System.print(behaviour)
       var result = behaviour.update(ctx, this)
       if (result == true) {
         break
@@ -361,7 +362,7 @@ class Zone is Stateful {
     if (ctx.getEntitiesAtPosition(b).isEmpty) {
       return _map.cost(a, b)
     }
-    return 10
+    return 100
   }
 }
 

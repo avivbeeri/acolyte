@@ -1,5 +1,5 @@
-import "parcel" for Action, ActionResult, Event, Stateful
 import "math" for M
+import "parcel" for Action, ActionResult, Event, Stateful
 
 class HealEvent is Event {
   construct new(entity, amount) {
@@ -130,6 +130,7 @@ class StatGroup {
 
 class Condition is Stateful {
   construct new(id, duration, curable) {
+    super()
     _id = data["id"]
     _duration = data["duration"]
     _curable = data["curable"]

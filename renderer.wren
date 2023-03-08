@@ -302,7 +302,6 @@ class AsciiRenderer is Element {
   }
   process(event) {
     if (event is TargetBeginEvent) {
-      System.print("begin")
       addElement(Cursor.new(_pos, event.pos))
     }
     super.process(event)
@@ -369,6 +368,9 @@ class AsciiRenderer is Element {
           if (items && items.count > 0) {
             if (items[0].id == "potion") {
               Canvas.print("!", x * 16 + 4, y * 16 + 4, INK["treasure"])
+            }
+            if (items[0].id == "wand") {
+              Canvas.print("~", x * 16 + 4, y * 16 + 4, INK["treasure"])
             }
             if (items[0].id == "scroll") {
               Canvas.print("~", x * 16 + 4, y * 16 + 4, INK["treasure"])
