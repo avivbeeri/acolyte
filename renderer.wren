@@ -239,10 +239,11 @@ class LogViewer is Element {
 }
 
 class Cursor is Element {
-  construct new(pos, cursor) {
+  construct new(pos, cursor, range) {
     super()
     _pos = pos
     _cursor = cursor
+    _range = range
   }
 
   process(event) {
@@ -257,10 +258,18 @@ class Cursor is Element {
     var offset = Canvas.offset
     Canvas.offset(_pos.x,_pos.y)
 
-    var x = _cursor.x * 16
-    var y = _cursor.y * 16
-
-    Canvas.rectfill(x, y, 16, 16, INK["targetCursor"])
+    var dist = _range - 1
+    for (dy in (-dist)..(dist)) {
+      for (dx in (-dist)..(dist)) {
+        var x = (_cursor.x + dx) * 16
+        var y = (_cursor.y + dy) * 16
+        if (dx == dy && dx == 0) {
+          Canvas.rectfill(x, y, 16, 16, INK["targetCursor"])
+          continue
+        }
+        Canvas.rectfill(x, y, 16, 16, INK["targetArea"])
+      }
+    }
 
     Canvas.offset(offset.x, offset.y)
   }
@@ -302,7 +311,7 @@ class AsciiRenderer is Element {
   }
   process(event) {
     if (event is TargetBeginEvent) {
-      addElement(Cursor.new(_pos, event.pos))
+      addElement(Cursor.new(_pos, event.pos, event.range))
     }
     super.process(event)
   }

@@ -22,7 +22,13 @@ class TargetEvent is Event {
 class TargetBeginEvent is TargetEvent {
   construct new(pos) {
     super(pos)
+    data["range"] = 1
   }
+  construct new(pos, range) {
+    super(pos)
+    data["range"] = range
+  }
+  range { data["range"] }
 }
 
 class TargetEndEvent is Event {

@@ -81,11 +81,11 @@ class TargetQueryState is State {
   construct new(scene, query) {
     super()
     _query = query
-    _range = 8
     _scene = scene
     var player = scene.world.getEntityByTag("player")
     _origin = player.pos
     _range = 3
+    _area = 2
     _allowSolid = false
     _needEntity = true
     _needSight = true
@@ -94,7 +94,7 @@ class TargetQueryState is State {
   }
 
   onEnter() {
-    _scene.process(TargetBeginEvent.new(_cursorPos))
+    _scene.process(TargetBeginEvent.new(_cursorPos, _area))
   }
   onExit() {
     _scene.process(TargetEndEvent.new())
