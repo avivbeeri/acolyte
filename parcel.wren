@@ -126,9 +126,10 @@ class Entity is Stateful {
 class BehaviourEntity is Entity {
   construct new() {
     super()
-    _behaviours = Stack.new()
+    _behaviours = []
   }
   behaviours { _behaviours }
+  removeBehaviour(b) { _behaviours.remove(b) }
 
   getAction() {
     // behaviours can push their own actions onto the queue
@@ -229,7 +230,7 @@ class ActionResult {
 // ==================================
 
 class Action is Stateful {
-  static none { Action.new() }
+  static none { NoAction }
   construct new() {
     super()
   }
@@ -251,6 +252,7 @@ class Action is Stateful {
   source { _source }
   toString { (this.type == Action) ? "<no action>" : "<%(this.type.name)>" }
 }
+var NoAction = Action.new()
 
 class Turn is Entity {
   construct new() {
