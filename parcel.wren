@@ -803,6 +803,8 @@ class TileMap is Graph {
 
   inBounds(vec) { inBounds(vec.x, vec.y) }
   inBounds(x, y) { !this[x, y]["void"] }
+  isBlocking(vec) { isSolid(vec.x, vec.y) }
+  isBlocking(x, y) { !inBounds(x, y) || this[x, y]["blocking"] }
   isSolid(vec) { isSolid(vec.x, vec.y) }
   isSolid(x, y) { !inBounds(x, y) || this[x, y]["solid"] }
   isFloor(vec) { isFloor(vec.x, vec.y) }

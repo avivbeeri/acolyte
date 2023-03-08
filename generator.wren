@@ -71,7 +71,8 @@ class Generator {
     for (y in 0...32) {
       for (x in 0...32) {
         map[x,y] = Tile.new({
-          "solid": true
+          "solid": true,
+          "blocking": true
         })
       }
     }
@@ -152,9 +153,11 @@ class Generator {
     map[13, 17]["solid"] = true
     for (point in Line.walk(Vec.new(4,19), Vec.new(17,19))) {
         map[point]["solid"] = true
+        map[point]["blocking"] = true
     }
     for (point in Line.walk(Vec.new(4,21), Vec.new(17,21))) {
         map[point]["solid"] = true
+        map[point]["blocking"] = true
     }
 
     var level = args[0]

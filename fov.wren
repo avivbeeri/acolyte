@@ -39,7 +39,7 @@ class Vision {
     for (x in xmin..xmax) {
       var realx = _origin.x + transform[0] * x + transform[1] * y
       var realy = _origin.y + transform[2] * x + transform[3] * y
-      if (!_map.isSolid(realx, realy)) {
+      if (_map.isBlocking(realx, realy)) {
         if (x >= y * start && x <= y * end) {
           reveal(realx, realy)
         }
@@ -148,7 +148,7 @@ class Vision2 {
   }
 
 
-  isWall(quadrant, tile) {
+  isBlocking(quadrant, tile) {
     if (tile == null) {
       return false
     }
@@ -177,13 +177,13 @@ class Vision2 {
     var prev = null
     var tiles = row.tiles
     for (tile in tiles) {
-      if (isWall(quadrant, tile) || Vision2.isSymmetric(row, tile)) {
+      if (isBlocking(quadrant, tile) || Vision2.isSymmetric(row, tile)) {
         reveal(quadrant, tile)
       }
-      if (isWall(quadrant, prev) && isFloor(quadrant, tile)) {
+      if (isBlocking(quadrant, prev) && isFloor(quadrant, tile)) {
         row.start = Vision2.slope(tile)
       }
-      if (isFloor(quadrant, prev) && isWall(quadrant, tile)) {
+      if (isFloor(quadrant, prev) && isBlocking(quadrant, tile)) {
         var nextRow = row.next
         nextRow.end = Vision2.slope(tile)
         scan(quadrant, nextRow)
