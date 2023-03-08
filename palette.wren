@@ -3,18 +3,6 @@ import "parcel" for Palette
 
 
 var INK = Palette.new()
-/*
-INK.addColor("white", Color.hex("#e4dbba"))
-INK.addColor("lilac", Color.hex("#a4929a"))
-INK.addColor("purple", Color.hex("#4f3a54"))
-INK.addColor("dark", Color.hex("#1b0326"))
-
-INK.addColor("red", Color.hex("#9c173b"))
-INK.addColor("gold", Color.hex("#f5b713"))
-INK.addColor("burgandy", Color.hex("#450327"))
-*/
-
-
 
 INK.addColor("black", Color.hex("#1B0326"))
 INK.addColor("white", Color.hex("#E6DCB8"))
@@ -42,25 +30,26 @@ INK.addColor("orange", Color.hex("#CC751F"))
 INK.addColor("gray", Color.hex("#C5B26D"))
 
 
-INK.setPurpose("white", "white")
 INK.setPurpose("wall", "lilac")
 INK.setPurpose("obscured", "purple")
-INK.setPurpose("black", "black")
 INK.setPurpose("bg", "black")
+INK.setPurpose("impossible", "lilac")
+INK.setPurpose("error", "red")
 INK.setPurpose("playerAtk", "white")
 INK.setPurpose("enemyAtk", "red")
+
 INK.setPurpose("welcome", "white")
 INK.setPurpose("text", "white")
+
 INK.setPurpose("barText", "white")
 INK.setPurpose("barFilled", "purple")
 INK.setPurpose("barEmpty", "red")
+
 INK.setPurpose("border", "burgandy")
 INK.setPurpose("invalid", "burgandy")
-INK.setPurpose("impossible", "lilac")
-INK.setPurpose("error", "red")
+
 INK.setPurpose("healthRecovered", "white")
 INK.setPurpose("treasure", "gold")
-INK.setPurpose("needsTarget", "blue")
 INK.setPurpose("needsTarget", "blue")
 INK.setPurpose("statusApplied", "green")
 

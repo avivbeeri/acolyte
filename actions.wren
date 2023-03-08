@@ -1,6 +1,6 @@
 import "parcel" for Action, ActionResult, MAX_TURN_SIZE, JPS, Line
 import "./combat" for AttackEvent, Damage, DefeatEvent, HealEvent
-import "./events" for RestEvent
+import "./events" for RestEvent, LightningEvent
 
 class RestAction is Action {
   construct new() {
@@ -86,7 +86,7 @@ class LightningAttackAction is Action {
     }
 
     target["stats"].decrease("hp", _damage)
-    ctx.addEvent(AttackEvent.new())
+    ctx.addEvent(LightningEvent.new(target))
     if (target["stats"].get("hp") <= 0) {
       ctx.addEvent(DefeatEvent.new(target))
       // TODO remove entity elsewhere?

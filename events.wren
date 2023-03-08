@@ -1,5 +1,13 @@
 import "parcel" for Event
 
+class LightningEvent is Event {
+  construct new(target) {
+    super()
+    data["src"] = target
+  }
+  target { data["src"] }
+}
+
 class UseItemEvent is Event {
   construct new(src, itemId) {
     super()

@@ -18,7 +18,7 @@ import "parcel" for
 import "./messages" for MessageLog
 import "./entities" for Player
 import "./actions" for BumpAction, RestAction
-import "./events" for RestEvent, PickupEvent, UseItemEvent
+import "./events" for RestEvent, PickupEvent, UseItemEvent, LightningEvent
 import "./systems" for VisionSystem, DefeatSystem, InventorySystem
 import "./generator" for Generator
 import "./combat" for AttackEvent, DefeatEvent, HealEvent
@@ -271,6 +271,9 @@ class GameScene is Scene {
       }
       if (event is AttackEvent) {
         _messages.add("An attack occurred", INK["enemyAtk"], true)
+      }
+      if (event is LightningEvent) {
+        _messages.add("%(event.target) was struck by lightning.", INK["playerAtk"], false)
       }
       if (event is DefeatEvent) {
         _messages.add("%(event.target) was defeated.", INK["text"], false)
