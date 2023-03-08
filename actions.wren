@@ -1,4 +1,4 @@
-import "parcel" for Action, ActionResult, MAX_TURN_SIZE, JPS
+import "parcel" for Action, ActionResult, MAX_TURN_SIZE, JPS, Line
 import "./combat" for AttackEvent, Damage, DefeatEvent, HealEvent
 import "./events" for RestEvent
 
@@ -44,6 +44,58 @@ class HealAction is Action {
     return ActionResult.success
   }
 }
+class LightningAttackAction is Action {
+  construct new(range, damage) {
+    super()
+    _range = range
+    // Do we deal direct damage or should we treat this as an ATK value?
+    _damage = damage
+  }
+  evaluate() {
+    _nearby = ctx.entities().where {|entity|
+      return entity != src &&
+             entity.has("stats") &&
+             distance(entity) <= _range &&
+             ctx.zone.map[entity.pos]["visible"] == true
+    }.toList
+
+    if (_nearby.isEmpty) {
+      return ActionResult.invalid
+    }
+
+    return ActionResult.valid
+  }
+
+  distance(entity) {
+    if (entity == null) {
+      return Num.infinity
+    }
+    return Line.chebychev(src.pos, entity.pos)
+  }
+
+  perform() {
+    var target = _nearby.reduce(null) {|acc, item|
+      System.print(item)
+      if (item == src) {
+        return acc
+      }
+      if (item == null || distance(acc) > distance(item)) {
+        return item
+      }
+      return acc
+    }
+
+    target["stats"].decrease("hp", _damage)
+    ctx.addEvent(AttackEvent.new())
+    if (target["stats"].get("hp") <= 0) {
+      ctx.addEvent(DefeatEvent.new(target))
+      // TODO remove entity elsewhere?
+      ctx.removeEntity(target)
+    }
+    return ActionResult.success
+  }
+}
+
 class MeleeAttackAction is Action {
   construct new(dir) {
     super()

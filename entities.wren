@@ -2,6 +2,7 @@ import "parcel" for Entity, BehaviourEntity, GameSystem, JPS, Stateful
 import "math" for Vec, M
 import "combat" for StatGroup
 import "actions" for BumpAction
+import "messages" for Pronoun
 import "items" for InventoryEntry
 
 class Player is Entity {
@@ -20,6 +21,7 @@ class Player is Entity {
     })
   }
   name { "Player" }
+  pronoun { Pronoun.you }
   pushAction(action) {
     if (hasActions()) {
       return
@@ -84,4 +86,5 @@ class Rat is BehaviourEntity {
     behaviours.add(SeekBehaviour.new())
   }
   name { "Rat" }
+  pronoun { Pronoun.it }
 }

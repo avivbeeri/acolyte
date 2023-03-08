@@ -1,4 +1,32 @@
 import "dome" for Log
+
+class Pronoun {
+  construct new(subject, object, possessive) {
+    _subject = subject
+    _object = object
+    _possessive = possessive
+  }
+  subject { _subject }
+  object { _object }
+  possessive { _possessive }
+
+  == (other) {
+    if (!(other is Pronoun)) {
+      return false
+    }
+    return subject == other.subject && object == other.object && possessive == other.possessive
+  }
+
+  static you { Pronoun.new("you", "you", "yours") }
+  static they { Pronoun.new("they", "them", "their") }
+  static it { Pronoun.new("it", "it", "its") }
+
+// Try not to use these?
+  static male { Pronoun.new("he", "him", "his") }
+  static female { Pronoun.new("she", "her", "her") }
+}
+
+
 class Message {
 
   construct new(text, color) {

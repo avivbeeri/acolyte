@@ -1377,7 +1377,7 @@ class Palette {
     _keys[purpose] = colorName
   }
 
-  [key] { _palette[_keys[key]] || Color.white }
+  [key] { _palette[_keys[key]] || (_palette[key] is Color ? _palette[key] : Color.white) }
 }
 // ==================================
 

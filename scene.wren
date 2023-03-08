@@ -18,11 +18,11 @@ import "parcel" for
 import "./messages" for MessageLog
 import "./entities" for Player
 import "./actions" for BumpAction, RestAction
-import "./events" for RestEvent, PickupEvent
+import "./events" for RestEvent, PickupEvent, UseItemEvent
 import "./systems" for VisionSystem, DefeatSystem, InventorySystem
 import "./generator" for Generator
 import "./combat" for AttackEvent, DefeatEvent, HealEvent
-import "./items" for ItemAction, HealthPotion, PickupAction
+import "./items" for ItemAction, PickupAction, Items
 import "./renderer" for
   AsciiRenderer,
   HealthBar,
@@ -70,14 +70,22 @@ class InventoryWindowState is State {
     var player = _scene.world.getEntityByTag("player")
     var playerItems = player["inventory"]
     var items = playerItems.map {|entry| "%(entry.qty)x %(worldItems[entry.id].name)" }.toList
-    items.insert(0, "---- ITEMS ----")
-    items.insert(1, "")
+    items.insert(0, "")
     var max = 0
     for (line in items) {
       if (line.count > max) {
         max = line.count
       }
     }
+
+    var title = ""
+    max = max.max(13)
+    var width = ((max - 7) / 2).ceil
+    for (i in 0...width) {
+      title = "%(title)-"
+    }
+    title = "%(title) ITEMS %(title)"
+    items.insert(0, title)
     var x = Canvas.width - (max * 8 + 8)
     _window = LineViewer.new(Vec.new(x, border), Vec.new(Canvas.width - border*2, Canvas.height - border*2), items.count, items)
     _scene.addElement(_window)
@@ -183,6 +191,9 @@ class PlayerInputState is State {
     if (Keyboard["q"].justPressed) {
       player.pushAction(ItemAction.new("potion"))
     }
+    if (Keyboard["s"].justPressed) {
+      player.pushAction(ItemAction.new("scroll"))
+    }
 
     return this
   }
@@ -200,7 +211,8 @@ class GameScene is Scene {
     _world.systems.add(DefeatSystem.new())
     _world.systems.add(VisionSystem.new())
     _world["items"] = {
-      "potion": HealthPotion.new()
+      "potion": Items.healthPotion,
+      "scroll": Items.lightningScroll
     }
 
     var zone = Generator.generateDungeon([ 1 ])
@@ -272,6 +284,10 @@ class GameScene is Scene {
       if (event is PickupEvent) {
         var itemName = _world["items"][event.item]["name"]
         _messages.add("%(event.src) picked up %(event.qty) %(itemName)", INK["text"], false)
+      }
+      if (event is UseItemEvent) {
+        var itemName = _world["items"][event.item]["name"]
+        _messages.add("%(event.src) used %(itemName)", INK["text"], false)
       }
     }
   }

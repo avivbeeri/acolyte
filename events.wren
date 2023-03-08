@@ -1,5 +1,16 @@
 import "parcel" for Event
 
+class UseItemEvent is Event {
+  construct new(src, itemId) {
+    super()
+    data["src"] = src
+    data["item"] = itemId
+  }
+
+  src { data["src"] }
+  item { data["item"] }
+}
+
 class PickupEvent is Event {
   construct new(src, itemId, qty) {
     super()

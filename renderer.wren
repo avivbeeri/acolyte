@@ -333,6 +333,9 @@ class AsciiRenderer is Element {
             if (items[0].id == "potion") {
               Canvas.print("!", x * 16 + 4, y * 16 + 4, INK["treasure"])
             }
+            if (items[0].id == "scroll") {
+              Canvas.print("~", x * 16 + 4, y * 16 + 4, INK["treasure"])
+            }
           } else {
             Canvas.print(".", x * 16 + 4, y * 16 + 4, color)
           }

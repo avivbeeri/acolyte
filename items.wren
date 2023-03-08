@@ -1,6 +1,6 @@
-import "parcel" for Action, ActionResult, Stateful
-import "./actions" for HealAction
-import "./events" for PickupEvent
+import "parcel" for Action, ActionResult, Stateful, Log
+import "./actions" for HealAction, LightningAttackAction
+import "./events" for PickupEvent, UseItemEvent
 
 class InventoryEntry is Stateful {
   construct new(id, count) {
@@ -98,10 +98,14 @@ class ItemAction is Action {
     if (entry.qty <= 0) {
       return ActionResult.failure
     }
-    if (ctx["items"][_itemId].consumable) {
+    var item = ctx["items"][_itemId]
+    if (item.consumable) {
       entry.subtract(1)
     }
 
+    Log.d("%(src) using %(item.name)")
+    Log.d("%(src): performing %(_itemAction)")
+    ctx.addEvent(UseItemEvent.new(src, _itemId))
     return _itemAction.bind(src).perform()
   }
 }
@@ -130,6 +134,21 @@ class HealthPotion is Item {
     data["name"] = "Health Potion"
   }
 
-  default { HealAction.new(null, 1) }
+  default { drink }
+  drink { HealAction.new(null, 1) }
+}
+class LightningScroll is Item {
+  construct new() {
+    super()
+    data["name"] = "Lightning Scroll"
+  }
+
+  default { use }
+  use { LightningAttackAction.new(8, 2) }
+}
+
+class Items {
+  static healthPotion { HealthPotion.new() }
+  static lightningScroll { LightningScroll.new() }
 }
 

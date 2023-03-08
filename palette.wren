@@ -60,5 +60,8 @@ INK.setPurpose("impossible", "lilac")
 INK.setPurpose("error", "red")
 INK.setPurpose("healthRecovered", "white")
 INK.setPurpose("treasure", "gold")
+INK.setPurpose("needsTarget", "blue")
+INK.setPurpose("needsTarget", "blue")
+INK.setPurpose("statusApplied", "green")
 
 
