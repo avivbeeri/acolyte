@@ -124,6 +124,43 @@ class LightningAttackAction is Action {
   }
 }
 
+class AreaAttackAction is Action {
+  construct new(origin, range, damage) {
+    super()
+    _origin = origin
+    _range = range
+    _damage = damage
+  }
+  evaluate() {
+    // TODO: check if origin is solid and visible
+    return ActionResult.valid
+  }
+
+  perform() {
+    var targetPos = _origin
+    var dist = _range - 1
+    var targets = []
+    for (dy in (-dist)..(dist)) {
+      for (dx in (-dist)..(dist)) {
+        var x = (_origin.x + dx)
+        var y = (_origin.y + dy)
+        targets.addAll(ctx.getEntitiesAtPosition(x, y))
+      }
+    }
+
+    for (target in targets) {
+      target["stats"].decrease("hp", _damage)
+      ctx.addEvent(AttackEvent.new())
+      if (target["stats"].get("hp") <= 0) {
+        ctx.addEvent(DefeatEvent.new(target))
+        // TODO remove entity elsewhere?
+        ctx.removeEntity(target)
+      }
+    }
+
+    return ActionResult.success
+  }
+}
 class MeleeAttackAction is Action {
   construct new(dir) {
     super()

@@ -132,7 +132,7 @@ class Generator {
       var pos = Vec.new(x, y)
 
       if (entities.isEmpty || !entities.any{|entity| entity.pos == pos }) {
-        zone.map[pos]["items"] = [ InventoryEntry.new("wand", 1) ]
+        zone.map[pos]["items"] = [ InventoryEntry.new("fireball", 1) ]
       }
     }
   }

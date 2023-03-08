@@ -147,7 +147,7 @@ class TargetQueryState is State {
     }
     if ((INPUT["confirm"].firing || Mouse["left"].justPressed) && targetValid(_origin, _cursorPos)) {
       var player = _scene.world.getEntityByTag("player")
-      player.pushAction(ItemAction.new(_query["item"], [ _cursorPos ]))
+      player.pushAction(ItemAction.new(_query["item"], [ _cursorPos, _area ]))
       return PlayerInputState.new(_scene)
     }
 
@@ -242,7 +242,7 @@ class PlayerInputState is State {
       player.pushAction(ItemAction.new("scroll"))
     }
     if (Keyboard["f"].justPressed) {
-      var itemId = "wand"
+      var itemId = "fireball"
       var query = _scene.world["items"][itemId].query("use")
       query["item"] = itemId
       return TargetQueryState.new(_scene, query)
@@ -271,7 +271,8 @@ class GameScene is Scene {
     _world["items"] = {
       "potion": Items.healthPotion,
       "scroll": Items.lightningScroll,
-      "wand": Items.confusionScroll
+      "wand": Items.confusionScroll,
+      "fireball": Items.fireballScroll
     }
 
     var zone = Generator.generateDungeon([ 1 ])

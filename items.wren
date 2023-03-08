@@ -123,14 +123,7 @@ class Item is Stateful {
   consumable { true }
   name { data["name"] || this.type.name }
   toString { name }
-  query(action) {
-    if (action == "use") {
-      return {
-        "range": 8
-      }
-    }
-    return null
-  }
+  query(action) { null }
 
   default(args) {}
 
@@ -167,6 +160,34 @@ class ConfusionScroll is Item {
 
   default(args) { use(args) }
   use(args) { InflictConfusionAction.new(args[0]) }
+  query(action) {
+    if (action == "use") {
+      return {
+        "range": 8
+      }
+    }
+    return null
+  }
+
+}
+class FireballScroll is Item {
+  construct new() {
+    super()
+    data["name"] = "Fireball Scroll"
+  }
+
+  default(args) { use(args) }
+  // TODO generic magic action?
+  // (origin, range, damage)
+  use(args) { AreaAttackAction.new(args[0], args[1], 5) }
+  query(action) {
+    if (action == "use") {
+      return {
+        "range": 8
+      }
+    }
+    return null
+  }
 
 }
 
@@ -174,7 +195,8 @@ class Items {
   static healthPotion { HealthPotion.new() }
   static lightningScroll { LightningScroll.new() }
   static confusionScroll { ConfusionScroll.new() }
+  static fireballScroll { FireballScroll.new() }
 }
 
-import "./actions" for HealAction, LightningAttackAction, InflictConfusionAction
+import "./actions" for HealAction, LightningAttackAction, InflictConfusionAction, AreaAttackAction
 import "./events" for PickupEvent, UseItemEvent
