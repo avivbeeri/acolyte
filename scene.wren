@@ -87,6 +87,7 @@ class TargetQueryState is State {
     _origin = player.pos
     _range = 3
     _allowSolid = false
+    _needEntity = true
     _needSight = true
     _cursorPos = player.pos
     _hoverPos = null
@@ -105,6 +106,25 @@ class TargetQueryState is State {
         cursorValid(_origin, event.target.pos)) {
       _hoverPos = event.target.pos
     }
+  }
+  targetValid(origin, position) {
+      // check next
+    var map = _scene.world.zone.map
+    if (!_allowSolid && map[position]["solid"]) {
+      return false
+    }
+    if (_needSight && map[position]["visible"] != true) {
+      return false
+    }
+    if (_range && Line.chebychev(position, origin) > _range) {
+      return false
+    }
+
+    if (_needEntity && _scene.world.getEntitiesAtPosition(position).isEmpty) {
+      return false
+    }
+
+    return true
   }
   cursorValid(origin, position) {
       // check next
@@ -125,7 +145,7 @@ class TargetQueryState is State {
     if (INPUT["reject"].firing) {
       return PlayerInputState.new(_scene)
     }
-    if (INPUT["confirm"].firing || Mouse["left"].justPressed) {
+    if ((INPUT["confirm"].firing || Mouse["left"].justPressed) && targetValid(_origin, _cursorPos)) {
       var player = _scene.world.getEntityByTag("player")
       player.pushAction(ItemAction.new(_query["item"], [ _cursorPos ]))
       return PlayerInputState.new(_scene)

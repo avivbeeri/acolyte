@@ -148,7 +148,6 @@ class BehaviourEntity is Entity {
     // Variants could use a priority queue to do the
     // most critical thing if there's multiple options
     for (behaviour in _behaviours) {
-      System.print(behaviour)
       var result = behaviour.update(ctx, this)
       if (result == true) {
         break
