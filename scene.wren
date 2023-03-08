@@ -32,7 +32,8 @@ import "./renderer" for
   HoverText
 import "./palette" for INK
 import "./inputs" for
-  VI_SCHEME as INPUT,
+  VI_SCHEME as INPUT
+  /*
   OPEN_INVENTORY,
   OPEN_LOG,
   DIR_INPUTS,
@@ -41,6 +42,7 @@ import "./inputs" for
   ESC_INPUT,
   CONFIRM,
   REJECT
+  */
 
 
 class TextComplete is Event {
@@ -95,7 +97,7 @@ class InventoryWindowState is State {
     _scene.removeElement(_window)
   }
   update() {
-    if (CONFIRM.firing) {
+    if (INPUT["confirm"].firing) {
       return PlayerInputState.new(_scene)
     }
     return this
@@ -115,7 +117,7 @@ class ModalWindowState is State {
     _scene.removeElement(_window)
   }
   update() {
-    if (CONFIRM.firing) {
+    if (INPUT["confirm"].firing) {
       return PlayerInputState.new(_scene)
     }
     return this
