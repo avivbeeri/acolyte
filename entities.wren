@@ -47,10 +47,11 @@ class Player is Creature {
     super.pushAction(action)
   }
   getAction() {
-    if (hasActions()) {
-      return super.getAction()
+    var action = super.getAction()
+    if (action == Action.none) {
+      return null
     }
-    return null
+    return action
   }
 }
 
