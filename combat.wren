@@ -1,4 +1,4 @@
-import "parcel" for Action, ActionResult, Event
+import "parcel" for Action, ActionResult, Event, Stateful
 import "math" for M
 
 class HealEvent is Event {
@@ -120,6 +120,34 @@ class StatGroup {
       if (modifier.done) {
         removeModifier(modifier.id)
       }
+    }
+  }
+}
+
+/**
+  Represent a condition
+ */
+
+class Condition is Stateful {
+  construct new(id, duration, curable) {
+    _id = data["id"]
+    _duration = data["duration"]
+    _curable = data["curable"]
+  }
+
+  duration { data["duration"] }
+  duration=(v) { data["duration"] = v }
+  curable { data["curable"] }
+
+  tick() {
+    duration = duration ? duration - 1 : null
+  }
+  done { duration && duration <= 0 }
+  hash() { _id }
+
+  extend(n) {
+    if (duration != null) {
+      duration = (duration  || 0) + n
     }
   }
 }
