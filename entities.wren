@@ -1,15 +1,33 @@
-import "parcel" for Entity, BehaviourEntity, GameSystem, JPS, Stateful
+import "parcel" for Entity, BehaviourEntity, GameSystem, JPS, Stateful, DIR_EIGHT, RNG, Action, Set
 import "math" for Vec, M
 import "combat" for StatGroup
 import "actions" for BumpAction
 import "messages" for Pronoun
 import "items" for InventoryEntry
 
-class Player is Entity {
+class Creature is BehaviourEntity {
+  construct new() {
+    super()
+    this["symbol"] = "?"
+    this["solid"] = true
+    this["inventory"] = [
+    ]
+    this["stats"] =  StatGroup.new({
+      "hpMax": 1,
+      "hp": 1,
+      "str": 1,
+      "dex": 0
+    })
+    this["conditions"] = {}
+  }
+  name { "Creature" }
+  pronoun { Pronoun.it }
+}
+
+class Player is Creature {
   construct new() {
     super()
     this["symbol"] = "@"
-    this["solid"] = true
     this["inventory"] = [
       InventoryEntry.new("potion", 1)
     ]
@@ -20,7 +38,7 @@ class Player is Entity {
       "dex": 1
     })
   }
-  name { "Player" }
+  name { data["name"] || "Player" }
   pronoun { Pronoun.you }
   pushAction(action) {
     if (hasActions()) {
@@ -48,6 +66,23 @@ class Behaviour is GameSystem {
   }
 }
 
+class ConfusedBehaviour is Behaviour {
+  construct new() {
+    super()
+  }
+  update(ctx, actor) {
+    // TODO should this do 4 or 8?
+    if (!actor["conditions"].containsKey("confusion")) {
+      actor.removeBehaviour(this)
+      System.print("removed")
+      return false
+    }
+    var dir = DIR_EIGHT[RNG.int(8)]
+    actor.pushAction(BumpAction.new(dir))
+    return true
+  }
+}
+
 class SeekBehaviour is Behaviour {
   construct new() {
     super()
@@ -71,11 +106,10 @@ class SeekBehaviour is Behaviour {
   }
 }
 
-class Rat is BehaviourEntity {
+class Rat is Creature {
  construct new() {
     super()
     this["symbol"] = "r"
-    this["solid"] = true
     this["stats"] =  StatGroup.new({
       "hpMax": 1,
       "hp": 1,
