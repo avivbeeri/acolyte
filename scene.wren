@@ -1,19 +1,16 @@
 import "dome" for Process, Log
 import "graphics" for Canvas, Color
-import "input" for Keyboard
+import "input" for Keyboard, Mouse
 import "math" for Vec
 import "parcel" for
-  TextInputReader,
   DIR_EIGHT,
   Scene,
   State,
   World,
   Entity,
-  Event,
-  Tile,
   TurnEvent,
-  GameEndEvent,
-  Palette
+  Line,
+  GameEndEvent
 
 import "./messages" for MessageLog
 import "./entities" for Player
@@ -31,34 +28,10 @@ import "./renderer" for
   HistoryViewer,
   HoverText
 import "./palette" for INK
-import "./inputs" for
-  VI_SCHEME as INPUT
-  /*
-  OPEN_INVENTORY,
-  OPEN_LOG,
-  DIR_INPUTS,
-  REST_INPUT,
-  PICKUP_INPUT,
-  ESC_INPUT,
-  CONFIRM,
-  REJECT
-  */
+import "./inputs" for VI_SCHEME as INPUT
 
+import "./ui" for TextComplete, TextChanged, TargetEvent, TargetBeginEvent, TargetEndEvent, HoverEvent
 
-class TextComplete is Event {
-  construct new(text) {
-    super()
-    data["text"] = text
-  }
-  text { data["text"] }
-}
-class TextChanged is Event {
-  construct new(text) {
-    super()
-    data["text"] = text
-  }
-  text { data["text"] }
-}
 
 class InventoryWindowState is State {
   construct new(scene) {
@@ -103,6 +76,83 @@ class InventoryWindowState is State {
     return this
   }
 }
+
+class TargetingState is State {
+  construct new(scene) {
+    super()
+    _range = 8
+    _scene = scene
+    var player = scene.world.getEntityByTag("player")
+    _origin = player.pos
+    _range = 3
+    _allowSolid = false
+    _needSight = true
+    _cursorPos = player.pos
+    _hoverPos = null
+  }
+
+  onEnter() {
+    _scene.process(TargetBeginEvent.new(_cursorPos))
+  }
+  onExit() {
+    _scene.process(TargetEndEvent.new())
+  }
+  process(event) {
+    if (event is HoverEvent &&
+        event.target &&
+        event.target is Entity &&
+        cursorValid(_origin, event.target.pos)) {
+      _hoverPos = event.target.pos
+    }
+  }
+  cursorValid(origin, position) {
+      // check next
+    var map = _scene.world.zone.map
+    if (!_allowSolid && map[position]["solid"]) {
+      return false
+    }
+    if (_needSight && map[position]["visible"] != true) {
+      return false
+    }
+    if (_range && Line.chebychev(position, origin) > _range) {
+      return false
+    }
+
+    return true
+  }
+  update() {
+    if (INPUT["reject"].firing) {
+      return PlayerInputState.new(_scene)
+    }
+    if (INPUT["confirm"].firing || Mouse["left"].justPressed) {
+      // TODO push position and action into state
+      return PlayerInputState.new(_scene)
+    }
+
+    // TODO handle mouse targeting
+
+    var i = 0
+    var next = null
+    for (input in INPUT.list("dir")) {
+      if (input.firing) {
+        next = _cursorPos + DIR_EIGHT[i]
+      }
+      i = i + 1
+    }
+
+    if (_hoverPos) {
+      _cursorPos = _hoverPos
+      _scene.process(TargetEvent.new(_cursorPos))
+    }
+    if (next && cursorValid(_origin, next)) {
+      _cursorPos = next
+      _scene.process(TargetEvent.new(_cursorPos))
+    }
+
+    return this
+  }
+}
+
 class ModalWindowState is State {
   construct new(scene) {
     super()
@@ -120,31 +170,6 @@ class ModalWindowState is State {
     if (INPUT["confirm"].firing) {
       return PlayerInputState.new(_scene)
     }
-    return this
-  }
-}
-class TextInputState is State {
-
-  construct new(scene) {
-    super()
-    _scene = scene
-    _world = scene.world
-    _kb = TextInputReader.new()
-    _kb.enable()
-  }
-
-  update() {
-    _kb.update()
-    if (Keyboard["return"].justPressed) {
-      _kb.disable()
-      events.add(TextComplete.new(_kb.text))
-      return PlayerInputState.new(_scene)
-    }
-    if (Keyboard["escape"].justPressed) {
-      _kb.disable()
-      return PlayerInputState.new(_scene)
-    }
-    events.add(TextChanged.new(_kb.text))
     return this
   }
 }
@@ -168,9 +193,6 @@ class PlayerInputState is State {
     if (INPUT["exit"].firing) {
       Process.exit()
       return
-    }
-    if (INPUT["confirm"].justPressed) {
-      return TextInputState.new(_scene)
     }
 
     if (_world.complete) {
@@ -196,6 +218,9 @@ class PlayerInputState is State {
     }
     if (Keyboard["s"].justPressed) {
       player.pushAction(ItemAction.new("scroll"))
+    }
+    if (Keyboard["t"].justPressed) {
+      return TargetingState.new(_scene)
     }
 
     return this
@@ -243,6 +268,11 @@ class GameScene is Scene {
   world { _world }
   messages { _messages }
   events { _state.events }
+
+  process(event) {
+    _state.process(event)
+    super.process(event)
+  }
 
   update() {
     super.update()
@@ -304,16 +334,5 @@ class GameScene is Scene {
     super.draw()
 
     Canvas.print(_name, 0, Canvas.height - 17, Color.white)
-    /*
-    TODO: Needs to be in its own UI widget
-    if (_currentText) {
-      var x = _kb.pos * 8
-      var y = Canvas.height - 10
-      if ((_t / 30).floor % 2 == 0) {
-        Canvas.rectfill(x, y, 8, 10, Color.white)
-      }
-      Canvas.print(_currentText, 0, Canvas.height - 9, Color.white)
-    }
-     */
   }
 }

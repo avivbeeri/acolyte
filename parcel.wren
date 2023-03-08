@@ -189,6 +189,7 @@ class State is Stateful {
     _events = Queue.new()
   }
   events { _events }
+  process(event) {}
   onEnter() {}
   update() { this }
   onExit() {}

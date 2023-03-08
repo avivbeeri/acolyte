@@ -8,6 +8,11 @@ import "./parcel" for
   Palette
 import "./palette" for INK
 import "./items" for Item
+import "./ui" for
+  HoverEvent,
+  TargetEvent,
+  TargetBeginEvent,
+  TargetEndEvent
 
 import "./inputs" for VI_SCHEME as INPUT
 //SCROLL_UP, SCROLL_DOWN, SCROLL_BEGIN, SCROLL_END
@@ -233,6 +238,35 @@ class LogViewer is Element {
   }
 }
 
+class Cursor is Element {
+  construct new(pos, cursor) {
+    super()
+    _pos = pos
+    _cursor = cursor
+  }
+
+  process(event) {
+    if (event is TargetEvent) {
+      _cursor = event.pos
+    } else if (event is TargetEndEvent) {
+      removeSelf()
+    }
+  }
+
+  draw() {
+    var offset = Canvas.offset
+    Canvas.offset(_pos.x,_pos.y)
+
+    var x = _cursor.x * 16
+    var y = _cursor.y * 16
+
+    Canvas.rectfill(x, y, 16, 16, INK["targetCursor"])
+
+    Canvas.offset(offset.x, offset.y)
+  }
+
+}
+
 class HealthBar is Element {
   construct new(pos, entity) {
     super()
@@ -261,18 +295,17 @@ class HealthBar is Element {
   }
 }
 
-class HoverEvent is Event {
-  construct new(target) {
-    super()
-    _src = target
-  }
-  target { _src }
-}
-
 class AsciiRenderer is Element {
   construct new(pos) {
     super()
     _pos = pos
+  }
+  process(event) {
+    if (event is TargetBeginEvent) {
+      System.print("begin")
+      addElement(Cursor.new(_pos, event.pos))
+    }
+    super.process(event)
   }
 
   update() {
@@ -308,6 +341,7 @@ class AsciiRenderer is Element {
     var offset = Canvas.offset
     Canvas.offset(_pos.x,_pos.y)
     var map = _world.zone.map
+    super.draw()
 
     for (y in map.yRange) {
       for (x in map.xRange) {

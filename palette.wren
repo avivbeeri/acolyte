@@ -30,6 +30,7 @@ INK.addColor("orange", Color.hex("#CC751F"))
 INK.addColor("gray", Color.hex("#C5B26D"))
 
 
+INK.setPurpose("targetCursor", "pastelpurple")
 INK.setPurpose("wall", "lilac")
 INK.setPurpose("obscured", "purple")
 INK.setPurpose("bg", "black")
