@@ -32,6 +32,7 @@ import "./renderer" for
   HoverText
 import "./palette" for INK
 import "./inputs" for
+  VI_SCHEME as INPUT,
   OPEN_INVENTORY,
   OPEN_LOG,
   DIR_INPUTS,
@@ -156,17 +157,17 @@ class PlayerInputState is State {
 
   update() {
      /* TODO temp */
-    if (OPEN_INVENTORY.firing) {
+    if (INPUT["inventory"].firing) {
       return InventoryWindowState.new(_scene)
     }
-    if (OPEN_LOG.firing) {
+    if (INPUT["log"].firing) {
       return ModalWindowState.new(_scene)
     }
-    if (ESC_INPUT.firing) {
+    if (INPUT["exit"].firing) {
       Process.exit()
       return
     }
-    if (Keyboard["return"].justPressed) {
+    if (INPUT["confirm"].justPressed) {
       return TextInputState.new(_scene)
     }
 
@@ -176,16 +177,16 @@ class PlayerInputState is State {
 
     var player = _world.getEntityByTag("player")
     var i = 0
-    for (input in DIR_INPUTS) {
+    for (input in INPUT.list("dir")) {
       if (input.firing) {
         player.pushAction(BumpAction.new(DIR_EIGHT[i]))
       }
       i = i + 1
     }
-    if (REST_INPUT.firing) {
+    if (INPUT["rest"].firing) {
       player.pushAction(RestAction.new())
     }
-    if (PICKUP_INPUT.firing) {
+    if (INPUT["pickup"].firing) {
       player.pushAction(PickupAction.new())
     }
     if (Keyboard["q"].justPressed) {

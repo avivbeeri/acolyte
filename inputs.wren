@@ -1,5 +1,33 @@
 import "input" for Keyboard, Mouse, InputGroup
 
+class InputScheme {
+  construct new(data) {
+    init(data)
+  }
+
+  construct new() {
+    init([null, null])
+  }
+
+  init(data) {
+    _inputs = data[0] || {}
+    _list = data[1] || {}
+  }
+
+  register(purpose, group) {
+    if (!(group is InputGroup)) {
+      group = InputGroup.new(group)
+    }
+    _inputs[purpose] = group
+  }
+  registerList(name, group) { _list[name] = group }
+  list(name) { _list[name].map {|purpose| this[purpose] }.toList }
+  [purpose] { _inputs[purpose] }
+
+  copy() { InputScheme.new([ _inputs, _list ]) }
+}
+
+
 var KEY_SET_1 = [
   [ Keyboard["up"] ],
   [ Keyboard["right"] ],
@@ -52,6 +80,17 @@ var KEY_SET_5 = [
   [ Keyboard["z"] ]
 ]
 
+var KEY_SET_ORDER = [
+  "north",
+  "east",
+  "south",
+  "west",
+  "nw",
+  "ne",
+  "se",
+  "sw"
+]
+
 var KEY_SET = []
 for (i in 0...KEY_SET_1.count) {
   KEY_SET.add(KEY_SET_1[i] + KEY_SET_2[i] + KEY_SET_5[i])
@@ -71,6 +110,21 @@ var DIR_INPUTS = [
   InputGroup.new([Keyboard["b"], Keyboard["keypad 1"], Keyboard["1"] ])
 ]
 */
+
+var BASIC = InputScheme.new()
+BASIC.register("confirm", [ Keyboard["return"] ])
+BASIC.register("reject", [ Keyboard["backspace"], Keyboard["space"], Keyboard["delete"]  ])
+BASIC.register("exit", [ Keyboard["escape"] ])
+BASIC.register("rest", [ Keyboard["space"], Keyboard["."], Keyboard["keypad ."]  ])
+BASIC.register("pickup", [ Keyboard["g"] ])
+BASIC.register("inventory", [ Keyboard["i"] ])
+BASIC.register("log", [ Keyboard["v"] ])
+
+var VI_SCHEME = BASIC.copy()
+for (i in 0...KEY_SET_1.count) {
+  VI_SCHEME.register(KEY_SET_ORDER[i], KEY_SET_2[i])
+}
+VI_SCHEME.registerList("dir", KEY_SET_ORDER)
 
 var SCROLL_UP = InputGroup.new([ Keyboard["up"], Keyboard["page up"], Keyboard["k"] ])
 var SCROLL_DOWN = InputGroup.new([ Keyboard["down"], Keyboard["page down"], Keyboard["j"]] )
