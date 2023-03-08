@@ -131,11 +131,12 @@ class StatGroup {
 class Condition is Stateful {
   construct new(id, duration, curable) {
     super()
-    _id = data["id"]
-    _duration = data["duration"]
-    _curable = data["curable"]
+    data["id"] = id
+    data["duration"] = duration
+    data["curable"] = curable
   }
 
+  id { data["id"] }
   duration { data["duration"] }
   duration=(v) { data["duration"] = v }
   curable { data["curable"] }
@@ -144,7 +145,7 @@ class Condition is Stateful {
     duration = duration ? duration - 1 : null
   }
   done { duration && duration <= 0 }
-  hash() { _id }
+  hash() { id }
 
   extend(n) {
     if (duration != null) {

@@ -9,6 +9,11 @@ class ConditionEvent is Event {
   target { data["src"] }
   condition { data["condition"] }
 }
+class ClearConditionEvent is ConditionEvent {
+  construct new(target, condition) {
+    super(target, condition)
+  }
+}
 class ExtendConditionEvent is ConditionEvent {
   construct new(target, condition) {
     super(target, condition)
@@ -67,5 +72,6 @@ class Events {
   static useItem { UseItemEvent }
   static extendCondition { ExtendConditionEvent }
   static inflictCondition { InflictConditionEvent }
+  static clearCondition { ClearConditionEvent }
   static lightningCondition { LightningEvent }
 }

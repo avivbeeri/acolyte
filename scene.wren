@@ -28,7 +28,7 @@ import "./renderer" for
 import "./actions" for BumpAction, RestAction
 import "./entities" for Player
 import "./events" for Events,RestEvent, PickupEvent, UseItemEvent, LightningEvent
-import "./systems" for VisionSystem, DefeatSystem, InventorySystem
+import "./systems" for VisionSystem, DefeatSystem, InventorySystem, ConditionSystem
 import "./generator" for Generator
 import "./combat" for AttackEvent, DefeatEvent, HealEvent
 import "./items" for ItemAction, PickupAction, Items
@@ -245,6 +245,7 @@ class GameScene is Scene {
 
     var world = _world = World.new()
     _world.systems.add(InventorySystem.new())
+    _world.systems.add(ConditionSystem.new())
     _world.systems.add(DefeatSystem.new())
     _world.systems.add(VisionSystem.new())
     _world["items"] = {
@@ -340,6 +341,9 @@ class GameScene is Scene {
       }
       if (event is Events.extendCondition) {
         _messages.add("%(event.target)'s confusion was extended.", INK["text"], false)
+      }
+      if (event is Events.clearCondition) {
+        _messages.add("%(event.target) recovered from %(event.condition).", INK["text"], false)
       }
     }
   }

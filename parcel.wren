@@ -129,7 +129,19 @@ class BehaviourEntity is Entity {
     _behaviours = Stack.new()
   }
   behaviours { _behaviours }
-  removeBehaviour(b) { _behaviours.remove(b) }
+  removeBehaviour(b) {
+    var temp = Stack.new()
+    while (!_behaviours.isEmpty) {
+      var behaviour = _behaviours.remove()
+      if (b == behaviour) {
+        continue
+      }
+      temp.add(behaviour)
+    }
+    while (!temp.isEmpty) {
+      _behaviours.add(temp.remove())
+    }
+  }
 
   getAction() {
     // behaviours can push their own actions onto the queue

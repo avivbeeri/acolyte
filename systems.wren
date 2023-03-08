@@ -11,6 +11,22 @@ class InventorySystem is GameSystem {
   }
 }
 
+class ConditionSystem is GameSystem {
+  construct new() { super() }
+  postUpdate(ctx, actor) {
+    if (!actor.has("conditions")) {
+      return
+    }
+    for (entry in actor["conditions"]) {
+      var condition = entry.value
+      condition.tick()
+      if (condition.done) {
+        actor["conditions"].remove(condition.id)
+        ctx.addEvent(Events.clearCondition.new(actor, condition.id))
+      }
+    }
+  }
+}
 class DefeatSystem is GameSystem {
   construct new() { super() }
   postUpdate(ctx, actor) {
@@ -43,3 +59,4 @@ class VisionSystem is GameSystem {
   }
 }
 
+import "events" for Events

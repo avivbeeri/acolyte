@@ -33,6 +33,7 @@ class ConfusedBehaviour is Behaviour {
       actor.removeBehaviour(this)
       return false
     }
+    System.print(actor["conditions"]["confusion"].duration)
     var dir = DIR_EIGHT[RNG.int(8)]
     actor.pushAction(BumpAction.new(dir))
     return true
