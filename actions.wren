@@ -138,6 +138,7 @@ class AreaAttackAction is Action {
 
   perform() {
     var targetPos = _origin
+    var defeats = []
     var dist = _range - 1
     var targets = []
     for (dy in (-dist)..(dist)) {
@@ -152,10 +153,13 @@ class AreaAttackAction is Action {
       target["stats"].decrease("hp", _damage)
       ctx.addEvent(AttackEvent.new())
       if (target["stats"].get("hp") <= 0) {
-        ctx.addEvent(DefeatEvent.new(target))
+        defeats.add(DefeatEvent.new(target))
         // TODO remove entity elsewhere?
         ctx.removeEntity(target)
       }
+    }
+    for (event in defeats) {
+      ctx.addEvent(event)
     }
 
     return ActionResult.success
