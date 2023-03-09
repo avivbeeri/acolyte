@@ -12,7 +12,8 @@ class Creature is BehaviourEntity {
       "hpMax": 1,
       "hp": 1,
       "str": 1,
-      "dex": 0
+      "dex": 0,
+      "xp": 0
     })
     this["conditions"] = {}
   }
@@ -31,7 +32,8 @@ class Player is Creature {
       "hpMax": 5,
       "hp": 5,
       "str": 1,
-      "dex": 1
+      "dex": 1,
+      "xp": 0
     })
   }
   name { data["name"] || "Player" }
@@ -60,7 +62,8 @@ class Rat is Creature {
       "hpMax": 1,
       "hp": 1,
       "str": 1,
-      "dex": 1
+      "dex": 1,
+      "xp": 0
     })
 
     behaviours.add(SeekBehaviour.new())

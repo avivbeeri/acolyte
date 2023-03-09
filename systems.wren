@@ -2,6 +2,16 @@ import "fov" for Vision, Vision2
 import "parcel" for GameSystem, JPS, GameEndEvent
 import "./entities" for Player
 
+class ExperienceSystem is GameSystem {
+  construct new() { super() }
+  process(ctx, event) {
+    if (event is Events.defeat) {
+      // Count XP just in case
+      event.src["stats"].increase("xp", 1)
+    }
+  }
+}
+
 class InventorySystem is GameSystem {
   construct new() { super() }
   postUpdate(ctx, actor) {

@@ -12,11 +12,13 @@ class HealEvent is Event {
 }
 
 class DefeatEvent is Event {
-  construct new(entity) {
+  construct new(src, target) {
     super()
-    _src = entity
+    _src = src
+    _target = target
   }
-  target { _src }
+  src { _src }
+  target { _target }
 }
 class AttackEvent is Event {
   construct new(src, target, attack, result) {

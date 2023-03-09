@@ -1,5 +1,5 @@
 import "parcel" for Action, ActionResult, MAX_TURN_SIZE, JPS, Line
-import "./combat" for AttackEvent, Damage, DefeatEvent, HealEvent, Condition
+import "./combat" for AttackEvent, Damage, Condition
 import "./events" for Events, RestEvent, LightningEvent
 
 class RestAction is Action {
@@ -68,7 +68,7 @@ class HealAction is Action {
     var hp = target["stats"].get("hp")
     var amount = _amount.min(hpMax - hp)
     target["stats"].increase("hp", amount)
-    ctx.addEvent(HealEvent.new(target, amount))
+    ctx.addEvent(Events.heal.new(target, amount))
 
     return ActionResult.success
   }
@@ -116,7 +116,7 @@ class LightningAttackAction is Action {
     target["stats"].decrease("hp", _damage)
     ctx.addEvent(LightningEvent.new(target))
     if (target["stats"].get("hp") <= 0) {
-      ctx.addEvent(DefeatEvent.new(target))
+      ctx.addEvent(Events.defeat.new(src, target))
       // TODO remove entity elsewhere?
       ctx.removeEntity(target)
     }
@@ -153,7 +153,7 @@ class AreaAttackAction is Action {
       target["stats"].decrease("hp", _damage)
       ctx.addEvent(AttackEvent.new(src, target, "area", _damage))
       if (target["stats"].get("hp") <= 0) {
-        defeats.add(DefeatEvent.new(target))
+        defeats.add(Events.defeat.new(src, target))
         // TODO remove entity elsewhere?
         ctx.removeEntity(target)
       }
@@ -191,7 +191,7 @@ class MeleeAttackAction is Action {
       target["stats"].decrease("hp", damage)
       ctx.addEvent(AttackEvent.new(src, target, "melee", damage))
       if (target["stats"].get("hp") <= 0) {
-        ctx.addEvent(DefeatEvent.new(target))
+        ctx.addEvent(Events.defeat.new(src, target))
         // TODO remove entity elsewhere?
         ctx.removeEntity(target)
       }

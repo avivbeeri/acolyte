@@ -28,7 +28,7 @@ import "./renderer" for
 import "./actions" for BumpAction, RestAction, DescendAction
 import "./entities" for Player
 import "./events" for Events,RestEvent, PickupEvent, UseItemEvent, LightningEvent
-import "./systems" for VisionSystem, DefeatSystem, InventorySystem, ConditionSystem
+import "./systems" for VisionSystem, DefeatSystem, InventorySystem, ConditionSystem, ExperienceSystem
 import "./generator" for Generator
 import "./combat" for AttackEvent, DefeatEvent, HealEvent
 import "./items" for ItemAction, PickupAction, Items
@@ -309,6 +309,7 @@ class GameScene is Scene {
     var world = _world = World.new()
     _world.generator = Generator
     _world.systems.add(InventorySystem.new())
+    _world.systems.add(ExperienceSystem.new())
     _world.systems.add(ConditionSystem.new())
     _world.systems.add(DefeatSystem.new())
     _world.systems.add(VisionSystem.new())
