@@ -134,14 +134,15 @@ class Generator {
       if (entities.isEmpty || !entities.any{|entity| entity.pos == pos }) {
         var r = RNG.float()
         var itemId = "potion"
-        if (r < 0.1) {
-          itemId = "fireball"
-        }
-        if (r < 0.3) {
-          itemId = "wand"
+        System.print(r)
+        if (r < 0.8) {
+          itemId = "scroll"
         }
         if (r < 0.6) {
-          itemId = "scroll"
+          itemId = "wand"
+        }
+        if (r < 0.2) {
+          itemId = "fireball"
         }
         zone.map[pos]["items"] = [ InventoryEntry.new(itemId, 1) ]
       }
