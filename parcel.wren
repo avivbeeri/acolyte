@@ -721,6 +721,7 @@ class ParcelMain {
   push(scene, args) {
     _scene = scene.new(args)
     _scene.game = this
+    _scene.update()
   }
 }
 

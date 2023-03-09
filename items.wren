@@ -116,14 +116,16 @@ class ItemAction is Action {
 }
 
 class Item is Stateful {
-  construct new() {
+  construct new(id) {
     super()
+    data["id"] = id
   }
 
+  id { _id }
   consumable { true }
   name { data["name"] || this.type.name }
   toString { name }
-  query(action) { null }
+  query(action) { {} }
 
   default(args) {}
 
@@ -136,7 +138,7 @@ class Item is Stateful {
 
 class HealthPotion is Item {
   construct new() {
-    super()
+    super("potion")
     data["name"] = "Health Potion"
   }
 
@@ -145,7 +147,7 @@ class HealthPotion is Item {
 }
 class LightningScroll is Item {
   construct new() {
-    super()
+    super("scroll")
     data["name"] = "Lightning Scroll"
   }
 
@@ -154,7 +156,7 @@ class LightningScroll is Item {
 }
 class ConfusionScroll is Item {
   construct new() {
-    super()
+    super("wand")
     data["name"] = "Confusion Scroll"
   }
 
@@ -163,6 +165,7 @@ class ConfusionScroll is Item {
   query(action) {
     if (action == "use") {
       return {
+        "target": true,
         "range": 8,
         "area": 1,
         "needEntity": true
@@ -174,7 +177,7 @@ class ConfusionScroll is Item {
 }
 class FireballScroll is Item {
   construct new() {
-    super()
+    super("fireball")
     data["name"] = "Fireball Scroll"
   }
 
@@ -185,6 +188,7 @@ class FireballScroll is Item {
   query(action) {
     if (action == "use") {
       return {
+        "target": true,
         "range": 8,
         "area": 2,
         "needEntity": false

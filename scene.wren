@@ -45,7 +45,12 @@ class InventoryWindowState is State {
 
     var player = _scene.world.getEntityByTag("player")
     var playerItems = player["inventory"]
-    var items = playerItems.map {|entry| "%(entry.qty)x %(worldItems[entry.id].name)" }.toList
+    var i = 0
+    var items = playerItems.map {|entry|
+      i = i + 1
+      var letter = getKey(i)
+      return "%(letter)) %(entry.qty)x %(worldItems[entry.id].name)"
+    }.toList
     items.insert(0, "")
     var max = 0
     for (line in items) {
@@ -69,8 +74,37 @@ class InventoryWindowState is State {
   onExit() {
     _scene.removeElement(_window)
   }
+  getKey(i) {
+    var letter = i.toString
+    if (i > 9) {
+      letter = String.fromByte(97 + i)
+    }
+    if (i > 9 + 26) {
+      Fiber.abort("inventory is huge")
+    }
+    return letter
+  }
   update() {
-    if (INPUT["confirm"].firing) {
+    var player = _scene.world.getEntityByTag("player")
+    var playerItems = player["inventory"]
+
+    var i = 1
+    for (entry in playerItems) {
+      var letter = getKey(i)
+      var item = _scene.world["items"][entry.id]
+      if (Keyboard[letter].justPressed) {
+        var query = item.query("use")
+        if (!query["target"]) {
+          player.pushAction(ItemAction.new(entry.id))
+          return PlayerInputState.new(_scene)
+        } else {
+          query["item"] = entry.id
+          return TargetQueryState.new(_scene, query)
+        }
+      }
+      i = i + 1
+    }
+    if (INPUT["reject"].firing || INPUT["confirm"].firing) {
       return PlayerInputState.new(_scene)
     }
     return this
@@ -176,6 +210,25 @@ class TargetQueryState is State {
   }
 }
 
+class ConfirmState is State {
+  construct new(scene) {
+    super()
+    _scene = scene
+  }
+  onEnter() {
+  }
+  onExit() {
+  }
+  update() {
+    if (INPUT["confirm"].firing) {
+      Process.exit()
+      return
+    } else if (INPUT["reject"].firing) {
+      return PlayerInputState.new(_scene)
+    }
+    return this
+  }
+}
 class ModalWindowState is State {
   construct new(scene) {
     super()
@@ -214,11 +267,13 @@ class PlayerInputState is State {
       return ModalWindowState.new(_scene)
     }
     if (INPUT["exit"].firing) {
-      Process.exit()
-      return
+      return ConfirmState.new(_scene)
     }
 
     if (_world.complete) {
+      if (INPUT["confirm"].firing) {
+        _scene.game.push(GameScene)
+      }
       return this
     }
 
@@ -235,22 +290,6 @@ class PlayerInputState is State {
     }
     if (INPUT["pickup"].firing) {
       player.pushAction(PickupAction.new())
-    }
-    if (Keyboard["q"].justPressed) {
-      player.pushAction(ItemAction.new("potion"))
-    }
-    if (Keyboard["s"].justPressed) {
-      player.pushAction(ItemAction.new("scroll"))
-    }
-    if (Keyboard["f"].justPressed) {
-      var itemId = "wand"
-      var query = _scene.world["items"][itemId].query("use")
-      query["item"] = itemId
-      return TargetQueryState.new(_scene, query)
-
-    }
-    if (Keyboard["t"].justPressed) {
-      //return TargetQueryState.new(_scene)
     }
 
     return this
