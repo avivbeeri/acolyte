@@ -163,7 +163,9 @@ class ConfusionScroll is Item {
   query(action) {
     if (action == "use") {
       return {
-        "range": 8
+        "range": 8,
+        "area": 1,
+        "needEntity": true
       }
     }
     return null
@@ -183,7 +185,9 @@ class FireballScroll is Item {
   query(action) {
     if (action == "use") {
       return {
-        "range": 8
+        "range": 8,
+        "area": 2,
+        "needEntity": false
       }
     }
     return null

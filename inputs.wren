@@ -108,7 +108,7 @@ for (i in 0...KEY_SET_1.count) {
 
 var BASIC = InputScheme.new()
 BASIC.register("confirm", [ Keyboard["return"] ])
-BASIC.register("reject", [ Keyboard["backspace"], Keyboard["space"], Keyboard["delete"]  ])
+BASIC.register("reject", [ Keyboard["escape"], Keyboard["backspace"], Keyboard["delete"]  ])
 BASIC.register("exit", [ Keyboard["escape"] ])
 BASIC.register("rest", [ Keyboard["space"], Keyboard["."], Keyboard["keypad ."]  ])
 BASIC.register("pickup", [ Keyboard["g"] ])

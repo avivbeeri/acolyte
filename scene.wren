@@ -80,17 +80,18 @@ class InventoryWindowState is State {
 class TargetQueryState is State {
   construct new(scene, query) {
     super()
-    _query = query
     _scene = scene
     var player = scene.world.getEntityByTag("player")
     _origin = player.pos
-    _range = 3
-    _area = 2
-    _allowSolid = false
-    _needEntity = true
-    _needSight = true
     _cursorPos = player.pos
     _hoverPos = null
+
+    _query = query
+    _range = query["range"]
+    _area = query["area"] || 1
+    _allowSolid = query.containsKey("allowSolid") ? query["allowSolid"] : false
+    _needEntity = query.containsKey("needEntity") ? query["needEntity"] : true
+    _needSight = query.containsKey("needSight") ? query["needSight"] : true
   }
 
   onEnter() {
@@ -242,7 +243,7 @@ class PlayerInputState is State {
       player.pushAction(ItemAction.new("scroll"))
     }
     if (Keyboard["f"].justPressed) {
-      var itemId = "fireball"
+      var itemId = "wand"
       var query = _scene.world["items"][itemId].query("use")
       query["item"] = itemId
       return TargetQueryState.new(_scene, query)

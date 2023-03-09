@@ -132,7 +132,18 @@ class Generator {
       var pos = Vec.new(x, y)
 
       if (entities.isEmpty || !entities.any{|entity| entity.pos == pos }) {
-        zone.map[pos]["items"] = [ InventoryEntry.new("fireball", 1) ]
+        var r = RNG.float()
+        var itemId = "potion"
+        if (r < 0.1) {
+          itemId = "fireball"
+        }
+        if (r < 0.3) {
+          itemId = "wand"
+        }
+        if (r < 0.6) {
+          itemId = "scroll"
+        }
+        zone.map[pos]["items"] = [ InventoryEntry.new(itemId, 1) ]
       }
     }
   }
