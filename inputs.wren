@@ -115,6 +115,8 @@ BASIC.register("pickup", [ Keyboard["g"] ])
 BASIC.register("inventory", [ Keyboard["i"] ])
 BASIC.register("log", [ Keyboard["v"] ])
 BASIC.register("info", [ Keyboard["t"] ])
+BASIC.register("descend", [ Keyboard["."] ])
+BASIC.register("ascend", [ Keyboard[","] ])
 BASIC.register("scrollUp", "north")
 BASIC.register("scrollDown", "south")
 

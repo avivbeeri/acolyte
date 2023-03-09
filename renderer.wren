@@ -78,7 +78,8 @@ class CharacterViewer is Element {
     _size = size
     _height = (size.y / 12).floor
     _lines = null
-    _viewer = addElement(LineViewer.new(pos + Vec.new(4, 12), _size, _height, _lines))
+    _width = size.x
+    _viewer = addElement(LineViewer.new(pos + Vec.new(8, 8), _size, _height, _lines))
   }
 
   update() {
@@ -87,10 +88,26 @@ class CharacterViewer is Element {
     if (!_lines) {
       var player = _world.getEntityByTag("player")
       _lines = []
+      _lines.add("--- Character Information ---")
+      _lines.add("")
       _lines.add("Name: %(player.name)")
       var hp = player["stats"]["hp"]
       var hpMax = player["stats"]["hpMax"]
       _lines.add("HP: %(hp)/%(hpMax)")
+      _lines.add("Conditions:")
+      if (!player["conditions"].isEmpty) {
+        for (condition in player["conditions"].keys) {
+          _lines.add("  %(condition)")
+        }
+      } else {
+        _lines.add("  None")
+      }
+
+      _width = (LineViewer.getWidth(_lines) + 2) * 8
+      _height = (_lines.count + 2) * 12
+      _size.x = _width
+      _size.y = _height
+
       _viewer.lines = _lines
     }
   }
@@ -100,7 +117,6 @@ class CharacterViewer is Element {
 
     Canvas.rectfill(0, 0, _size.x, _size.y, INK["bg"])
     Canvas.rect(0, 0, _size.x, _size.y, INK["border"])
-    Canvas.print("Character Information", 0, 0, INK["text"])
 
     Canvas.offset(offset.x, offset.y)
     super.draw()
@@ -155,6 +171,16 @@ class LineViewer is Element {
   }
   lines=(v) { _lines = v }
   lines { _lines }
+
+  static getWidth(lines) {
+    var max = 0
+    for (line in lines) {
+      if (line.count > max) {
+        max = line.count
+      }
+    }
+    return max
+  }
 
   draw() {
     var offset = Canvas.offset

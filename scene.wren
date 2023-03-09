@@ -249,7 +249,7 @@ class ModalWindowState is State {
     _scene.removeElement(_window)
   }
   update() {
-    if (INPUT["confirm"].firing) {
+    if (INPUT["reject"].firing || INPUT["confirm"].firing) {
       return PlayerInputState.new(_scene)
     }
     return this
@@ -300,7 +300,7 @@ class PlayerInputState is State {
     if (INPUT["pickup"].firing) {
       player.pushAction(PickupAction.new())
     }
-    if (Keyboard[","].justPressed) {
+    if (INPUT["descend"].justPressed) {
       player.pushAction(DescendAction.new())
     }
 
