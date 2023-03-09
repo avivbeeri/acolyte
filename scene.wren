@@ -25,7 +25,7 @@ import "./renderer" for
   HoverText
 
 
-import "./actions" for BumpAction, RestAction
+import "./actions" for BumpAction, RestAction, DescendAction
 import "./entities" for Player
 import "./events" for Events,RestEvent, PickupEvent, UseItemEvent, LightningEvent
 import "./systems" for VisionSystem, DefeatSystem, InventorySystem, ConditionSystem
@@ -291,6 +291,9 @@ class PlayerInputState is State {
     if (INPUT["pickup"].firing) {
       player.pushAction(PickupAction.new())
     }
+    if (Keyboard[","].justPressed) {
+      player.pushAction(DescendAction.new())
+    }
 
     return this
   }
@@ -304,6 +307,7 @@ class GameScene is Scene {
     _messages.add("Welcome, acolyte, to the catacombs. It's time to decend.", INK["welcome"], false)
 
     var world = _world = World.new()
+    _world.generator = Generator
     _world.systems.add(InventorySystem.new())
     _world.systems.add(ConditionSystem.new())
     _world.systems.add(DefeatSystem.new())
@@ -314,13 +318,7 @@ class GameScene is Scene {
       "wand": Items.confusionScroll,
       "fireball": Items.fireballScroll
     }
-
-    var zone = Generator.generateDungeon([ 1 ])
-    world.addZone(zone)
-    for (entity in zone["entities"]) {
-      world.addEntity(entity)
-    }
-    zone.data.remove("entities")
+    var zone = world.loadZone(0)
     world.addEntity("player", Player.new())
     var player = world.getEntityByTag("player")
     player.pos = zone["start"]

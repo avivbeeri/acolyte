@@ -65,6 +65,11 @@ class RestEvent is Event {
 
   src { data["src"] }
 }
+class DescendEvent is Event {
+  construct new() {
+    super()
+  }
+}
 
 class Events {
   static rest { RestEvent }
@@ -74,4 +79,5 @@ class Events {
   static inflictCondition { InflictConditionEvent }
   static clearCondition { ClearConditionEvent }
   static lightningCondition { LightningEvent }
+  static descend { DescendEvent }
 }

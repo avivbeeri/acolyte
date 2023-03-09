@@ -55,4 +55,7 @@ INK.setPurpose("treasure", "gold")
 INK.setPurpose("needsTarget", "blue")
 INK.setPurpose("statusApplied", "green")
 
+INK.setPurpose("downstairs", "gold")
+INK.setPurpose("upstairs", "darkgreen")
+
 

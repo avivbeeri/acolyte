@@ -372,6 +372,13 @@ class AsciiRenderer is Element {
         if (map[x, y]["void"]) {
         } else if (map[x, y]["solid"]) {
           Canvas.print("#", x * 16 + 4, y * 16 + 4, color)
+        } else if (map[x, y]["stairs"]) {
+          if (map[x, y]["stairs"] == "down") {
+            Canvas.print(">", x * 16 + 4, y * 16 + 4, INK["downstairs"])
+          }
+          if (map[x, y]["stairs"] == "up") {
+            Canvas.print("<", x * 16 + 4, y * 16 + 4, INK["upstairs"])
+          }
         } else {
           var items = map[x, y]["items"]
           if (items && items.count > 0) {

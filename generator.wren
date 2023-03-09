@@ -52,7 +52,7 @@ class Generator {
       })
     }
   }
-  static generateDungeon(args) {
+  static generate(args) {
     var maxRooms = 18
     var minSize = 5
     var maxSize = 10
@@ -61,10 +61,12 @@ class Generator {
 
     var map = TileMap8.new()
     var level = args[0]
+    var startPos = args.count > 1 ? args[1] : null
     var zone = Zone.new(map)
     zone["entities"] = []
     zone["level"] = level
     zone["title"] = "The Courtyard"
+    zone["start"] = startPos
 
     for (y in 0...32) {
       for (x in 0...32) {
@@ -81,6 +83,11 @@ class Generator {
       var h = RNG.int(minSize, maxSize + 1)
       var x = RNG.int(0, 32 - w - 1)
       var y = RNG.int(0, 32 - h - 1)
+      if (rooms.count == 0 && startPos) {
+        // ensure start position is contained in first room
+        x = (startPos.x - RNG.int(1, w - 1)).max(0)
+        y = (startPos.y - RNG.int(1, h - 1)).max(0)
+      }
 
       var room = RectangularRoom.new(x, y, w, h)
       if (!rooms.isEmpty && rooms.any{|existing| room.intersects(existing) }) {
@@ -93,22 +100,43 @@ class Generator {
       }
       if (rooms.count > 0) {
         Generator.tunnelBetween(map, room.center, rooms[-1].center)
-      } else {
-        zone["start"] = room.center
+      } else if (!startPos) {
+        startPos = room.center
       }
       rooms.add(room)
 
       Generator.placeEntities(zone, room, monstersPerRoom, itemsPerRoom)
     }
+
+    // USE THIS IF WE DON'T WANT TO START ON STAIRS
+    // startPos = RNG.shuffle(map.neighbours(startPos))[0]
+    zone["start"] = startPos
     // Add a cycle
     if (rooms.count > 3) {
       var start = RNG.int(0, rooms.count - 3)
       var end = start + 3
       Generator.tunnelBetween(map, rooms[start].center, rooms[end].center)
     }
+    var finalRoom = rooms[-1]
+    Generator.placeStairs(zone, finalRoom)
+    zone.map[startPos]["stairs"] = "up"
 
     return zone
   }
+  static placeStairs(zone, room) {
+    var entities = zone["entities"]
+    var pos = Vec.new()
+    pos.x = RNG.int(room.p0.x + 1, room.p1.x - 1)
+    pos.y = RNG.int(room.p0.y + 1, room.p1.y - 1)
+
+    while (!entities.isEmpty && entities.any{|entity| entity.pos == pos }) {
+      pos.x = RNG.int(room.p0.x + 1, room.p1.x - 1)
+      pos.y = RNG.int(room.p0.y + 1, room.p1.y - 1)
+    }
+
+    zone.map[pos]["stairs"] = "down"
+  }
+
   static placeEntities(zone, room, maxMonsters, maxItems) {
     var totalMonsters = RNG.int(maxMonsters + 1)
     var totalItems = RNG.int(maxItems + 1)
@@ -149,7 +177,7 @@ class Generator {
     }
   }
 
-  static generate(args) {
+  static generateTest(args) {
 
     var map = TileMap8.new()
     for (y in 0...32) {

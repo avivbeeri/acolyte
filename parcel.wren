@@ -432,7 +432,7 @@ class World is Stateful {
     for (entity in entities()) {
       _queue.add(entity.id, _turn)
     }
-    addEvent(ChangeZoneEvent.new(id))
+    addEvent(ChangeZoneEvent.new())
   }
 
   nextId() {
@@ -441,6 +441,21 @@ class World is Stateful {
     return id
   }
 
+  generator { _generator }
+  generator=(v) { _generator = v }
+  loadZone(i) { loadZone(i, null) }
+  loadZone(i, start) {
+    if (_zones.count == 0 || i >= _zones.count) {
+      var newZone = _generator.generate([ i, start ])
+      for (entity in newZone["entities"]) {
+        addEntity(entity)
+      }
+      newZone.data.remove("entities")
+      addZone(newZone)
+    }
+    changeZone(i)
+    return zone
+  }
   zone { _zones[_zoneIndex] }
   addZone(zone) {
     _zones.add(zone)

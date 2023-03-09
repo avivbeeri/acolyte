@@ -223,6 +223,19 @@ class SimpleMoveAction is Action {
   }
 }
 
+class DescendAction is Action {
+  construct new() {
+  }
+  evaluate() {
+    return ctx.zone.map[src.pos]["stairs"] == "down" ? ActionResult.valid : ActionResult.invalid
+  }
+  perform() {
+    src.zone = src.zone + 1
+    ctx.addEvent(Events.descend.new())
+    ctx.loadZone(ctx.zoneIndex + 1, src.pos)
+    return ActionResult.success
+  }
+}
 
 class BumpAction is Action {
   construct new(dir) {
