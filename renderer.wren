@@ -300,6 +300,9 @@ class HealthBar is Element {
     Canvas.rectfill(0, 0, current * 16, 16, INK["barFilled"])
     Canvas.print("HP: %(hp) / %(hpMax)", 4, 4, INK["barText"])
 
+    var floor = _world.zoneIndex + 1
+    Canvas.print("Floor: %(floor)", (width + 1) * 16, 4, INK["barText"])
+
     Canvas.offset(offset.x, offset.y)
   }
 }
