@@ -1,6 +1,41 @@
 import "parcel" for TileMap8, Tile, Zone, Line, RNG, Entity, DIR_FOUR, Dijkstra
 import "math" for Vec
 
+class GeneratorUtils {
+  static findFurthestPoint(map, startPos) {
+    var dMap = Dijkstra.map(map, startPos)
+    var maxEntry = null
+    for (entry in dMap[0]) {
+      if (maxEntry == null || entry.value > maxEntry.value) {
+        maxEntry = entry
+      }
+    }
+    return maxEntry.key
+  }
+  static findPockets(map) {
+    var list = []
+    for (y in 0...32) {
+      for (x in 0...32) {
+        if (map[x, y]["stairs"] || map[x, y]["solid"]) {
+          continue
+        }
+        var count = 0
+        for (i in 0...4) {
+          var dir = DIR_FOUR[i]
+          if (map[x + dir.x, y + dir.y]["solid"]) {
+            count = count + 1
+          }
+        }
+        if (count == 3) {
+          list.add(Vec.new(x, y))
+        }
+      }
+    }
+    return list
+  }
+
+}
+
 class WorldGenerator {
   static generate(world, args) {
     var level = args[0]
@@ -60,14 +95,26 @@ class RandomZoneGenerator {
       map[current]["solid"] = false
       map[current]["blocking"] = false
     }
-    var dMap = Dijkstra.map(map, startPos)
-    var maxEntry = null
-    for (entry in dMap[0]) {
-      if (maxEntry == null || entry.value > maxEntry.value) {
-        maxEntry = entry
+    var exit = GeneratorUtils.findFurthestPoint(map, startPos)
+    zone.map[exit]["stairs"] = "down"
+    var pockets = RNG.shuffle(GeneratorUtils.findPockets(map))
+    if (!pockets.isEmpty) {
+      var pos = pockets[0]
+      System.print(pos)
+      var r = RNG.float()
+      var itemId = "potion"
+      if (r < 0.8) {
+        itemId = "scroll"
       }
+      if (r < 0.6) {
+        itemId = "wand"
+      }
+      if (r < 0.2) {
+        itemId = "fireball"
+      }
+      zone.map[pos]["items"] = [ InventoryEntry.new(itemId, 1) ]
     }
-    zone.map[maxEntry.key]["stairs"] = "down"
+
     return zone
   }
 }
