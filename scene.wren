@@ -404,6 +404,9 @@ class GameScene is Scene {
       if (event is Events.clearCondition) {
         _messages.add("%(event.target) recovered from %(event.condition).", INK["text"], false)
       }
+      if (event is Events.descend) {
+        _messages.add("You descend down the stairs.", INK["text"], false)
+      }
     }
   }
 
