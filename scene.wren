@@ -30,7 +30,7 @@ import "./actions" for BumpAction, RestAction, DescendAction
 import "./entities" for Player
 import "./events" for Events,RestEvent, PickupEvent, UseItemEvent, LightningEvent
 import "./systems" for VisionSystem, DefeatSystem, InventorySystem, ConditionSystem, ExperienceSystem
-import "./generator" for Generator
+import "./generator" for WorldGenerator
 import "./combat" for AttackEvent, DefeatEvent, HealEvent
 import "./items" for ItemAction, PickupAction, Items
 
@@ -316,7 +316,7 @@ class GameScene is Scene {
     _messages.add("Welcome, acolyte, to the catacombs. It's time to decend.", INK["welcome"], false)
 
     var world = _world = World.new()
-    _world.generator = Generator
+    _world.generator = WorldGenerator
     _world.systems.add(InventorySystem.new())
     _world.systems.add(ExperienceSystem.new())
     _world.systems.add(ConditionSystem.new())

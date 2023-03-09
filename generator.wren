@@ -1,44 +1,78 @@
-import "parcel" for TileMap8, Tile, Zone, Line, RNG, Entity
+import "parcel" for TileMap8, Tile, Zone, Line, RNG, Entity, DIR_FOUR, Dijkstra
 import "math" for Vec
 
-class RectangularRoom {
+class WorldGenerator {
+  static generate(world, args) {
+    var level = args[0]
+    var startPos = args.count > 1 ? args[1] : null
 
-  construct new(x, y, w, h) {
-    _p0 = Vec.new(x, y)
-    _size = Vec.new(w, h)
-    _p1 = _p0 + _size
-  }
+    var zone = null
 
-  center {
-    var c = (_p0 + (_size / 2))
-    c.x = c.x.floor
-    c.y = c.y.floor
-    return c
-  }
-
-  inner {
-    var inside = []
-    for (y in (_p0.y+1)..._p1.y) {
-      for (x in (_p0.x+1)..._p1.x) {
-        inside.add(Vec.new(x, y))
-      }
+    if (level < 4) {
+      zone = RandomZoneGenerator.generate(args)
+    } else {
+      zone = BasicZoneGenerator.generate(args)
     }
-    return inside
-  }
-
-  p0 { _p0 }
-  p1 { _p1 }
-
-  intersects(other) {
-     return _p0.x <= other.p1.x &&
-            _p1.x >= other.p0.x &&
-            _p0.y <= other.p1.y &&
-            _p1.y >= other.p0.y
-
+    for (entity in zone["entities"]) {
+      world.addEntity(entity)
+      entity.zone = level
+    }
+    zone.data.remove("entities")
+    zone["title"] = "The Courtyard"
+    return zone
   }
 }
 
-class Generator {
+class RandomZoneGenerator {
+  static generate(args) {
+    var level = args[0]
+    var startPos = args.count > 1 ? args[1] : null
+    var map = TileMap8.new()
+    var zone = Zone.new(map)
+    zone["entities"] = []
+    zone["level"] = level
+    zone["start"] = startPos
+
+    for (y in 0...32) {
+      for (x in 0...32) {
+        map[x,y] = Tile.new({
+          "solid": true,
+          "blocking": true
+        })
+      }
+    }
+    var current = Vec.new(RNG.int(1, 31), RNG.int(1, 31))
+    if (startPos) {
+      current = startPos
+    }
+    zone["start"] = startPos = current
+    zone.map[current]["stairs"] = "up"
+    map[current]["solid"] = false
+    map[current]["blocking"] = false
+    var dist = 1000
+    for (i in 0...dist) {
+      var next = null
+      while (next == null || next.x == 0 || next.y == 0 || next.x == 31 || next.y == 31) {
+        var dir = DIR_FOUR[RNG.int(4)]
+        next = current + dir
+      }
+      current = next
+      map[current]["solid"] = false
+      map[current]["blocking"] = false
+    }
+    var dMap = Dijkstra.map(map, startPos)
+    var maxEntry = null
+    for (entry in dMap[0]) {
+      if (maxEntry == null || entry.value > maxEntry.value) {
+        maxEntry = entry
+      }
+    }
+    zone.map[maxEntry.key]["stairs"] = "down"
+    return zone
+  }
+}
+
+class BasicZoneGenerator {
   static tunnelBetween(map, a, b) {
     var corner
     if (RNG.float() <= 0.5) {
@@ -52,6 +86,7 @@ class Generator {
       })
     }
   }
+
   static generate(args) {
     var maxRooms = 18
     var minSize = 5
@@ -65,7 +100,6 @@ class Generator {
     var zone = Zone.new(map)
     zone["entities"] = []
     zone["level"] = level
-    zone["title"] = "The Courtyard"
     zone["start"] = startPos
 
     for (y in 0...32) {
@@ -99,13 +133,13 @@ class Generator {
         })
       }
       if (rooms.count > 0) {
-        Generator.tunnelBetween(map, room.center, rooms[-1].center)
+        BasicZoneGenerator.tunnelBetween(map, room.center, rooms[-1].center)
       } else if (!startPos) {
         startPos = room.center
       }
       rooms.add(room)
 
-      Generator.placeEntities(zone, room, monstersPerRoom, itemsPerRoom)
+      BasicZoneGenerator.placeEntities(zone, room, monstersPerRoom, itemsPerRoom)
     }
 
     // USE THIS IF WE DON'T WANT TO START ON STAIRS
@@ -115,10 +149,10 @@ class Generator {
     if (rooms.count > 3) {
       var start = RNG.int(0, rooms.count - 3)
       var end = start + 3
-      Generator.tunnelBetween(map, rooms[start].center, rooms[end].center)
+      BasicZoneGenerator.tunnelBetween(map, rooms[start].center, rooms[end].center)
     }
     var finalRoom = rooms[-1]
-    Generator.placeStairs(zone, finalRoom)
+    BasicZoneGenerator.placeStairs(zone, finalRoom)
     zone.map[startPos]["stairs"] = "up"
 
     return zone
@@ -200,8 +234,43 @@ class Generator {
     var level = args[0]
     var zone = Zone.new(map)
     zone["level"] = level
-    zone["title"] = "The Courtyard"
     return zone
+  }
+}
+
+class RectangularRoom {
+  construct new(x, y, w, h) {
+    _p0 = Vec.new(x, y)
+    _size = Vec.new(w, h)
+    _p1 = _p0 + _size
+  }
+
+  center {
+    var c = (_p0 + (_size / 2))
+    c.x = c.x.floor
+    c.y = c.y.floor
+    return c
+  }
+
+  inner {
+    var inside = []
+    for (y in (_p0.y+1)..._p1.y) {
+      for (x in (_p0.x+1)..._p1.x) {
+        inside.add(Vec.new(x, y))
+      }
+    }
+    return inside
+  }
+
+  p0 { _p0 }
+  p1 { _p1 }
+
+  intersects(other) {
+     return _p0.x <= other.p1.x &&
+            _p1.x >= other.p0.x &&
+            _p0.y <= other.p1.y &&
+            _p1.y >= other.p0.y
+
   }
 }
 

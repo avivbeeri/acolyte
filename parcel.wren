@@ -448,16 +448,9 @@ class World is Stateful {
     var generated = false
     if (_zones.count == 0 || i >= _zones.count) {
       generated = true
-      var newZone = _generator.generate([ i, start ])
-      addZone(newZone)
+      var zone = addZone(_generator.generate(this, [ i, start ]))
     }
     changeZone(i)
-    if (generated) {
-      for (entity in zone["entities"]) {
-        addEntity(entity)
-      }
-      zone.data.remove("entities")
-    }
     return zone
   }
   zone { _zones[_zoneIndex] }
@@ -1078,7 +1071,6 @@ class Dijkstra {
           var priority = newCost
           frontier.add(next, newCost)
           cameFrom[next] = current
-          list.add(next)
         }
       }
     }
