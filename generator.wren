@@ -162,7 +162,6 @@ class Generator {
       if (entities.isEmpty || !entities.any{|entity| entity.pos == pos }) {
         var r = RNG.float()
         var itemId = "potion"
-        System.print(r)
         if (r < 0.8) {
           itemId = "scroll"
         }

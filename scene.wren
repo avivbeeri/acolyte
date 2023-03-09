@@ -22,6 +22,7 @@ import "./renderer" for
   LineViewer,
   LogViewer,
   HistoryViewer,
+  CharacterViewer,
   HoverText
 
 
@@ -230,13 +231,18 @@ class ConfirmState is State {
   }
 }
 class ModalWindowState is State {
-  construct new(scene) {
+  construct new(scene, window) {
     super()
     _scene = scene
+    _window = window
   }
   onEnter() {
     var border = 24
-    _window = HistoryViewer.new(Vec.new(border, border), Vec.new(Canvas.width - border*2, Canvas.height - border*2), _scene.messages)
+    if (_window == "history") {
+      _window = HistoryViewer.new(Vec.new(border, border), Vec.new(Canvas.width - border*2, Canvas.height - border*2), _scene.messages)
+    } else if (_window == "character") {
+      _window = CharacterViewer.new(Vec.new(border, border), Vec.new(Canvas.width - border*2, Canvas.height - border*2))
+    }
     _scene.addElement(_window)
   }
   onExit() {
@@ -264,7 +270,10 @@ class PlayerInputState is State {
       return InventoryWindowState.new(_scene)
     }
     if (INPUT["log"].firing) {
-      return ModalWindowState.new(_scene)
+      return ModalWindowState.new(_scene, "history")
+    }
+    if (INPUT["info"].firing) {
+      return ModalWindowState.new(_scene, "character")
     }
     if (INPUT["exit"].firing) {
       return ConfirmState.new(_scene)

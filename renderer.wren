@@ -71,6 +71,41 @@ class ScrollEvent is Event {
   start { _start }
 }
 
+class CharacterViewer is Element {
+  construct new(pos, size) {
+    super()
+    _pos = pos
+    _size = size
+    _height = (size.y / 12).floor
+    _lines = null
+    _viewer = addElement(LineViewer.new(pos + Vec.new(4, 12), _size, _height, _lines))
+  }
+
+  update() {
+    super.update()
+    _world = parent.world
+    if (!_lines) {
+      var player = _world.getEntityByTag("player")
+      _lines = []
+      _lines.add("Name: %(player.name)")
+      var hp = player["stats"]["hp"]
+      var hpMax = player["stats"]["hpMax"]
+      _lines.add("HP: %(hp)/%(hpMax)")
+      _viewer.lines = _lines
+    }
+  }
+  draw() {
+    var offset = Canvas.offset
+    Canvas.offset(_pos.x,_pos.y)
+
+    Canvas.rectfill(0, 0, _size.x, _size.y, INK["bg"])
+    Canvas.rect(0, 0, _size.x, _size.y, INK["border"])
+    Canvas.print("Character Information", 0, 0, INK["text"])
+
+    Canvas.offset(offset.x, offset.y)
+    super.draw()
+  }
+}
 class HistoryViewer is Element {
   construct new(pos, size, log) {
     super()
@@ -116,8 +151,10 @@ class LineViewer is Element {
     _pos = pos
     _messageLog = log
     _max = size
-    _lines = lines
+    _lines = lines || []
   }
+  lines=(v) { _lines = v }
+  lines { _lines }
 
   draw() {
     var offset = Canvas.offset
@@ -284,6 +321,7 @@ class HealthBar is Element {
   }
 
   update() {
+    super.update()
     _world = parent.world
   }
 
