@@ -373,7 +373,7 @@ class GameScene is Scene {
         _messages.add("The game has ended", INK["playerDie"], false)
       }
       if (event is AttackEvent) {
-        _messages.add("An attack occurred", INK["enemyAtk"], true)
+        _messages.add("%(event.src.name) attacked %(event.target.name) for %(event.result) damage.", INK["enemyAtk"], true)
       }
       if (event is LightningEvent) {
         _messages.add("%(event.target) was struck by lightning.", INK["playerAtk"], false)

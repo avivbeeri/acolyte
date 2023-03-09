@@ -151,7 +151,7 @@ class AreaAttackAction is Action {
 
     for (target in targets) {
       target["stats"].decrease("hp", _damage)
-      ctx.addEvent(AttackEvent.new())
+      ctx.addEvent(AttackEvent.new(src, target, "area", _damage))
       if (target["stats"].get("hp") <= 0) {
         defeats.add(DefeatEvent.new(target))
         // TODO remove entity elsewhere?
@@ -189,7 +189,7 @@ class MeleeAttackAction is Action {
       var def = target["stats"].get("dex")
       var damage = Damage.calculate(atk, def)
       target["stats"].decrease("hp", damage)
-      ctx.addEvent(AttackEvent.new())
+      ctx.addEvent(AttackEvent.new(src, target, "melee", damage))
       if (target["stats"].get("hp") <= 0) {
         ctx.addEvent(DefeatEvent.new(target))
         // TODO remove entity elsewhere?

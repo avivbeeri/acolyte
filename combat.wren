@@ -19,7 +19,18 @@ class DefeatEvent is Event {
   target { _src }
 }
 class AttackEvent is Event {
-  construct new() { super() }
+  construct new(src, target, attack, result) {
+    super()
+    data["src"] = src
+    data["target"] = target
+    data["attack"] = attack
+    data["result"] = result
+  }
+
+  src { data["src"] }
+  target { data["target"] }
+  attack { data["attack"] }
+  result { data["result"] }
 }
 
 class Damage {

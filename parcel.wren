@@ -445,15 +445,19 @@ class World is Stateful {
   generator=(v) { _generator = v }
   loadZone(i) { loadZone(i, null) }
   loadZone(i, start) {
+    var generated = false
     if (_zones.count == 0 || i >= _zones.count) {
+      generated = true
       var newZone = _generator.generate([ i, start ])
-      for (entity in newZone["entities"]) {
-        addEntity(entity)
-      }
-      newZone.data.remove("entities")
       addZone(newZone)
     }
     changeZone(i)
+    if (generated) {
+      for (entity in zone["entities"]) {
+        addEntity(entity)
+      }
+      zone.data.remove("entities")
+    }
     return zone
   }
   zone { _zones[_zoneIndex] }
