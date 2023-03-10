@@ -77,6 +77,10 @@ class DefeatSystem is GameSystem {
 }
 class VisionSystem is GameSystem {
   construct new() { super() }
+  start(ctx) {
+    var player = ctx.getEntityByTag("player")
+    postUpdate(ctx, player)
+  }
 
   postUpdate(ctx, actor) {
     var player = ctx.getEntityByTag("player")

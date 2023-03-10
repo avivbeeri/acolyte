@@ -26,11 +26,8 @@ import "./renderer" for
   HoverText,
   Dialog
 
-
 import "./actions" for BumpAction, RestAction, DescendAction
-import "./entities" for Player
 import "./events" for Events,RestEvent, PickupEvent, UseItemEvent, LightningEvent
-import "./systems" for VisionSystem, DefeatSystem, InventorySystem, ConditionSystem, ExperienceSystem
 import "./generator" for WorldGenerator
 import "./combat" for AttackEvent, DefeatEvent, HealEvent
 import "./items" for ItemAction, PickupAction, Items, Equipment
@@ -337,29 +334,12 @@ class GameScene is Scene {
     _messages = MessageLog.new()
     _messages.add("Welcome, acolyte, to the catacombs. It's time to decend.", INK["welcome"], false)
 
-    var world = _world = World.new()
-    _world.generator = WorldGenerator
-    _world.systems.add(InventorySystem.new())
-    _world.systems.add(ExperienceSystem.new())
-    _world.systems.add(ConditionSystem.new())
-    _world.systems.add(DefeatSystem.new())
-    _world.systems.add(VisionSystem.new())
-    _world["items"] = {
-      "sword": Items.sword,
-      "potion": Items.healthPotion,
-      "scroll": Items.lightningScroll,
-      "wand": Items.confusionScroll,
-      "fireball": Items.fireballScroll
-    }
-    var zone = world.loadZone(0)
-    world.addEntity("player", Player.new())
-    var player = world.getEntityByTag("player")
-    player.pos = zone["start"]
+    var world = _world = WorldGenerator.create()
 
     _name = ""
     _currentText = ""
 
-    world.start()
+    var player = world.getEntityByTag("player")
     _state = PlayerInputState.new(this)
     addElement(AsciiRenderer.new(Vec.new(0, 9)))
     addElement(HealthBar.new(Vec.new(0, 0), player.ref))

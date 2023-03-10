@@ -144,6 +144,7 @@ class CharacterViewer is Element {
       var hp = player["stats"]["hp"]
       var hpMax = player["stats"]["hpMax"]
       _lines.add("HP: %(hp)/%(hpMax)")
+      _lines.add("")
       _lines.add("Conditions:")
       if (!player["conditions"].isEmpty) {
         for (condition in player["conditions"].keys) {
@@ -152,6 +153,15 @@ class CharacterViewer is Element {
       } else {
         _lines.add("  None")
       }
+      _lines.add("")
+
+
+      var str = player["stats"]["str"]
+      var dex = player["stats"]["dex"]
+      var atk = player["stats"]["atk"]
+      var def = player["stats"]["def"]
+      _lines.add("Strength: %(str)   Dexterity: %(dex)")
+      _lines.add("Attack:   %(atk)   Defence: %(def)")
 
       _width = (LineViewer.getWidth(_lines) + 2) * 8
       _height = (_lines.count + 2) * 10

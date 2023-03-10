@@ -34,12 +34,12 @@ class StartScene is Scene {
     var thick = 4
     for (y in -thick..thick) {
       for (x in -thick..thick) {
-        Font["nightmare"].print("Acolyte's", x0 + x, top + y, INK["red"])
-        Font["nightmare"].print("Pledge", x1 + x, top + 128 + y, INK["red"])
+        Font["nightmare"].print("Acolyte's", x0 + x, top + y, INK["titleBg"])
+        Font["nightmare"].print("Pledge", x1 + x, top + 128 + y, INK["titleBg"])
       }
     }
-    Font["nightmare"].print("Acolyte's", x0, top, INK["title"])
-    Font["nightmare"].print("Pledge", x1, top + 128, INK["title"])
+    Font["nightmare"].print("Acolyte's", x0, top, INK["titleFg"])
+    Font["nightmare"].print("Pledge", x1, top + 128, INK["titleFg"])
 
     var x = (Canvas.width - 30 * 8)/ 2
     Canvas.print("Press SPACE or ENTER to begin", x, top + 256 + 32, INK["title"])

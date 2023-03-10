@@ -409,7 +409,10 @@ class World is Stateful {
     }
     _fiber = null
   }
-  start() { _started = true }
+  start() {
+    _started = true
+    systems.each{|system| system.start(this) }
+  }
 
   systems { _systems }
   events { _events }
@@ -460,10 +463,11 @@ class World is Stateful {
       zone = addZone(_generator.generate(this, [ i, start ]))
     }
     changeZone(i)
-    System.print(_zones)
     return _zones[i]
   }
+
   zone { _zones[_zoneIndex] }
+
   addZone(zone) {
     _zones.add(zone)
     zone.ctx = this
@@ -550,6 +554,21 @@ class World is Stateful {
     }
     _fiber.call()
   }
+  skipTo(entityType) {
+    // TODO: check if player exists?
+    var actor = null
+    var actorId
+    var turn
+    while (_queue.count > 0 && !(actor is entityType)) {
+      turn = _queue.peekPriority()
+      actorId = _queue.peek()
+      actor = getEntityById(actorId)
+      if (actor is entityType) {
+        break
+      }
+      _queue.add(_queue.remove(), turn)
+    }
+  }
   processTurn() {
     if (!_started) {
       Fiber.abort("Attempting to advance the world before start() has been called")
@@ -579,7 +598,8 @@ class World is Stateful {
     systems.each{|system| system.preUpdate(this, actor) }
     var action = actor.getAction()
     if (action == null) {
-        _queue.add(actorId, turn)
+        var nextTurn = _queue.peekPriority()
+        _queue.add(actorId, nextTurn - 1)
         // Actor isn't ready to provide action (player)
         return false
     }
@@ -641,6 +661,7 @@ class World is Stateful {
 
 class GameSystem {
   construct new() {}
+  start(ctx) {}
   preUpdate(ctx, actor) {}
   update(ctx, actor) {}
   postUpdate(ctx, actor) {}
@@ -728,6 +749,10 @@ class ParcelMain {
   }
 
   update() {
+    if (_nextScene) {
+      _scene = _nextScene
+      _nextScene = null
+    }
     if (_scene == null) {
       Process.exit()
       return
@@ -735,14 +760,16 @@ class ParcelMain {
     _scene.update()
   }
   draw(dt) {
+    if (_scene == null) {
+      update()
+    }
     _scene.draw()
   }
 
   push(scene) { push(scene, []) }
   push(scene, args) {
-    _scene = scene.new(args)
-    _scene.game = this
-    _scene.update()
+    _nextScene = scene.new(args)
+    _nextScene.game = this
   }
 }
 

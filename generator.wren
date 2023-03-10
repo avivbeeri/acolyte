@@ -1,5 +1,5 @@
-import "parcel" for TileMap8, Tile, Zone, Line, RNG, Entity, DIR_FOUR, Dijkstra
 import "math" for Vec
+import "parcel" for TileMap8, Tile, Zone, Line, RNG, Entity, DIR_FOUR, Dijkstra, World
 
 class GeneratorUtils {
   static findFurthestPoint(map, startPos) {
@@ -37,6 +37,34 @@ class GeneratorUtils {
 }
 
 class WorldGenerator {
+  static create() {
+    var world = World.new()
+    world.generator = WorldGenerator
+    world.systems.add(InventorySystem.new())
+    world.systems.add(ExperienceSystem.new())
+    world.systems.add(ConditionSystem.new())
+    world.systems.add(DefeatSystem.new())
+    world.systems.add(VisionSystem.new())
+
+    world["items"] = {
+      "sword": Items.sword,
+      "potion": Items.healthPotion,
+      "scroll": Items.lightningScroll,
+      "wand": Items.confusionScroll,
+      "fireball": Items.fireballScroll
+    }
+
+    // Add the player first so that they act first
+    world.addEntity("player", Player.new())
+    var zone = world.loadZone(0)
+
+    var player = world.getEntityByTag("player")
+    player.pos = zone["start"]
+    world.skipTo(Player)
+    world.start()
+
+    return world
+  }
   static generate(world, args) {
     var level = args[0]
     var startPos = args.count > 1 ? args[1] : null
@@ -227,6 +255,7 @@ class BasicZoneGenerator {
         BasicZoneGenerator.tunnelBetween(map, room.center, rooms[-1].center)
       } else if (!startPos) {
         startPos = room.center
+        zone["start"] = startPos
       }
       rooms.add(room)
 
@@ -264,6 +293,7 @@ class BasicZoneGenerator {
 
   static placeEntities(zone, room, maxMonsters, maxItems) {
     var totalMonsters = RNG.int(maxMonsters + 1)
+    var startPos = zone["start"]
     var totalItems = RNG.int(maxItems + 1)
     var entities = zone["entities"]
     for (i in 0...totalMonsters) {
@@ -272,7 +302,7 @@ class BasicZoneGenerator {
 
       var pos = Vec.new(x, y )
 
-      if (entities.isEmpty || !entities.any{|entity| entity.pos == pos }) {
+      if ((entities.isEmpty || !entities.any{|entity| entity.pos == pos }) && pos != startPos) {
         var entity = Rat.new()
         entity.pos = pos
         entities.add(entity)
@@ -284,7 +314,7 @@ class BasicZoneGenerator {
 
       var pos = Vec.new(x, y)
 
-      if (entities.isEmpty || !entities.any{|entity| entity.pos == pos }) {
+      if ((entities.isEmpty || !entities.any{|entity| entity.pos == pos }) && pos != startPos) {
         var r = RNG.float()
         var itemId = "potion"
         if (r < 0.8) {
@@ -368,4 +398,6 @@ class RectangularRoom {
 }
 
 import "./items" for InventoryEntry
-import "./entities" for Rat, Demon
+import "./entities" for Rat, Demon, Player
+import "./systems" for VisionSystem, DefeatSystem, InventorySystem, ConditionSystem, ExperienceSystem
+import "./items" for Items
