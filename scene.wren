@@ -402,7 +402,7 @@ class GameScene is Scene {
     for (event in _world.events) {
       if (event is GameEndEvent) {
         _messages.add("The game has ended.", INK["playerDie"], false)
-        changeState(GameEndState.new(this, "The game has ended."))
+        changeState(GameEndState.new(this, [ "The game has ended.", "Press Enter to try again" ]))
       }
       if (event is AttackEvent) {
         _messages.add("%(event.src.name) attacked %(event.target.name) for %(event.result) damage.", INK["enemyAtk"], true)
@@ -459,6 +459,7 @@ class GameScene is Scene {
   draw() {
     var color = INK["black"]
     Canvas.cls(color)
+    Canvas.offset()
     super.draw()
 
     Canvas.print(_name, 0, Canvas.height - 17, Color.white)

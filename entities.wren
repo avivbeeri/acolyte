@@ -35,7 +35,7 @@ class Player is Creature {
     })
     this["symbol"] = "@"
     this["inventory"] = [
-      InventoryEntry.new("potion", 1)
+      InventoryEntry.new("fireball", 1)
     ]
   }
   name { data["name"] || "Player" }

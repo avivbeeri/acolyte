@@ -15,6 +15,7 @@ import "./ui" for
   TargetEndEvent
 
 import "./inputs" for VI_SCHEME as INPUT
+import "./text" for TextSplitter
 //SCROLL_UP, SCROLL_DOWN, SCROLL_BEGIN, SCROLL_END
 
 
@@ -97,14 +98,23 @@ class Pane is Element {
 
 class Dialog is Pane {
   construct new(message) {
-    _size = Vec.new((message.count + 2) * 8, 5 * 8)
-    _pos = (Vec.new(Canvas.width, Canvas.height) / 2) - _size
+    if (!(message is List)) {
+      message = [ message ]
+    }
+    var width = TextSplitter.getWidth(message)
+
+    _center = true
+    _size = Vec.new((width + 2) * 8, (2 + message.count) * 8)
+    _pos = (Vec.new(Canvas.width, Canvas.height) - _size) / 2
     _message = message
     super(_pos, _size)
   }
 
   content() {
-    Canvas.print(_message, 8, 12, INK["gameover"])
+    for (i in 0..._message.count) {
+      var x = _center ? (_size.x - (_message[i].count * 8)) / 2: 8
+      Canvas.print(_message[i], x, ((_size.y - _message.count * 8) / 2) + i * 8, INK["gameover"])
+    }
   }
 }
 

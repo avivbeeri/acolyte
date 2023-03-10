@@ -1,3 +1,4 @@
+import "collections" for HashMap
 import "parcel" for Action, ActionResult, MAX_TURN_SIZE, JPS, Line
 import "math" for Vec
 import "./combat" for AttackEvent, Damage, Condition
@@ -141,16 +142,19 @@ class AreaAttackAction is Action {
     var targetPos = _origin
     var defeats = []
     var dist = _range - 1
-    var targets = []
+    var targets = HashMap.new()
     for (dy in (-dist)..(dist)) {
       for (dx in (-dist)..(dist)) {
         var x = (_origin.x + dx)
         var y = (_origin.y + dy)
-        targets.addAll(ctx.getEntitiesAtPosition(x, y))
+        var tileEntities = ctx.getEntitiesAtPosition(x, y)
+        for (target in tileEntities) {
+          targets[target.id] = target
+        }
       }
     }
 
-    for (target in targets) {
+    for (target in targets.values) {
       target["stats"].decrease("hp", _damage)
       ctx.addEvent(AttackEvent.new(src, target, "area", _damage))
       if (target["stats"].get("hp") <= 0) {
