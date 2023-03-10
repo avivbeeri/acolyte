@@ -493,6 +493,7 @@ class AsciiRenderer is Element {
     Canvas.offset(_pos.x,_pos.y)
     var map = _world.zone.map
     super.draw()
+    var player = _world.getEntityByTag("player")
 
     for (y in map.yRange) {
       for (x in map.xRange) {
@@ -547,7 +548,7 @@ class AsciiRenderer is Element {
       }
     }
 
-    for (entity in _world.entities()) {
+    for (entity in _world.entities() + [ player ]) {
       if (!entity.pos) {
         continue
       }
@@ -571,6 +572,9 @@ class AsciiRenderer is Element {
     var corner = start + size
     var maxX = corner.x - 1
     var maxY = corner.y - 1
+    var bg = INK["bg"] * 1
+    bg.a = 128
+    Canvas.rectfill(start.x * 16, start.y * 16, 16 * size.x, 16 * size.y, bg)
     for (y in start.y..maxY) {
       for (x in start.x..maxX) {
         Canvas.print(symbol, x * 16 + 4, y * 16 + 4, Color.white)

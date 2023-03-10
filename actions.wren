@@ -171,18 +171,36 @@ class AreaAttackAction is Action {
       if (result[1]) {
         kills.add(Events.kill.new(src, target))
       }
-      /*
-      target["stats"].decrease("hp", _damage)
-      ctx.addEvent(AttackEvent.new(src, target, "area", _damage))
-      if (target["stats"].get("hp") <= 0) {
-        target["stats"].set("hp", 0)
-        defeats.add(Events.defeat.new(src, target))
-        // TODO remove entity elsewhere?
-      }
-      */
     }
     for (event in defeats) {
       ctx.addEvent(event)
+    }
+
+    return ActionResult.success
+  }
+}
+class StrikeAttackAction is Action {
+  construct new() {
+    super()
+  }
+  evaluate() {
+    if (!ctx.entities().any{|other| other != src && other.occupies(src.pos) && other["conditions"]["unconscious"] }) {
+      return ActionResult.invalid
+    }
+
+    return ActionResult.valid
+  }
+
+  perform() {
+    var targets = ctx.getEntitiesAtPosition(src.pos)
+    for (target in targets) {
+      if (target == src) {
+        continue
+      }
+      var result = CombatProcessor.calculate(src, target)
+      if (result[1]) {
+        ctx.addEvent(Events.kill.new(src, target))
+      }
     }
 
     return ActionResult.success
@@ -208,20 +226,6 @@ class MeleeAttackAction is Action {
     var targetPos = src.pos + _dir
     var targets = ctx.getEntitiesAtPosition(targetPos)
     for (target in targets) {
-      /*
-      var srcStats = src["stats"]
-      srcStats.set("atk", srcStats["str"])
-      var atk = srcStats.get("atk")
-      var def = target["stats"].get("dex")
-      var damage = Damage.calculate(atk, def)
-      target["stats"].decrease("hp", damage)
-      ctx.addEvent(AttackEvent.new(src, target, "melee", damage))
-      if (target["stats"].get("hp") <= 0) {
-        ctx.addEvent(Events.defeat.new(src, target))
-        // TODO remove entity elsewhere?
-        ctx.removeEntity(target)
-      }
-      */
       var result = CombatProcessor.calculate(src, target)
       if (result[0]) {
         ctx.addEvent(Events.defeat.new(src, target))

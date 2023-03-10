@@ -66,20 +66,36 @@ class OathBroken is OathEvent {
 }
 
 class Oath is Stateful {
+  construct new(name, strikes, boon, grace) {
+    super()
+    init_(name, strikes, boon, grace)
+  }
   construct new(name, strikes, boon) {
     super()
+    init_(name, strikes, 0, boon)
+  }
+
+  init_(name, strikes, grace, boon) {
     data["name"] = name
+    data["grace"] = grace
     data["strikes"] = strikes
-    // How to represent?
     data["boon"] = boon
+    boon.oath = this
   }
 
   name { data["name"] }
   broken { strikes <= 0 }
+  grace { data["grace"] }
   strikes { data["strikes"] }
   boon { data["boon"] }
 
-  strike() { data["strikes"] = (strikes  - 1).max(0) }
+  strike() {
+    if (data["grace"] > 0) {
+      data["grace"] = (data["grace"]  - 1).max(0)
+    } else {
+      data["strikes"] = (strikes  - 1).max(0)
+    }
+  }
   hardStrike() { data["strikes"] = 0 }
   shouldHardStrike(ctx, event) { false }
   shouldStrike(ctx, event) { false }
@@ -87,8 +103,9 @@ class Oath is Stateful {
     if (shouldHardStrike(ctx, event)) {
       hardStrike()
     } else if (shouldStrike(ctx, event)) {
+      var count = strikes
       strike()
-      if (!broken) {
+      if (count != strikes && !broken) {
         ctx.addEvent(OathStrike.new(this))
       }
     }
@@ -98,14 +115,17 @@ class Oath is Stateful {
 class Boon is Stateful {
   construct new() {
     super()
+    _oath = null
   }
+  oath=(v) { _oath = v }
+  oath { _oath }
   onGrant(actor) {}
   onBreak(actor) {}
 }
 
 class Pacifism is Oath {
   construct new() {
-    super("pacifism", 5, Boon.new())
+    super("pacifism", 3, 2, Boon.new())
   }
   shouldHardStrike(ctx, event) {
     return (event is Events.kill && event.src is Player)

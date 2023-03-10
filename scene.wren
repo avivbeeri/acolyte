@@ -27,7 +27,7 @@ import "./renderer" for
   Pane,
   Dialog
 
-import "./actions" for BumpAction, RestAction, DescendAction
+import "./actions" for BumpAction, RestAction, DescendAction, StrikeAttackAction
 import "./events" for Events,RestEvent, PickupEvent, UseItemEvent, LightningEvent
 import "./generator" for WorldGenerator
 import "./combat" for AttackEvent, DefeatEvent, HealEvent
@@ -315,6 +315,9 @@ class PlayerInputState is State {
         player.pushAction(BumpAction.new(DIR_EIGHT[i]))
       }
       i = i + 1
+    }
+    if (INPUT["strike"].firing) {
+      player.pushAction(StrikeAttackAction.new())
     }
     if (INPUT["rest"].firing) {
       player.pushAction(RestAction.new())

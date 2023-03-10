@@ -29,6 +29,7 @@ class ConfusedBehaviour is Behaviour {
   update(ctx, actor) {
     // TODO should this do 4 or 8?
     if (!actor["conditions"].containsKey("confusion")) {
+      event.target["solid"] = true
       actor.removeBehaviour(this)
       return false
     }

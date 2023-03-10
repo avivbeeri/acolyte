@@ -67,6 +67,7 @@ class DefeatSystem is GameSystem {
         ctx.addEvent(GameEndEvent.new(true))
       }
       event.target["killed"] = true
+      event.target["solid"] = false
       event.target.behaviours.add(UnconsciousBehaviour.new())
       event.target["conditions"]["unconscious"] = Condition.new("unconscious", 10, true)
     }
