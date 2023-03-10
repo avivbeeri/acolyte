@@ -1,5 +1,5 @@
 import "math" for M
-import "parcel" for Action, ActionResult, Event, Stateful
+import "parcel" for Action, ActionResult, Event, Stateful, RNG
 
 class HealEvent is Event {
   construct new(entity, amount) {
@@ -46,16 +46,33 @@ class AttackEvent is Event {
 }
 
 class Damage {
-  static calculate(atk, def) {
+  static calculateLow(atk, def) {
     var o1 = atk * 2 - def
     var o2 = (atk * atk) / def
     if (atk > def) {
-      return o1.round
+      return o1.floor
     }
     if (!o2.isNan) {
-      return o2.round
+      return o2.floor
     }
     return 0
+  }
+  static calculateHigh(atk, def) {
+    var o1 = atk * 2 - def
+    var o2 = (atk * atk) / def
+    if (atk > def) {
+      return o1.ceil
+    }
+    if (!o2.isNan) {
+      return o2.ceil
+    }
+    return 0
+  }
+
+  static calculate(atk, def) {
+    var low = calculateLow(atk, def)
+    var high = calculateHigh(atk, def)
+    return RNG.float() < 0.5 ? low : high
   }
 }
 

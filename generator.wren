@@ -299,7 +299,7 @@ class BasicZoneGenerator {
     zone.map[startPos]["stairs"] = "up"
 
     var altarRoom = rooms[RNG.int(rooms.count)]
-    //BasicZoneGenerator.placeAltar(zone, altarRoom)
+    BasicZoneGenerator.placeAltar(zone, altarRoom)
 
     for (room in rooms) {
       BasicZoneGenerator.placeEntities(zone, room, monstersPerRoom, itemsPerRoom)
@@ -318,8 +318,8 @@ class BasicZoneGenerator {
       pos.y = RNG.int(room.p0.y + 1, room.p1.y - 1)
       zone.map[pos]["solid"] = true
       var afterMap = Dijkstra.map(zone.map, room.center)
-      valid = GeneratorUtils.isValidEntityLocation(zone, pos)
-      valid = valid && afterMap[0].count == beforeMap[0].count
+      valid = GeneratorUtils.isValidTileLocation(zone, pos)
+      valid = valid || afterMap[0].count == beforeMap[0].count
       zone.map[pos]["solid"] = valid
     }
 

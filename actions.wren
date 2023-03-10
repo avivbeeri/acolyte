@@ -17,13 +17,22 @@ class PrayAction is Action {
 
   perform() {
     var positions = ctx.zone.map.allNeighbours(src.pos)
+    var heard = false
+    var success = 0.5 - 0.1 * src["brokenOaths"].count
     if (positions.any {|position| ctx.zone.map[position]["altar"]}) {
-      var success = 0.5 - 0.1 * src["brokenOaths"].count
       if (RNG.float() <= success) {
+        heard = true
         var pietyMax = src["stats"].get("pietyMax")
         var piety = src["stats"].get("piety")
         var amount = 1.clamp(0, pietyMax - piety)
         src["stats"].increase("piety", amount)
+      }
+    }
+    if (!heard && src["stats"]["hp"] == 1) {
+      var success = (0.2 - 0.1 * src["brokenOaths"].count).max(0.05)
+      if (RNG.float() <= success) {
+        heard = true
+        System.print("your prayers were heard")
       }
     }
     ctx.addEvent(Events.pray.new(src))

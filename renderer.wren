@@ -37,6 +37,9 @@ class HoverText is Element {
     if (event is HoverEvent) {
       if (event.target && event.target is Entity) {
         _text = event.target.name
+        if (event.target["killed"]) {
+          _text = "Body of %(event.target.name)"
+        }
       } else if (event.target is Item) {
         _text = event.target.name
       } else if (event.target is String) {
