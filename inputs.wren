@@ -107,7 +107,8 @@ for (i in 0...KEY_SET_1.count) {
 //var DIR_INPUTS = KEY_SET.map {|keys| InputGroup.new(keys) }.toList
 
 var BASIC = InputScheme.new()
-BASIC.register("confirm", [ Keyboard["return"] ])
+// TODO: space can't be confirm during text entry
+BASIC.register("confirm", [ Keyboard["return"], Keyboard["space"] ])
 BASIC.register("reject", [ Keyboard["escape"], Keyboard["backspace"], Keyboard["delete"]  ])
 BASIC.register("exit", [ Keyboard["escape"] ])
 BASIC.register("rest", [ Keyboard["space"], Keyboard["keypad ."]  ])
