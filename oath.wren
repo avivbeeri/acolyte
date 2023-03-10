@@ -80,7 +80,15 @@ class Oath is Stateful {
   boon { data["boon"] }
 
   strike() { data["strikes"] = (strikes  - 1).max(0) }
-  process(ctx, event) {}
+  shouldStrike(ctx, event) { false }
+  process(ctx, event) {
+    if (shouldStrike(ctx, event)) {
+      strike()
+      if (!broken) {
+        ctx.addEvent(OathStrike.new(this))
+      }
+    }
+  }
 }
 
 class Boon is Stateful {
@@ -95,13 +103,8 @@ class Pacifism is Oath {
   construct new() {
     super("pacifism", 3, Boon.new())
   }
-  process(ctx, event) {
-    if (event is Events.defeat && event.src is Player) {
-      strike()
-      if (!broken) {
-        ctx.addEvent(OathStrike.new(this))
-      }
-    }
+  shouldStrike(ctx, event) {
+    return (event is Events.defeat && event.src is Player)
   }
 }
 
@@ -109,12 +112,7 @@ class Poverty is Oath {
   construct new() {
     super("poverty", 1, Boon.new())
   }
-  process(ctx, event) {
-    if (event is Events.equipItem && event.src is Player) {
-      strike()
-      if (!broken) {
-        ctx.addEvent(OathStrike.new(this))
-      }
-    }
+  shouldStrike(ctx, event) {
+    return (event is Events.equipItem && event.src is Player)
   }
 }
