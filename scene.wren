@@ -32,7 +32,7 @@ import "./events" for Events,RestEvent, PickupEvent, UseItemEvent, LightningEven
 import "./systems" for VisionSystem, DefeatSystem, InventorySystem, ConditionSystem, ExperienceSystem
 import "./generator" for WorldGenerator
 import "./combat" for AttackEvent, DefeatEvent, HealEvent
-import "./items" for ItemAction, PickupAction, Items,  Equipment
+import "./items" for ItemAction, PickupAction, Items, Equipment
 
 class InventoryWindowState is State {
   construct new(scene) {
@@ -47,9 +47,9 @@ class InventoryWindowState is State {
     var player = _scene.world.getEntityByTag("player")
     var playerItems = player["inventory"]
     var i = 0
-    var label = ""
     var items = playerItems.map {|entry|
       i = i + 1
+      var label = ""
       var letter = getKey(i)
       if (worldItems[entry.id] is Equipment) {
         var item = worldItems[entry.id]

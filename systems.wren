@@ -1,6 +1,7 @@
 import "fov" for Vision, Vision2
 import "parcel" for GameSystem, JPS, GameEndEvent
 import "./entities" for Player
+import "items" for Equipment
 
 class ExperienceSystem is GameSystem {
   construct new() { super() }
@@ -16,7 +17,25 @@ class InventorySystem is GameSystem {
   construct new() { super() }
   postUpdate(ctx, actor) {
     if (actor.has("inventory")) {
-      actor["inventory"] = actor["inventory"].where {|entry| entry.qty > 0 }.toList
+      actor["inventory"] = actor["inventory"].where {|entry| entry.qty > 0 }.toList.sort{|a, b|
+        var itemA = ctx["items"][a.id]
+        var itemB = ctx["items"][b.id]
+        var itemEquipmentA = (itemA is Equipment)
+        var itemEquipmentB = (itemB is Equipment)
+        var itemEquippedA = (itemEquipmentA && actor["equipment"][itemA.slot])
+        var itemEquippedB = (itemEquipmentB && actor["equipment"][itemB.slot])
+        if (itemEquippedA && !itemEquippedB) {
+          return true
+        } else if (!itemEquippedA && itemEquippedB) {
+          return false
+        } else if (itemEquipmentA && !itemEquipmentB) {
+          return true
+        } else if (!itemEquipmentA && itemEquipmentB) {
+          return true
+        } else {
+          return true
+        }
+      }
     }
   }
 }
