@@ -19,6 +19,7 @@ import "./ui" for TextComplete, TextChanged, TargetEvent, TargetBeginEvent, Targ
 import "./renderer" for
   AsciiRenderer,
   HealthBar,
+  PietyBar,
   LineViewer,
   LogViewer,
   HistoryViewer,
@@ -27,7 +28,7 @@ import "./renderer" for
   Pane,
   Dialog
 
-import "./actions" for BumpAction, RestAction, DescendAction, StrikeAttackAction
+import "./actions" for BumpAction, PrayAction, RestAction, DescendAction, StrikeAttackAction
 import "./events" for Events,RestEvent, PickupEvent, UseItemEvent, LightningEvent
 import "./generator" for WorldGenerator
 import "./combat" for AttackEvent, DefeatEvent, HealEvent
@@ -319,6 +320,9 @@ class PlayerInputState is State {
     if (INPUT["strike"].firing) {
       player.pushAction(StrikeAttackAction.new())
     }
+    if (INPUT["pray"].firing) {
+      player.pushAction(PrayAction.new())
+    }
     if (INPUT["rest"].firing) {
       player.pushAction(RestAction.new())
     }
@@ -349,6 +353,7 @@ class GameScene is Scene {
     _state = PlayerInputState.new(this)
     addElement(AsciiRenderer.new(Vec.new(0, 9)))
     addElement(HealthBar.new(Vec.new(0, 0), player.ref))
+    addElement(PietyBar.new(Vec.new(0, 16), player.ref))
     addElement(HoverText.new(Vec.new(Canvas.width, 0)))
     addElement(LogViewer.new(Vec.new(0, Canvas.height - 60), _messages))
     //addElement(LogViewer.new(Vec.new(0, Canvas.height - 12 * 7), _messages))
@@ -382,11 +387,17 @@ class GameScene is Scene {
     if (event is LightningEvent) {
       _messages.add("%(event.target) was struck by lightning.", INK["playerAtk"], false)
     }
+    if (event is Events.kill) {
+      _messages.add("%(event.target) was killed.", INK["text"], false)
+    }
     if (event is DefeatEvent) {
-      _messages.add("%(event.target) was defeated.", INK["text"], false)
+      _messages.add("%(event.target) was knocked unconscious.", INK["text"], false)
     }
     if (event is HealEvent) {
       _messages.add("%(event.target) was healed for %(event.amount)", INK["healthRecovered"], false)
+    }
+    if (event is Events.pray) {
+      _messages.add("%(event.src) prayed.", INK["text"], true)
     }
     if (event is RestEvent) {
       _messages.add("%(event.src) rests.", INK["text"], true)
@@ -401,7 +412,7 @@ class GameScene is Scene {
     }
     if (event is PickupEvent) {
       var itemName = _world["items"][event.item]["name"]
-      _messages.add("%(event.src) picked up %(event.qty) %(itemName)", INK["text"], false)
+      _messages.add("%(event.src) picked up %(event.qty) %(itemName)", INK["text"], true)
     }
     if (event is UseItemEvent) {
       var itemName = _world["items"][event.item]["name"]

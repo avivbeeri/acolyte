@@ -32,7 +32,8 @@ class Player is Creature {
     super({
       "hpMax": 5,
       "hp": 5,
-      "piety": 5
+      "piety": 5,
+      "pietyMax": 5
     })
     this["symbol"] = "@"
     this["inventory"] = [

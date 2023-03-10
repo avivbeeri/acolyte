@@ -50,6 +50,10 @@ INK.setPurpose("barText", "white")
 INK.setPurpose("barFilled", "purple")
 INK.setPurpose("barEmpty", "red")
 
+INK.setPurpose("blood", "red")
+
+INK.setPurpose("altar", "orange")
+
 INK.setPurpose("border", "burgandy")
 INK.setPurpose("invalid", "burgandy")
 

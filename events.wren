@@ -79,6 +79,14 @@ class PickupEvent is Event {
   qty { data["qty"] }
 }
 
+class PrayEvent is Event {
+  construct new(src) {
+    super()
+    data["src"] = src
+  }
+
+  src { data["src"] }
+}
 class RestEvent is Event {
   construct new(src) {
     super()
@@ -95,6 +103,7 @@ class DescendEvent is Event {
 
 class Events {
   static rest { RestEvent }
+  static pray { PrayEvent }
   static pickup { PickupEvent }
   static useItem { UseItemEvent }
   static equipItem { EquipItemEvent }

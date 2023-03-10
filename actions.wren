@@ -1,9 +1,35 @@
 import "collections" for HashMap
-import "parcel" for Action, ActionResult, MAX_TURN_SIZE, JPS, Line
+import "parcel" for Action, ActionResult, MAX_TURN_SIZE, JPS, Line, RNG
 import "math" for Vec
 import "./combat" for AttackEvent, Damage, Condition, CombatProcessor
 import "./events" for Events, RestEvent, LightningEvent
 
+class PrayAction is Action {
+  construct new() {
+    super()
+  }
+
+  cost() { super.cost() * 3 }
+
+  evaluate() {
+    return ActionResult.valid
+  }
+
+  perform() {
+    var positions = ctx.zone.map.allNeighbours(src.pos)
+    if (positions.any {|position| ctx.zone.map[position]["altar"]}) {
+      var success = 0.5 - 0.1 * src["brokenOaths"].count
+      if (RNG.float() <= success) {
+        var pietyMax = src["stats"].get("pietyMax")
+        var piety = src["stats"].get("piety")
+        var amount = 1.clamp(0, pietyMax - piety)
+        src["stats"].increase("piety", amount)
+      }
+    }
+    ctx.addEvent(Events.pray.new(src))
+    return ActionResult.success
+  }
+}
 class RestAction is Action {
   construct new() {
     super()
@@ -200,6 +226,7 @@ class StrikeAttackAction is Action {
       }
       var result = CombatProcessor.calculate(src, target)
       if (result[1]) {
+        ctx.zone.map[src.pos]["blood"] = true
         ctx.addEvent(Events.kill.new(src, target))
       }
     }

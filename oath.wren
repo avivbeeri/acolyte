@@ -11,7 +11,8 @@ class OathSystem is GameSystem {
     var player = ctx.getEntityByTag("player")
     player["brokenOaths"] = []
     player["oaths"] = [
-      Pacifism.new(),
+//      Pacifism.new(),
+      Succor.new(),
       Poverty.new()
     ]
     for (oath in player["oaths"]) {
@@ -25,18 +26,47 @@ class OathSystem is GameSystem {
     if (player == null) {
       return
     }
-    var toRemove = []
     var events = []
     for (oath in player["oaths"]) {
-      oath.process(ctx, event)
-      if (oath.broken) {
-        oath.boon.onBreak(player)
-        player["oaths"].remove(oath)
-        player["brokenOaths"].add(oath)
-        events.add(OathBroken.new(oath))
-      }
+      var extras = testOath(ctx, oath, "process", event)
+      events.addAll(extras)
     }
     events.each {|event| ctx.addEvent(event) }
+  }
+
+  postUpdate(ctx, actor) {
+    if (!(actor is Player)) {
+      return
+    }
+    var events = []
+    for (oath in actor["oaths"]) {
+      var extras = testOath(ctx, oath, "postUpdate", null)
+      events.addAll(extras)
+    }
+    events.each {|event| ctx.addEvent(event) }
+  }
+
+  testOath(ctx, oath, hook, event) {
+    var events = []
+    var player = ctx.getEntityByTag("player")
+    var count = oath.strikes
+    if (hook == "process") {
+      oath.process(ctx, event)
+    } else if (hook == "postUpdate") {
+      oath.postUpdate(ctx)
+    } else {
+      Fiber.abort("Invalid OathSystem hook")
+    }
+    if (oath.broken) {
+      player["stats"].decrease("piety", 1)
+      oath.boon.onBreak(player)
+      player["oaths"].remove(oath)
+      player["brokenOaths"].add(oath)
+      events.add(OathBroken.new(oath))
+    } else if (count != oath.strikes) {
+      ctx.addEvent(OathStrike.new(oath))
+    }
+    return events
   }
 }
 
@@ -99,15 +129,12 @@ class Oath is Stateful {
   hardStrike() { data["strikes"] = 0 }
   shouldHardStrike(ctx, event) { false }
   shouldStrike(ctx, event) { false }
+  postUpdate(ctx) {}
   process(ctx, event) {
     if (shouldHardStrike(ctx, event)) {
       hardStrike()
     } else if (shouldStrike(ctx, event)) {
-      var count = strikes
       strike()
-      if (count != strikes && !broken) {
-        ctx.addEvent(OathStrike.new(this))
-      }
     }
   }
 }
@@ -123,15 +150,52 @@ class Boon is Stateful {
   onBreak(actor) {}
 }
 
+class Succor is Oath {
+  construct new() {
+    super("succor", 3, 0, Boon.new())
+    data["attacked"] = {}
+  }
+  shouldHardStrike(ctx, event) { false }
+  shouldStrike(ctx, event) { false }
+  process(ctx, event) {
+    if (event is Events.defeat && event.src is Player) {
+      data["attacked"][event.target.id] = 4
+    }
+    super.process(ctx, event)
+  }
+  postUpdate(ctx) {
+    var index = data["attacked"]
+    for (id in index.keys) {
+      var target = ctx.getEntityById(id)
+      if (target && !target["killed"]) {
+        index.remove(id)
+      } else if (target && target["killed"]) {
+        index[id] = index[id] - 1
+        if (index[id] <= 0) {
+          index.remove(id)
+          strike()
+        }
+      }
+    }
+  }
+}
 class Pacifism is Oath {
   construct new() {
-    super("pacifism", 3, 2, Boon.new())
+    super("pacifism", 3, 0, Boon.new())
+    data["attackedBy"] = {}
   }
   shouldHardStrike(ctx, event) {
     return (event is Events.kill && event.src is Player)
   }
   shouldStrike(ctx, event) {
-    return (event is Events.defeat && event.src is Player)
+    return (event is Events.defeat && event.src is Player) && !data["attackedBy"][event.target.id]
+  }
+  process(ctx, event) {
+    if (event is Events.attack && event.target is Player) {
+      System.print("attacked by %(event.src.id)")
+      data["attackedBy"][event.src.id] = true
+    }
+    super.process(ctx, event)
   }
 }
 

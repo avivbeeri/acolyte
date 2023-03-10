@@ -398,9 +398,8 @@ class World is Stateful {
     _systems = []
     addEntity("turnMarker", Turn.new())
     _fn = Fn.new {
-      var advance = true
       while (true) {
-        advance = processTurn()
+        processTurn()
         if (complete) {
           break
         }

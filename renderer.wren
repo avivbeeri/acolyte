@@ -440,11 +440,33 @@ class Gauge is Element {
     var width = _segments
     var current = _value / _maxValue * width
 
-    Canvas.rectfill(0, 0, width * 16, 16, INK["barEmpty"])
-    Canvas.rectfill(0, 0, current * 16, 16, INK["barFilled"])
+    Canvas.rectfill(0, 2, width * 16, 12, INK["barEmpty"])
+    Canvas.rectfill(0, 2, current * 16, 12, INK["barFilled"])
     Canvas.print("%(_label): %(_value) / %(_maxValue)", 4, 4, INK["barText"])
 
     Canvas.offset(offset.x, offset.y)
+  }
+}
+class PietyBar is Element {
+  construct new(pos, entity) {
+    super()
+    _pos = pos
+    _entity = entity
+    _gauge = addElement(Gauge.new(_pos, "Piety", 4, 5, 7))
+  }
+
+  update() {
+    super.update()
+    _world = parent.world
+    var stats = _world.getEntityById(_entity)["stats"]
+    var piety = stats.get("piety")
+    var pietyMax = stats.get("pietyMax")
+    _gauge.value = piety
+    _gauge.maxValue = pietyMax
+  }
+
+  draw() {
+    super.draw()
   }
 }
 class HealthBar is Element {
@@ -531,6 +553,9 @@ class AsciiRenderer is Element {
           continue
         }
         var color = INK["wall"]
+        if (map[x, y]["blood"]) {
+          color = INK["blood"]
+        }
         if (map[x, y]["visible"] == "maybe") {
           color = INK["obscured"]
         }
@@ -545,7 +570,11 @@ class AsciiRenderer is Element {
         }
         if (map[x, y]["void"]) {
         } else if (map[x, y]["solid"]) {
-          Canvas.print("#", x * 16 + 4, y * 16 + 4, color)
+          if (map[x, y]["altar"]) {
+            Canvas.print("^", x * 16 + 4, y * 16 + 4, INK["altar"])
+          } else {
+            Canvas.print("#", x * 16 + 4, y * 16 + 4, color)
+          }
         } else if (map[x, y]["stairs"]) {
           if (map[x, y]["stairs"] == "down") {
             Canvas.print(">", x * 16 + 4, y * 16 + 4, INK["downstairs"])

@@ -153,8 +153,8 @@ class RandomZoneGenerator {
  //     var x = RNG.int(room.p0.x + 1, room.p1.x - 1)
 //      var y = RNG.int(room.p0.y + 1, room.p1.y - 1)
       var entities = zone["entities"] = []
-var x = current.x
-var y = current.y
+      var x = current.x
+      var y = current.y
 
       var pos = Vec.new(x, y )
 
@@ -277,7 +277,28 @@ class BasicZoneGenerator {
     BasicZoneGenerator.placeStairs(zone, finalRoom)
     zone.map[startPos]["stairs"] = "up"
 
+    var altarRoom = rooms[RNG.int(rooms.count)]
+    BasicZoneGenerator.placeAltar(zone, altarRoom)
+
     return zone
+  }
+  static placeAltar(zone, room) {
+    var beforeMap = Dijkstra.map(zone.map, room.center)
+    var valid = false
+    var entities = zone["entities"]
+    var pos = Vec.new()
+
+
+    while (!valid || !entities.isEmpty && entities.any{|entity| entity.pos == pos }) {
+      pos.x = RNG.int(room.p0.x + 1, room.p1.x - 1)
+      pos.y = RNG.int(room.p0.y + 1, room.p1.y - 1)
+      zone.map[pos]["solid"] = true
+      var afterMap = Dijkstra.map(zone.map, room.center)
+      valid = afterMap[0].count == beforeMap[0].count
+      zone.map[pos]["solid"] = valid
+    }
+
+    zone.map[pos]["altar"] = true
   }
   static placeStairs(zone, room) {
     var entities = zone["entities"]
