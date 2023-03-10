@@ -69,8 +69,23 @@ class Rat is Creature {
   name { "Rat" }
   pronoun { Pronoun.it }
 }
+class Demon is Creature {
+ construct new() {
+    super({
+      "hpMax": 10,
+      "hp": 10
+    })
+    this["size"] = Vec.new(2, 2)
+    this["symbol"] = "D"
+    this["boss"] = true // allow multiple boss types
 
-import "behaviour" for SeekBehaviour
+    behaviours.add(BossBehaviour.new())
+  }
+  name { "Demon" }
+  pronoun { Pronoun.they }
+}
+
+import "behaviour" for SeekBehaviour, BossBehaviour
 import "items" for InventoryEntry
 import "combat" for StatGroup
 import "messages" for Pronoun

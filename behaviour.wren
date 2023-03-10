@@ -40,6 +40,20 @@ class ConfusedBehaviour is Behaviour {
   }
 }
 
+class BossBehaviour is Behaviour {
+  construct new() {
+    super()
+  }
+  update(ctx, actor) {
+    var player = ctx.getEntityByTag("player")
+    if (!player) {
+      return false
+    }
+    return false
+    // Compute LoS to player
+    // if in range, charge and target with a spell
+  }
+}
 class SeekBehaviour is Behaviour {
   construct new() {
     super()
@@ -69,5 +83,5 @@ class SeekBehaviour is Behaviour {
   }
 }
 
-import "actions" for BumpAction
+import "actions" for BumpAction, SimpleMoveAction
 import "entities" for Player, Creature

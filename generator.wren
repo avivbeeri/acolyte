@@ -43,10 +43,12 @@ class WorldGenerator {
 
     var zone = null
 
-    if (level < 4) {
+    if (level < 1) {
+      zone = BasicZoneGenerator.generate(args)
+    } else if (level < 2) {
       zone = RandomZoneGenerator.generate(args)
     } else {
-      zone = BasicZoneGenerator.generate(args)
+      zone = BossRoomGenerator.generate(args)
     }
     for (entity in zone["entities"]) {
       world.addEntity(entity)
@@ -137,6 +139,31 @@ var y = current.y
 }
 
 class BasicZoneGenerator {
+  static tunnelBetweenWide(map, a, b) {
+    var corner
+    if (RNG.float() <= 0.5) {
+      corner = Vec.new(b.x, a.y)
+    } else {
+      corner = Vec.new(a.x, b.y)
+    }
+    var d = Vec.new(1, 1)
+    var dx = Vec.new(1, 0)
+    var dy = Vec.new(0, 1)
+    for (pos in Line.walk(a, corner) + Line.walk(b, corner)) {
+      map[pos] = Tile.new({
+        "solid": false
+      })
+      map[pos + d] = Tile.new({
+        "solid": false
+      })
+      map[pos + dx] = Tile.new({
+        "solid": false
+      })
+      map[pos + dy] = Tile.new({
+        "solid": false
+      })
+    }
+  }
   static tunnelBetween(map, a, b) {
     var corner
     if (RNG.float() <= 0.5) {
@@ -273,31 +300,33 @@ class BasicZoneGenerator {
       }
     }
   }
+}
 
-  static generateTest(args) {
-
+class BossRoomGenerator {
+  static generate(args) {
     var map = TileMap8.new()
     for (y in 0...32) {
       for (x in 0...32) {
+        map[x,y] = Tile.new({
+          "solid": true
+        })
+      }
+    }
+    for (y in 8...24) {
+      for (x in 8...24) {
         map[x,y] = Tile.new({
           "solid": false
         })
       }
     }
-    map[12, 16]["solid"] = true
-    map[13, 17]["solid"] = true
-    for (point in Line.walk(Vec.new(4,19), Vec.new(17,19))) {
-        map[point]["solid"] = true
-        map[point]["blocking"] = true
-    }
-    for (point in Line.walk(Vec.new(4,21), Vec.new(17,21))) {
-        map[point]["solid"] = true
-        map[point]["blocking"] = true
-    }
 
     var level = args[0]
     var zone = Zone.new(map)
     zone["level"] = level
+    zone["entities"] = [ Demon.new() ]
+    zone["entities"][0].pos = Vec.new(16, 12)
+    zone["start"] = Vec.new(16, 22)
+    zone.map[zone["start"]]["stairs"] = "up"
     return zone
   }
 }
@@ -339,4 +368,4 @@ class RectangularRoom {
 }
 
 import "./items" for InventoryEntry
-import "./entities" for Rat
+import "./entities" for Rat, Demon

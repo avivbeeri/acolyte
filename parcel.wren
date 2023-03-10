@@ -166,9 +166,12 @@ class TurnEvent is Event {
 }
 
 class GameEndEvent is Event {
-  construct new() {
+  construct new(win) {
     super()
+    data["win"] = win
   }
+
+  win { data["win"] }
 }
 
 class ChangeZoneEvent is Event {
@@ -1171,7 +1174,7 @@ class JPS {
       }
       var currentCost = costSoFar[current]
       var list = []
-      for (next in map.neighbours(current)) {
+      for (next in map.allNeighbours(current)) {
         var jump = map.successor(next, current, start, goal)
         if (jump == null) {
           continue

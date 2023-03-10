@@ -1,4 +1,5 @@
 import "parcel" for Action, ActionResult, MAX_TURN_SIZE, JPS, Line
+import "math" for Vec
 import "./combat" for AttackEvent, Damage, Condition
 import "./events" for Events, RestEvent, LightningEvent
 
@@ -208,12 +209,29 @@ class SimpleMoveAction is Action {
     super()
     _dir = dir
   }
-  evaluate() {
-    if (!ctx.zone.map.neighbours(src.pos).contains(src.pos + _dir)) {
-      return ActionResult.invalid
+
+  getArea(start, size) {
+    var corner = start + size
+    var maxX = corner.x - 1
+    var maxY = corner.y - 1
+    var area = []
+    for (y in start.y..maxY) {
+      for (x in start.x..maxX) {
+        area.add(Vec.new(x, y))
+      }
     }
-    if (ctx.entities().any{|other| other.occupies(src.pos  + _dir) && other["solid"] }) {
-      return ActionResult.invalid
+    return area
+  }
+
+  evaluate() {
+    var area = getArea(src.pos + _dir, src.size)
+    for (spot in area) {
+      if (!ctx.zone.map.neighbours(src.pos).contains(spot)) {
+        return ActionResult.invalid
+      }
+      if (ctx.entities().any{|other| other.occupies(spot) && other["solid"] }) {
+        return ActionResult.invalid
+      }
     }
 
     return ActionResult.valid
@@ -234,7 +252,8 @@ class DescendAction is Action {
   perform() {
     src.zone = src.zone + 1
     ctx.addEvent(Events.descend.new())
-    ctx.loadZone(ctx.zoneIndex + 1, src.pos)
+    var zone = ctx.loadZone(ctx.zoneIndex + 1, src.pos)
+    src.pos = zone["start"]
     return ActionResult.success
   }
 }

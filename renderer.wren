@@ -480,10 +480,24 @@ class AsciiRenderer is Element {
       }
 
       var symbol = entity["symbol"] || entity.name && entity.name[0] || "?"
-      Canvas.print(symbol, entity.pos.x * 16 + 4, entity.pos.y * 16 + 4, Color.white)
+      //Canvas.print(symbol, entity.pos.x * 16 + 4, entity.pos.y * 16 + 4, Color.white)
+      printArea(symbol, entity.pos, entity.size)
     }
 
+
     Canvas.offset(offset.x, offset.y)
+  }
+
+  printArea(symbol, start, size) {
+    var corner = start + size
+    var maxX = corner.x - 1
+    var maxY = corner.y - 1
+    for (y in start.y..maxY) {
+      for (x in start.x..maxX) {
+        Canvas.print(symbol, x * 16 + 4, y * 16 + 4, Color.white)
+      }
+    }
+
   }
 
 }

@@ -58,11 +58,20 @@ class ConditionSystem is GameSystem {
 }
 class DefeatSystem is GameSystem {
   construct new() { super() }
+  process(ctx, event) {
+    if (event is Events.defeat) {
+      if (event.target["boss"]) {
+        ctx.addEvent(GameEndEvent.new(true))
+      }
+    }
+    if (event is GameEndEvent) {
+      ctx.complete = true
+    }
+  }
   postUpdate(ctx, actor) {
     var player = ctx.getEntityByTag("player")
     if (!player) {
-      ctx.complete = true
-      ctx.addEvent(GameEndEvent.new())
+      ctx.addEvent(GameEndEvent.new(false))
     }
   }
 }
