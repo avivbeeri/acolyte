@@ -308,8 +308,8 @@ class BasicZoneGenerator {
     return zone
   }
   static placeAltar(zone, room) {
+    /*
     var beforeMap = Dijkstra.map(zone.map, room.center)
-    var entities = zone["entities"]
     var pos = Vec.new()
 
     var valid = false
@@ -322,8 +322,18 @@ class BasicZoneGenerator {
       valid = valid || afterMap[0].count == beforeMap[0].count
       zone.map[pos]["solid"] = valid
     }
+    */
+    var pos = Vec.new()
 
+    var valid = false
+    while (!valid) {
+      pos.x = RNG.int(room.p0.x + 1, room.p1.x - 1)
+      pos.y = RNG.int(room.p0.y + 1, room.p1.y - 1)
+      valid = GeneratorUtils.isValidTileLocation(zone, pos) && zone.map.allNeighbours(pos).all {|tile| zone.map.isFloor(tile) }
+    }
+    zone.map[pos]["solid"] = true
     zone.map[pos]["altar"] = true
+
   }
   static placeStairs(zone, room) {
     var pos = Vec.new()
