@@ -9,6 +9,7 @@ class OathSystem is GameSystem {
 
   start(ctx) {
     var player = ctx.getEntityByTag("player")
+    player["brokenOaths"] = []
     player["oaths"] = [
       Pacifism.new(),
       Poverty.new()
@@ -24,13 +25,18 @@ class OathSystem is GameSystem {
     if (player == null) {
       return
     }
+    var toRemove = []
+    var events = []
     for (oath in player["oaths"]) {
       oath.process(ctx, event)
       if (oath.broken) {
         oath.boon.onBreak(player)
         player["oaths"].remove(oath)
+        player["brokenOaths"].add(oath)
+        events.add(OathBroken.new(oath))
       }
     }
+    events.each {|event| ctx.addEvent(event) }
   }
 }
 
@@ -92,9 +98,7 @@ class Pacifism is Oath {
   process(ctx, event) {
     if (event is Events.defeat && event.src is Player) {
       strike()
-      if (broken) {
-        ctx.addEvent(OathBroken.new(this))
-      } else {
+      if (!broken) {
         ctx.addEvent(OathStrike.new(this))
       }
     }
@@ -103,14 +107,12 @@ class Pacifism is Oath {
 
 class Poverty is Oath {
   construct new() {
-    super("poverty", 3, Boon.new())
+    super("poverty", 1, Boon.new())
   }
   process(ctx, event) {
     if (event is Events.equipItem && event.src is Player) {
       strike()
-      if (broken) {
-        ctx.addEvent(OathBroken.new(this))
-      } else {
+      if (!broken) {
         ctx.addEvent(OathStrike.new(this))
       }
     }

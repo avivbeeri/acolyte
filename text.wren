@@ -1,7 +1,13 @@
 import "graphics" for Color, Canvas
+import "stringUtils" for StringUtils
 import "palette" for INK
 
 class TextSplitter {
+  static capitalize(text) {
+    var out = StringUtils.toUppercase(text[0])
+    out = out + text[1..-1]
+    return out
+  }
   static getWidth(lines) {
     var max = 0
     for (line in lines) {

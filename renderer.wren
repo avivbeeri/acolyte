@@ -145,15 +145,21 @@ class CharacterViewer is Element {
       var hpMax = player["stats"]["hpMax"]
       _lines.add("HP: %(hp)/%(hpMax)")
       _lines.add("")
-      _lines.add("Conditions:")
-      if (!player["conditions"].isEmpty) {
-        for (condition in player["conditions"].keys) {
-          _lines.add("  %(condition)")
+      if (!player["oaths"].isEmpty) {
+        _lines.add("Oaths Sworn:")
+        for (oath in player["oaths"]) {
+          _lines.add("  %(TextSplitter.capitalize(oath.name))")
         }
-      } else {
-        _lines.add("  None")
       }
-      _lines.add("")
+      if (!player["brokenOaths"].isEmpty) {
+        _lines.add("Oaths Broken:")
+        for (oath in player["brokenOaths"]) {
+          _lines.add("  %(TextSplitter.capitalize(oath.name))")
+        }
+      }
+      if (!player["oaths"].isEmpty || !player["brokenOaths"].isEmpty) {
+        _lines.add("")
+      }
 
 
       var str = player["stats"]["str"]
@@ -162,6 +168,16 @@ class CharacterViewer is Element {
       var def = player["stats"]["def"]
       _lines.add("Strength: %(str)   Dexterity: %(dex)")
       _lines.add("Attack:   %(atk)   Defence: %(def)")
+
+      _lines.add("")
+      _lines.add("Conditions:")
+      if (!player["conditions"].isEmpty) {
+        for (condition in player["conditions"].keys) {
+          _lines.add("  %(condition)")
+        }
+      } else {
+        _lines.add("  None")
+      }
 
       _width = (LineViewer.getWidth(_lines) + 2) * 8
       _height = (_lines.count + 2) * 10
