@@ -12,31 +12,36 @@ class TextSplitter {
     return max
   }
 
-  static split(lines) {
-    var line = 0
-    var width = Canvas.width
+  static split(lines, width) {
+    var outputLines = []
     var glyphWidth = 8
-    var lineHeight = 10
-    for (i in startLine...endLine) {
+
+    var count = lines.count
+    var line = 0
+    var i = 0
+    while (line < count) {
+      var outputLine = ""
       var text = lines[i]
-      var x = 0
       var words = text.split(" ")
+
+      var x = 0
       for (word in words) {
-        if (width - x * glyphWidth < word.count * glyphWidth) {
-          x = 0
+        if (width - x * glyphWidth <= word.count * glyphWidth) {
+          count = count + 1
           line = line + 1
+          x = 0
+          outputLines.add(outputLine)
+          outputLine = ""
         }
-        var y = start + dir * lineHeight * line
-        if (y >= 0 && y + lineHeight <= Canvas.height) {
-          Canvas.print(word, x * glyphWidth, start + dir * lineHeight * line, INK["text"])
-        } else {
-          break
-        }
+        outputLine = outputLine + " " + word
         x = x + (word.count + 1)
       }
 
       line = line + 1
+      i = i + 1
       x = 0
+      outputLines.add(outputLine)
     }
+    return outputLines
   }
 }

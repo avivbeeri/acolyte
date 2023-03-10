@@ -10,7 +10,6 @@ import "parcel" for
   Action,
   Set
 
-
 class Behaviour is GameSystem {
   construct new() {
     super()

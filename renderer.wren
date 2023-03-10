@@ -104,16 +104,19 @@ class Dialog is Pane {
     var width = TextSplitter.getWidth(message)
 
     _center = true
-    _size = Vec.new((width + 2) * 8, (2 + message.count) * 8)
+    _height = 10
+
+    var maxWidth = (2 * (Canvas.width / 3)).round
+    _message = TextSplitter.split(message, maxWidth)
+    _size = Vec.new(((width + 2) * 8).min(maxWidth), (2 + _message.count) * _height)
     _pos = (Vec.new(Canvas.width, Canvas.height) - _size) / 2
-    _message = message
     super(_pos, _size)
   }
 
   content() {
     for (i in 0..._message.count) {
       var x = _center ? (_size.x - (_message[i].count * 8)) / 2: 8
-      Canvas.print(_message[i], x, ((_size.y - _message.count * 8) / 2) + i * 8, INK["gameover"])
+      Canvas.print(_message[i], x, ((_size.y - _message.count * _height) / 2) + i * _height, INK["gameover"])
     }
   }
 }

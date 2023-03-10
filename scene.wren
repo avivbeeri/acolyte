@@ -401,8 +401,14 @@ class GameScene is Scene {
     _world.advance()
     for (event in _world.events) {
       if (event is GameEndEvent) {
-        _messages.add("The game has ended.", INK["playerDie"], false)
-        changeState(GameEndState.new(this, [ "The game has ended.", "Press Enter to try again" ]))
+        var message
+        if (event.win) {
+          message = "You have succeeded. Return to your home, and reflect on your deeds."
+        } else {
+          message = "You were defeated. You have fallen, but perhaps others will take up your cause."
+        }
+        _messages.add(message, INK["playerDie"], false)
+        changeState(GameEndState.new(this, [ message, "Press Enter to try again" ]))
       }
       if (event is AttackEvent) {
         _messages.add("%(event.src.name) attacked %(event.target.name) for %(event.result) damage.", INK["enemyAtk"], true)
