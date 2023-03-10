@@ -10,10 +10,11 @@ class OathSystem is GameSystem {
   start(ctx) {
     var player = ctx.getEntityByTag("player")
     player["oaths"] = [
-      Pacifism.new()
+      Pacifism.new(),
+      Poverty.new()
     ]
     for (oath in player["oaths"]) {
-      oath.onGrant(player)
+      oath.boon.onGrant(player)
       ctx.addEvent(OathTaken.new(oath))
     }
   }
@@ -26,7 +27,7 @@ class OathSystem is GameSystem {
     for (oath in player["oaths"]) {
       oath.process(ctx, event)
       if (oath.broken) {
-        oath.onBreak(player)
+        oath.boon.onBreak(player)
         player["oaths"].remove(oath)
       }
     }
@@ -74,16 +75,38 @@ class Oath is Stateful {
 
   strike() { data["strikes"] = (strikes  - 1).max(0) }
   process(ctx, event) {}
+}
+
+class Boon is Stateful {
+  construct new() {
+    super()
+  }
   onGrant(actor) {}
   onBreak(actor) {}
 }
 
 class Pacifism is Oath {
   construct new() {
-    super("pacifism", 3, "stealth")
+    super("pacifism", 3, Boon.new())
   }
   process(ctx, event) {
     if (event is Events.defeat && event.src is Player) {
+      strike()
+      if (broken) {
+        ctx.addEvent(OathBroken.new(this))
+      } else {
+        ctx.addEvent(OathStrike.new(this))
+      }
+    }
+  }
+}
+
+class Poverty is Oath {
+  construct new() {
+    super("poverty", 3, Boon.new())
+  }
+  process(ctx, event) {
+    if (event is Events.equipItem && event.src is Player) {
       strike()
       if (broken) {
         ctx.addEvent(OathBroken.new(this))
