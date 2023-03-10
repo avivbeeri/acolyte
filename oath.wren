@@ -80,9 +80,13 @@ class Oath is Stateful {
   boon { data["boon"] }
 
   strike() { data["strikes"] = (strikes  - 1).max(0) }
+  hardStrike() { data["strikes"] = 0 }
+  shouldHardStrike(ctx, event) { false }
   shouldStrike(ctx, event) { false }
   process(ctx, event) {
-    if (shouldStrike(ctx, event)) {
+    if (shouldHardStrike(ctx, event)) {
+      hardStrike()
+    } else if (shouldStrike(ctx, event)) {
       strike()
       if (!broken) {
         ctx.addEvent(OathStrike.new(this))
@@ -102,6 +106,9 @@ class Boon is Stateful {
 class Pacifism is Oath {
   construct new() {
     super("pacifism", 3, Boon.new())
+  }
+  shouldHardStrike(ctx, event) {
+    return (event is Events.kill && event.src is Player)
   }
   shouldStrike(ctx, event) {
     return (event is Events.defeat && event.src is Player)

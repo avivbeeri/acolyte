@@ -2,6 +2,9 @@ import "fov" for Vision, Vision2
 import "parcel" for GameSystem, JPS, GameEndEvent
 import "./entities" for Player
 import "items" for Equipment
+import "combat" for Condition
+import "behaviour" for UnconsciousBehaviour
+
 
 class ExperienceSystem is GameSystem {
   construct new() { super() }
@@ -63,6 +66,9 @@ class DefeatSystem is GameSystem {
       if (event.target["boss"]) {
         ctx.addEvent(GameEndEvent.new(true))
       }
+      event.target["killed"] = true
+      event.target.behaviours.add(UnconsciousBehaviour.new())
+      event.target["conditions"]["unconscious"] = Condition.new("unconscious", 10, true)
     }
     if (event is GameEndEvent) {
       ctx.complete = true
@@ -70,7 +76,7 @@ class DefeatSystem is GameSystem {
   }
   postUpdate(ctx, actor) {
     var player = ctx.getEntityByTag("player")
-    if (!player) {
+    if (!player || player["killed"]) {
       ctx.addEvent(GameEndEvent.new(false))
     }
   }

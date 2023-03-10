@@ -11,6 +11,16 @@ class HealEvent is Event {
   amount { _amount }
 }
 
+class KillEvent is Event {
+  construct new(src, target) {
+    super()
+    _src = src
+    _target = target
+  }
+  src { _src }
+  target { _target }
+}
+
 class DefeatEvent is Event {
   construct new(src, target) {
     super()
@@ -199,55 +209,32 @@ class Modifier {
   }
 }
 
-/*
-class AttackAction is Action {
-  construct new(attack, locations) {
-    super()
-    if (!(locations is Sequence)) {
-      locations = [ locations ]
+
+class CombatProcessor {
+  static calculate(src, target) { calculate(src, target, null) }
+  static calculate(src, target, damage) {
+    if (damage == null) {
+      var srcStats = src["stats"]
+      srcStats.set("atk", srcStats["str"])
+      var atk = srcStats.get("atk")
+      var def = target["stats"].get("dex")
+      damage = Damage.calculate(atk, def)
     }
-    data["locations"] = locations
-    data["attack"] = attack
-  }
-
-  locations { data["locations"] }
-  attack { data["attack"] }
-
-  evaluate() {
-    // TODO: We should evaluate validity based on the attack being made
-    return ActionResult.valid
-  }
-
-  perform() {
-    var location = _location
-    var targets = ctx.getEntitiesAtTile(location.x, location.y).where {|entity| entity.has("stats") }
-
-    targets.each {|target|
-      var currentHP = target["stats"].base("hp")
-      var defence = target["stats"].get("def")
-      var damage = Damage.calculate(_attack.strength - defence)
-
-      var attackResult = AttackResult.success
-      if (_attack.damage <= 0) {
-        attackResult = AttackResult.inert
-      } else if (damage == 0) {
-        attackResult = AttackResult.blocked
-      }
-
-      var attackEvent = AttackEvent.new(source, target, _attack, attackResult)
-      attackEvent = target.notify(attackEvent)
-
-      if (!attackEvent.cancelled) {
-        //ctx.events.add(LogEvent.new("%(source) attacked %(target)"))
-        ctx.events.add(attackEvent)
-        target["stats"].decrease("hp", damage)
-        //ctx.events.add(LogEvent.new("%(source) did %(damage) damage."))
-        if (target["stats"].get("hp") <= 0) {
-          //ctx.events.add(LogEvent.new("%(target) was defeated."))
-        }
+    var defeat = false
+    var kill = false
+    var ctx = src.ctx
+    if (target["stats"]["hp"] == 0) {
+      kill = true
+      ctx.removeEntity(target)
+    } else {
+      target["stats"].decrease("hp", damage)
+      if (target["stats"].get("hp") <= 0) {
+        target["stats"].set("hp", 0)
+        defeat = true
       }
     }
-    return ActionResult.success
+    ctx.addEvent(AttackEvent.new(src, target, "area", damage))
+    return [defeat, kill]
   }
+
 }
-*/

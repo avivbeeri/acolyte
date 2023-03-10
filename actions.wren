@@ -1,7 +1,7 @@
 import "collections" for HashMap
 import "parcel" for Action, ActionResult, MAX_TURN_SIZE, JPS, Line
 import "math" for Vec
-import "./combat" for AttackEvent, Damage, Condition
+import "./combat" for AttackEvent, Damage, Condition, CombatProcessor
 import "./events" for Events, RestEvent, LightningEvent
 
 class RestAction is Action {
@@ -115,12 +115,21 @@ class LightningAttackAction is Action {
       return acc
     }
 
+    /*
     target["stats"].decrease("hp", _damage)
-    ctx.addEvent(LightningEvent.new(target))
     if (target["stats"].get("hp") <= 0) {
       ctx.addEvent(Events.defeat.new(src, target))
       // TODO remove entity elsewhere?
       ctx.removeEntity(target)
+    }
+    */
+    var result = CombatProcessor.calculate(src, target, _damage)
+    ctx.addEvent(LightningEvent.new(target))
+    if (result[0]) {
+      ctx.addEvent(Events.defeat.new(src, target))
+    }
+    if (result[1]) {
+      ctx.addEvent(Events.kill.new(src, target))
     }
     return ActionResult.success
   }
@@ -155,13 +164,22 @@ class AreaAttackAction is Action {
     }
 
     for (target in targets.values) {
+      var result = CombatProcessor.calculate(src, target, _damage)
+      if (result[0]) {
+        defeats.add(Events.defeat.new(src, target))
+      }
+      if (result[1]) {
+        kills.add(Events.kill.new(src, target))
+      }
+      /*
       target["stats"].decrease("hp", _damage)
       ctx.addEvent(AttackEvent.new(src, target, "area", _damage))
       if (target["stats"].get("hp") <= 0) {
+        target["stats"].set("hp", 0)
         defeats.add(Events.defeat.new(src, target))
         // TODO remove entity elsewhere?
-        ctx.removeEntity(target)
       }
+      */
     }
     for (event in defeats) {
       ctx.addEvent(event)
@@ -190,6 +208,7 @@ class MeleeAttackAction is Action {
     var targetPos = src.pos + _dir
     var targets = ctx.getEntitiesAtPosition(targetPos)
     for (target in targets) {
+      /*
       var srcStats = src["stats"]
       srcStats.set("atk", srcStats["str"])
       var atk = srcStats.get("atk")
@@ -201,6 +220,14 @@ class MeleeAttackAction is Action {
         ctx.addEvent(Events.defeat.new(src, target))
         // TODO remove entity elsewhere?
         ctx.removeEntity(target)
+      }
+      */
+      var result = CombatProcessor.calculate(src, target)
+      if (result[0]) {
+        ctx.addEvent(Events.defeat.new(src, target))
+      }
+      if (result[1]) {
+        ctx.addEvent(Events.kill.new(src, target))
       }
     }
 

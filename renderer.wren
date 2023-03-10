@@ -556,6 +556,9 @@ class AsciiRenderer is Element {
       }
 
       var symbol = entity["symbol"] || entity.name && entity.name[0] || "?"
+      if (entity["killed"]) {
+        symbol = "\%"
+      }
       //Canvas.print(symbol, entity.pos.x * 16 + 4, entity.pos.y * 16 + 4, Color.white)
       printArea(symbol, entity.pos, entity.size)
     }

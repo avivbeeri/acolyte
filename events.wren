@@ -1,5 +1,5 @@
 import "parcel" for Event
-import "combat" for HealEvent, DefeatEvent, AttackEvent
+import "combat" for HealEvent, DefeatEvent, AttackEvent, KillEvent
 
 class ConditionEvent is Event {
   construct new(target, condition) {
@@ -107,4 +107,5 @@ class Events {
   static attack { AttackEvent }
   static heal { HealEvent }
   static defeat { DefeatEvent }
+  static kill { KillEvent }
 }

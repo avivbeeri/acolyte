@@ -39,6 +39,22 @@ class ConfusedBehaviour is Behaviour {
   }
 }
 
+class UnconsciousBehaviour is Behaviour {
+  construct new() {
+    super()
+  }
+  update(ctx, actor) {
+    if (!actor["conditions"].containsKey("unconscious")) {
+      actor.removeBehaviour(this)
+      actor["killed"] = false
+      // What should we set this to?
+      actor["stats"].set("hp", 1)
+      return false
+    }
+    actor.pushAction(Action.none)
+    return true
+  }
+}
 class BossBehaviour is Behaviour {
   construct new() {
     super()
