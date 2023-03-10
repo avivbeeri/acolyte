@@ -23,7 +23,8 @@ import "./renderer" for
   LogViewer,
   HistoryViewer,
   CharacterViewer,
-  HoverText
+  HoverText,
+  Dialog
 
 
 import "./actions" for BumpAction, RestAction, DescendAction
@@ -238,12 +239,14 @@ class ConfirmState is State {
     return this
   }
 }
+
 class ModalWindowState is State {
   construct new(scene, window) {
     super()
     _scene = scene
     _window = window
   }
+  scene { _scene }
   onEnter() {
     var border = 24
     if (_window == "history") {
@@ -259,6 +262,17 @@ class ModalWindowState is State {
   update() {
     if (INPUT["reject"].firing || INPUT["confirm"].firing) {
       return PlayerInputState.new(_scene)
+    }
+    return this
+  }
+}
+class GameEndState is ModalWindowState {
+  construct new(scene, message) {
+    super(scene, Dialog.new(message))
+  }
+  update() {
+    if (INPUT["reject"].firing || INPUT["confirm"].firing) {
+      scene.game.push(GameScene)
     }
     return this
   }
@@ -381,15 +395,14 @@ class GameScene is Scene {
     }
 
     if (nextState != _state) {
-      _state.onExit()
-      nextState.onEnter()
-      _state = nextState
+      changeState(nextState)
     }
 
     _world.advance()
     for (event in _world.events) {
       if (event is GameEndEvent) {
-        _messages.add("The game has ended", INK["playerDie"], false)
+        _messages.add("The game has ended.", INK["playerDie"], false)
+        changeState(GameEndState.new(this, "The game has ended."))
       }
       if (event is AttackEvent) {
         _messages.add("%(event.src.name) attacked %(event.target.name) for %(event.result) damage.", INK["enemyAtk"], true)
@@ -435,6 +448,12 @@ class GameScene is Scene {
         _messages.add("You descend down the stairs.", INK["text"], false)
       }
     }
+  }
+
+  changeState(nextState) {
+    _state.onExit()
+    nextState.onEnter()
+    _state = nextState
   }
 
   draw() {

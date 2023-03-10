@@ -71,6 +71,43 @@ class ScrollEvent is Event {
   start { _start }
 }
 
+class Pane is Element {
+  construct new(pos, size) {
+    super()
+    _pos = pos
+    _size = size
+  }
+
+  content() {}
+
+  draw() {
+    var border = 4
+    var offset = Canvas.offset
+    Canvas.offset(_pos.x,_pos.y)
+
+    Canvas.rectfill(0, 0, _size.x, _size.y, INK["bg"])
+    for (i in 1..border) {
+      Canvas.rect(-i, -i, _size.x + 2 * i, _size.y + 2 * i, INK["border"])
+    }
+    content()
+    super.draw()
+    Canvas.offset(offset.x, offset.y)
+  }
+}
+
+class Dialog is Pane {
+  construct new(message) {
+    _size = Vec.new((message.count + 2) * 8, 5 * 8)
+    _pos = (Vec.new(Canvas.width, Canvas.height) / 2) - _size
+    _message = message
+    super(_pos, _size)
+  }
+
+  content() {
+    Canvas.print(_message, 8, 12, INK["gameover"])
+  }
+}
+
 class CharacterViewer is Element {
   construct new(pos, size) {
     super()
