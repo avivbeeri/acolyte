@@ -54,7 +54,7 @@ class InventoryWindowState is State {
       if (worldItems[entry.id] is Equipment) {
         var item = worldItems[entry.id]
         if (player["equipment"][item.slot] == entry.id) {
-          label = "equipped"
+          label = "(equipped)"
         }
       }
       return "%(letter)) %(entry.qty)x %(worldItems[entry.id].name) %(label)"
@@ -405,6 +405,14 @@ class GameScene is Scene {
       }
       if (event is RestEvent) {
         _messages.add("%(event.src) rests.", INK["text"], true)
+      }
+      if (event is Events.unequipItem) {
+        var itemName = _world["items"][event.item]["name"]
+        _messages.add("%(event.src) removed the %(itemName)", INK["text"], false)
+      }
+      if (event is Events.equipItem) {
+        var itemName = _world["items"][event.item]["name"]
+        _messages.add("%(event.src) equipped the %(itemName)", INK["text"], false)
       }
       if (event is PickupEvent) {
         var itemName = _world["items"][event.item]["name"]

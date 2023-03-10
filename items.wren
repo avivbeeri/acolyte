@@ -95,7 +95,6 @@ class EquipItemAction is Action {
     if (entries.count <= 0) {
       return ActionResult.invalid
     }
-    System.print("equip item evaluate")
 
     var entry = entries.toList[0]
     if (entry.qty <= 0) {
@@ -250,7 +249,6 @@ class Sword is Equipment {
       null,
       true
     ))
-    System.print("equip")
   }
   onUnequip(actor) {
     actor["stats"].removeModifier(slot)
