@@ -591,6 +591,17 @@ class AsciiRenderer is Element {
           var bg = INK["bg"] * 1
           bg.a = 64
           Canvas.rectfill(x * 16, y * 16, 16, 16, bg)
+          var color = INK["treasure"]
+          var symbolMap = {
+            "potion": "!",
+            "fireball": "~",
+            "scroll": "~",
+            "wand": "~",
+            "sword": "/",
+            "armor": "[",
+          }
+          Canvas.print(symbolMap[items[0].id], x * 16 + 4, y * 16 + 4, color)
+          /*
           if (items[0].id == "potion") {
             Canvas.print("!", x * 16 + 4, y * 16 + 4, INK["treasure"])
           }
@@ -603,21 +614,25 @@ class AsciiRenderer is Element {
           if (items[0].id == "scroll") {
             Canvas.print("~", x * 16 + 4, y * 16 + 4, INK["treasure"])
           }
+          if (items[0].id == "armor") {
+            Canvas.print("[", x * 16 + 4, y * 16 + 4, INK["treasure"])
+          }
           if (items[0].id == "sword") {
             Canvas.print("/", x * 16 + 4, y * 16 + 4, INK["treasure"])
           }
+          */
         }
       }
     }
 
     var tileEntities = _world.entities().sort {|a, b|
-      if (a["killed"]) {
+      if (a["killed"] && !b["killed"]) {
         return true
       }
-      if (b["killed"]) {
-        return true
+      if (!a["killed"] && b["killed"]) {
+        return false
       }
-      return true
+      return a["killed"]
     } + [ player ]
 
     for (entity in tileEntities) {

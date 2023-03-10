@@ -1,6 +1,15 @@
 import "math" for Vec
 import "parcel" for TileMap8, Tile, Zone, Line, RNG, Entity, DIR_FOUR, Dijkstra, World
 
+var ITEMS = [
+  "potion",
+  "scroll",
+  "wand",
+  "fireball",
+  "sword",
+  "armor"
+]
+
 class GeneratorUtils {
   static isValidTileLocation(zone, position) {
     var tile = zone.map[position]
@@ -61,6 +70,7 @@ class WorldGenerator {
     world.systems.add(OathSystem.new())
 
     world["items"] = {
+      "armor": Items.armor,
       "sword": Items.sword,
       "potion": Items.healthPotion,
       "scroll": Items.lightningScroll,
@@ -168,9 +178,9 @@ class RandomZoneGenerator {
 
     var valid = false
     while (!valid) {
-      pos.x = RNG.int(room.p0.x + 1, room.p1.x - 1)
-      pos.y = RNG.int(room.p0.y + 1, room.p1.y - 1)
-      var valid = GeneratorUtils.isValidEntityLocation(zone, pos)
+      pos.x = RNG.int(zone.map.xRange.from + 1, zone.map.xRange.to - 1)
+      pos.y = RNG.int(zone.map.yRange.from + 1, zone.map.yRange.to - 1)
+      valid = GeneratorUtils.isValidEntityLocation(zone, pos)
     }
     var entity = Rat.new()
     entity.pos = pos
@@ -285,7 +295,7 @@ class BasicZoneGenerator {
       BasicZoneGenerator.tunnelBetween(map, rooms[start].center, rooms[end].center)
     }
     var finalRoom = rooms[-1]
-    //BasicZoneGenerator.placeStairs(zone, finalRoom)
+    BasicZoneGenerator.placeStairs(zone, finalRoom)
     zone.map[startPos]["stairs"] = "up"
 
     var altarRoom = rooms[RNG.int(rooms.count)]
@@ -353,17 +363,7 @@ class BasicZoneGenerator {
       var pos = Vec.new(x, y)
 
       if ((entities.isEmpty || !entities.any{|entity| entity.pos == pos }) && pos != startPos) {
-        var r = RNG.float()
-        var itemId = "potion"
-        if (r < 0.8) {
-          itemId = "scroll"
-        }
-        if (r < 0.6) {
-          itemId = "wand"
-        }
-        if (r < 0.2) {
-          itemId = "fireball"
-        }
+        var itemId = RNG.sample(ITEMS)
         zone.map[pos]["items"] = [ InventoryEntry.new(itemId, 1) ]
       }
     }

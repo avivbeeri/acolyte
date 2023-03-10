@@ -50,10 +50,10 @@ class Damage {
     var o1 = atk * 2 - def
     var o2 = (atk * atk) / def
     if (atk > def) {
-      return o1.floor
+      return o1.round
     }
     if (!o2.isNan) {
-      return o2.floor
+      return o2.round
     }
     return 0
   }
@@ -215,9 +215,11 @@ class CombatProcessor {
   static calculate(src, target, damage) {
     if (damage == null) {
       var srcStats = src["stats"]
+      var targetStats = target["stats"]
       srcStats.set("atk", srcStats["str"])
+      targetStats.set("def", srcStats["dex"])
       var atk = srcStats.get("atk")
-      var def = target["stats"].get("dex")
+      var def = targetStats.get("def")
       damage = Damage.calculate(atk, def)
     }
     var defeat = false

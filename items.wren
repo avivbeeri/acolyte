@@ -1,9 +1,10 @@
 import "parcel" for Action, ActionResult, Stateful, Log
+import "text" for TextSplitter
 
 class EquipmentSlot {
   static weapon { "WEAPON" }
-  static armor { "armor" }
-  static trinket { "trinket" }
+  static armor { "ARMOR" }
+  static trinket { "TRINKET" }
 }
 
 
@@ -255,17 +256,6 @@ class Equipment is Item {
 
   slot { data["slot"] }
   consumable { false }
-}
-
-class Sword is Equipment {
-  construct new() {
-    super("sword", EquipmentSlot.weapon, {
-      "add": {
-        "atk": 1
-      }
-    })
-    data["name"] = "Sword"
-  }
 
   default(actor, args) {
     if (actor["equipment"][slot] == id) {
@@ -276,6 +266,13 @@ class Sword is Equipment {
   }
   equip(args) { EquipItemAction.new(id) }
   unequip(args) { UnequipItemAction.new(slot) }
+}
+
+class StatBoostEquipment is Equipment {
+  construct new(id, slot, stats) {
+    super(id, slot, stats)
+    data["name"] = TextSplitter.capitalize(id)
+  }
 
   onEquip(actor) {
     actor["stats"].addModifier(Modifier.new(
@@ -288,6 +285,25 @@ class Sword is Equipment {
   }
   onUnequip(actor) {
     actor["stats"].removeModifier(slot)
+  }
+}
+class Armor is StatBoostEquipment {
+  construct new() {
+    super("armor", EquipmentSlot.armor, {
+      "add": {
+        "def": 1
+      }
+    })
+  }
+}
+
+class Sword is StatBoostEquipment {
+  construct new() {
+    super("sword", EquipmentSlot.weapon, {
+      "add": {
+        "atk": 1
+      }
+    })
   }
 }
 
@@ -355,6 +371,7 @@ class Items {
   static confusionScroll { ConfusionScroll.new() }
   static fireballScroll { FireballScroll.new() }
   static sword { Sword.new() }
+  static armor { Armor.new() }
 }
 
 import "./actions" for HealAction, LightningAttackAction, InflictConfusionAction, AreaAttackAction
