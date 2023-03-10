@@ -66,6 +66,20 @@ class UseItemEvent is Event {
   item { data["item"] }
 }
 
+class DropEvent is Event {
+  construct new(src, itemId, qty, pos) {
+    super()
+    data["src"] = src
+    data["item"] = itemId
+    data["qty"] = qty
+    data["pos"] = pos
+  }
+
+  src { data["src"] }
+  pos { data["pos"] }
+  item { data["item"] }
+  qty { data["qty"] }
+}
 class PickupEvent is Event {
   construct new(src, itemId, qty) {
     super()
@@ -105,6 +119,7 @@ class Events {
   static rest { RestEvent }
   static pray { PrayEvent }
   static pickup { PickupEvent }
+  static drop { DropEvent }
   static useItem { UseItemEvent }
   static equipItem { EquipItemEvent }
   static unequipItem { UnequipItemEvent }

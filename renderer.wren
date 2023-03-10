@@ -582,27 +582,29 @@ class AsciiRenderer is Element {
           if (map[x, y]["stairs"] == "up") {
             Canvas.print("<", x * 16 + 4, y * 16 + 4, INK["upstairs"])
           }
-        } else {
-          var items = map[x, y]["items"]
-          if (items && items.count > 0) {
-            if (items[0].id == "potion") {
-              Canvas.print("!", x * 16 + 4, y * 16 + 4, INK["treasure"])
-            }
-            if (items[0].id == "fireball") {
-              Canvas.print("~", x * 16 + 4, y * 16 + 4, INK["treasure"])
-            }
-            if (items[0].id == "wand") {
-              Canvas.print("~", x * 16 + 4, y * 16 + 4, INK["treasure"])
-            }
-            if (items[0].id == "scroll") {
-              Canvas.print("~", x * 16 + 4, y * 16 + 4, INK["treasure"])
-            }
-            if (items[0].id == "sword") {
-              Canvas.print("/", x * 16 + 4, y * 16 + 4, INK["treasure"])
-            }
-          } else {
-            Canvas.print(".", x * 16 + 4, y * 16 + 4, color)
+        }
+        var items = map[x, y]["items"]
+        if (items && items.count > 0) {
+          var bg = INK["bg"] * 1
+          bg.a = 64
+          Canvas.rectfill(x * 16, y * 16, 16, 16, bg)
+          if (items[0].id == "potion") {
+            Canvas.print("!", x * 16 + 4, y * 16 + 4, INK["treasure"])
           }
+          if (items[0].id == "fireball") {
+            Canvas.print("~", x * 16 + 4, y * 16 + 4, INK["treasure"])
+          }
+          if (items[0].id == "wand") {
+            Canvas.print("~", x * 16 + 4, y * 16 + 4, INK["treasure"])
+          }
+          if (items[0].id == "scroll") {
+            Canvas.print("~", x * 16 + 4, y * 16 + 4, INK["treasure"])
+          }
+          if (items[0].id == "sword") {
+            Canvas.print("/", x * 16 + 4, y * 16 + 4, INK["treasure"])
+          }
+        } else {
+          Canvas.print(".", x * 16 + 4, y * 16 + 4, color)
         }
       }
     }

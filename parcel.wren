@@ -1101,14 +1101,14 @@ class Dijkstra {
     return path
   }
   static map(map, start) {
-    var frontier = PriorityQueue.min()
+    var frontier = Queue.new()
     var cameFrom = HashMap.new()
     var costSoFar = HashMap.new()
     if (!(start is Sequence)) {
       start = [ start ]
     }
     for (pos in start) {
-      frontier.add(pos, 0)
+      frontier.add(pos)
       cameFrom[pos] = null
       costSoFar[pos] = 0
     }
@@ -1119,8 +1119,7 @@ class Dijkstra {
       for (next in map.neighbours(current)) {
         if (!cameFrom.containsKey(next) || newCost < costSoFar[next]) {
           costSoFar[next] = newCost
-          var priority = newCost
-          frontier.add(next, newCost)
+          frontier.add(next)
           cameFrom[next] = current
         }
       }

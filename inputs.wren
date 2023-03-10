@@ -113,6 +113,7 @@ BASIC.register("reject", [ Keyboard["escape"], Keyboard["backspace"], Keyboard["
 BASIC.register("exit", [ Keyboard["escape"] ])
 BASIC.register("rest", [ Keyboard["space"], Keyboard["keypad ."]  ])
 BASIC.register("pray", [ Keyboard["p"]  ])
+BASIC.register("drop", [ Keyboard["r"]  ])
 BASIC.register("pickup", [ Keyboard["g"] ])
 BASIC.register("inventory", [ Keyboard["i"] ])
 BASIC.register("log", [ Keyboard["v"] ])

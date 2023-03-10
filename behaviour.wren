@@ -90,7 +90,7 @@ class SeekBehaviour is Behaviour {
     var dest = Vec.new(dx, dy)
 
     var destEntities = ctx.getEntitiesAtPosition(next)
-    if (!destEntities.isEmpty && destEntities.any{|entity| !(entity is Player) && entity is Creature }) {
+    if (!destEntities.isEmpty && destEntities.any{|entity| !(entity is Player) && entity is Creature && !entity["killed"] }) {
       // Stop swarms eating each other
       return false
     }

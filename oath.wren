@@ -12,7 +12,7 @@ class OathSystem is GameSystem {
     player["brokenOaths"] = []
     player["oaths"] = [
 //      Pacifism.new(),
-      Succor.new(),
+      Quietus.new(),
       Poverty.new()
     ]
     for (oath in player["oaths"]) {
@@ -150,7 +150,7 @@ class Boon is Stateful {
   onBreak(actor) {}
 }
 
-class Succor is Oath {
+class Quietus is Oath {
   construct new() {
     super("succor", 3, 0, Boon.new())
     data["attacked"] = {}

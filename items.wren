@@ -26,6 +26,42 @@ class InventoryEntry is Stateful {
   qty=(v) { data["qty"] = v }
 }
 
+class DropAction is Action {
+  construct new(id) {
+    super()
+    _itemId = id
+  }
+  evaluate() {
+    if (src["inventory"].isEmpty || !src["inventory"].any {|entry| entry.id == _itemId } ) {
+      return ActionResult.invalid
+    }
+    return ActionResult.valid
+  }
+
+  perform() {
+    var tile = ctx.zone.map[src.pos]
+    var inventory = src["inventory"]
+    var existing = inventory.where {|entry| entry.id == _itemId }.toList
+
+    existing[0].subtract(1)
+
+    var found = false
+    for (entry in (tile["items"] || [])) {
+      if (entry.id == _itemId) {
+        entry.add(1)
+        found = true
+        break
+      }
+    }
+    if (!found) {
+      tile["items"] = tile["items"] || []
+      tile["items"].add(InventoryEntry.new(_itemId, 1))
+    }
+
+    ctx.addEvent(Events.drop.new(src, _itemId, 1, src.pos))
+    return ActionResult.success
+  }
+}
 class PickupAction is Action {
   construct new() {
     super()

@@ -2,6 +2,18 @@ import "math" for Vec
 import "parcel" for TileMap8, Tile, Zone, Line, RNG, Entity, DIR_FOUR, Dijkstra, World
 
 class GeneratorUtils {
+  static isValidTileLocation(zone, position) {
+    var tile = zone.map[position]
+    var entities = zone["entities"]
+    return !(tile["solid"] || tile["stairs"] || tile["altar"])
+  }
+  static isValidEntityLocation(zone, position) {
+    var tile = zone.map[position]
+    var entities = zone["entities"]
+    return isValidTileLocation(zone, position) &&
+      (entities.isEmpty || !entities.any{|entity| entity.pos == pos })
+  }
+
   static findFurthestPoint(map, startPos) {
     var dMap = Dijkstra.map(map, startPos)
     var maxEntry = null
@@ -129,10 +141,10 @@ class RandomZoneGenerator {
     }
     var exit = GeneratorUtils.findFurthestPoint(map, startPos)
     zone.map[exit]["stairs"] = "down"
+    // place item somewhere
     var pockets = RNG.shuffle(GeneratorUtils.findPockets(map))
     if (!pockets.isEmpty) {
       var pos = pockets[0]
-      System.print(pos)
       var r = RNG.float()
       var itemId = "potion"
       if (r < 0.8) {
@@ -150,19 +162,19 @@ class RandomZoneGenerator {
       zone.map[pos]["items"] = [ InventoryEntry.new(itemId, 1) ]
     }
       // place enemy
- //     var x = RNG.int(room.p0.x + 1, room.p1.x - 1)
-//      var y = RNG.int(room.p0.y + 1, room.p1.y - 1)
-      var entities = zone["entities"] = []
-      var x = current.x
-      var y = current.y
+    var x = current.x
+    var y = current.y
+    var pos = Vec.new(x, y)
 
-      var pos = Vec.new(x, y )
-
-      if (entities.isEmpty || !entities.any{|entity| entity.pos == pos }) {
-        var entity = Rat.new()
-        entity.pos = pos
-        entities.add(entity)
-      }
+    var valid = false
+    while (!valid) {
+      pos.x = RNG.int(room.p0.x + 1, room.p1.x - 1)
+      pos.y = RNG.int(room.p0.y + 1, room.p1.y - 1)
+      var valid = GeneratorUtils.isValidEntityLocation(zone, pos)
+    }
+    var entity = Rat.new()
+    entity.pos = pos
+    zone["entities"].add(entity)
 
     return zone
   }
@@ -261,7 +273,6 @@ class BasicZoneGenerator {
       }
       rooms.add(room)
 
-      BasicZoneGenerator.placeEntities(zone, room, monstersPerRoom, itemsPerRoom)
     }
 
     // USE THIS IF WE DON'T WANT TO START ON STAIRS
@@ -274,45 +285,49 @@ class BasicZoneGenerator {
       BasicZoneGenerator.tunnelBetween(map, rooms[start].center, rooms[end].center)
     }
     var finalRoom = rooms[-1]
-    BasicZoneGenerator.placeStairs(zone, finalRoom)
+    //BasicZoneGenerator.placeStairs(zone, finalRoom)
     zone.map[startPos]["stairs"] = "up"
 
     var altarRoom = rooms[RNG.int(rooms.count)]
-    BasicZoneGenerator.placeAltar(zone, altarRoom)
+    //BasicZoneGenerator.placeAltar(zone, altarRoom)
+
+    for (room in rooms) {
+      BasicZoneGenerator.placeEntities(zone, room, monstersPerRoom, itemsPerRoom)
+    }
 
     return zone
   }
   static placeAltar(zone, room) {
     var beforeMap = Dijkstra.map(zone.map, room.center)
-    var valid = false
     var entities = zone["entities"]
     var pos = Vec.new()
 
-
-    while (!valid || !entities.isEmpty && entities.any{|entity| entity.pos == pos }) {
+    var valid = false
+    while (!valid) {
       pos.x = RNG.int(room.p0.x + 1, room.p1.x - 1)
       pos.y = RNG.int(room.p0.y + 1, room.p1.y - 1)
       zone.map[pos]["solid"] = true
       var afterMap = Dijkstra.map(zone.map, room.center)
-      valid = afterMap[0].count == beforeMap[0].count
+      valid = GeneratorUtils.isValidEntityLocation(zone, pos)
+      valid = valid && afterMap[0].count == beforeMap[0].count
       zone.map[pos]["solid"] = valid
     }
 
     zone.map[pos]["altar"] = true
   }
   static placeStairs(zone, room) {
-    var entities = zone["entities"]
     var pos = Vec.new()
     pos.x = RNG.int(room.p0.x + 1, room.p1.x - 1)
     pos.y = RNG.int(room.p0.y + 1, room.p1.y - 1)
 
-    while (!entities.isEmpty && entities.any{|entity| entity.pos == pos }) {
+    while (!GeneratorUtils.isValidTileLocation(zone, pos)) {
       pos.x = RNG.int(room.p0.x + 1, room.p1.x - 1)
       pos.y = RNG.int(room.p0.y + 1, room.p1.y - 1)
     }
 
     zone.map[pos]["stairs"] = "down"
   }
+
 
   static placeEntities(zone, room, maxMonsters, maxItems) {
     var totalMonsters = RNG.int(maxMonsters + 1)

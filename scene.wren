@@ -32,13 +32,19 @@ import "./actions" for BumpAction, PrayAction, RestAction, DescendAction, Strike
 import "./events" for Events,RestEvent, PickupEvent, UseItemEvent, LightningEvent
 import "./generator" for WorldGenerator
 import "./combat" for AttackEvent, DefeatEvent, HealEvent
-import "./items" for ItemAction, PickupAction, Items, Equipment
+import "./items" for ItemAction, PickupAction, Items, Equipment, DropAction
 import "./oath" for OathBroken, OathTaken, OathStrike
 
 class InventoryWindowState is State {
   construct new(scene) {
     super()
     _scene = scene
+    _action = "use"
+  }
+  construct new(scene, action) {
+    super()
+    _scene = scene
+    _action = action
   }
   onEnter() {
     var border = 24
@@ -102,14 +108,18 @@ class InventoryWindowState is State {
       var letter = getKey(i)
       var item = _scene.world["items"][entry.id]
       if (Keyboard[letter].justPressed) {
-        var query = item.query("use")
-        if (!query["target"]) {
-          //player.pushAction(item.default(player, []))
-          player.pushAction(ItemAction.new(entry.id))
+        if (_action == "drop") {
+          player.pushAction(DropAction.new(entry.id))
           return PlayerInputState.new(_scene)
-        } else {
-          query["item"] = entry.id
-          return TargetQueryState.new(_scene, query)
+        } else if (_action == "use") {
+          var query = item.query("use")
+          if (!query["target"]) {
+              player.pushAction(ItemAction.new(entry.id))
+            return PlayerInputState.new(_scene)
+          } else {
+            query["item"] = entry.id
+            return TargetQueryState.new(_scene, query)
+          }
         }
       }
       i = i + 1
@@ -322,6 +332,9 @@ class PlayerInputState is State {
     }
     if (INPUT["pray"].firing) {
       player.pushAction(PrayAction.new())
+    }
+    if (INPUT["drop"].firing) {
+      return InventoryWindowState.new(_scene, "drop")
     }
     if (INPUT["rest"].firing) {
       player.pushAction(RestAction.new())
