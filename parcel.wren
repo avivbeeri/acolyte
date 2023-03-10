@@ -590,29 +590,35 @@ class World is Stateful {
     var actor = null
     var actorId
     var turn
+    var action
     while (_queue.count > 0 && actor == null) {
       turn = _queue.peekPriority()
-      actorId = _queue.remove()
+      actorId = _queue.peek()
       actor = getEntityById(actorId)
+      if (_queue.isEmpty) {
+        actor = null
+        break
+      }
       if (actor.state < 2) {
         actor = null
+        _queue.remove()
+        continue
       }
+      events.clear()
+      // Check systems first to clear conditions
+      systems.each{|system| system.preUpdate(this, actor) }
+      action = actor.getAction()
+      if (action == null) {
+          // Actor isn't ready to provide action (player)
+          return false
+      }
+      actorId = _queue.remove()
     }
     if (actor == null) {
       // No actors, no actions to perform
       return false
     }
-    events.clear()
 
-    // Check systems first to clear conditions
-    systems.each{|system| system.preUpdate(this, actor) }
-    var action = actor.getAction()
-    if (action == null) {
-        var nextTurn = _queue.peekPriority()
-        _queue.add(actorId, nextTurn - 1)
-        // Actor isn't ready to provide action (player)
-        return false
-    }
     Log.d("Begin %(actor) turn %(turn)")
     var result
     while (true) {
