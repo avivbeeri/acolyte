@@ -551,7 +551,6 @@ class World is Stateful {
     var actor = null
     var actorId
     var turn
-    Log.d("begin advance")
     while (_queue.count > 0 && actor == null) {
       turn = _queue.peekPriority()
       actorId = _queue.remove()
@@ -565,16 +564,16 @@ class World is Stateful {
       return false
     }
     events.clear()
-    Log.d("Begin %(actor) turn %(turn)")
 
+    // Check systems first to clear conditions
     systems.each{|system| system.preUpdate(this, actor) }
-
     var action = actor.getAction()
     if (action == null) {
         _queue.add(actorId, turn)
         // Actor isn't ready to provide action (player)
         return false
     }
+    Log.d("Begin %(actor) turn %(turn)")
     var result
     while (true) {
       Log.d("%(actor) evaluate: %(action)")
@@ -1365,7 +1364,7 @@ var RNG
 class Config {
   static init() {
     __config = {
-      "logLevel": "INFO",
+      "logLevel": "DEBUG",
       "seed": Platform.time,
       "title": "Parcel",
       "width": 768,
@@ -1390,7 +1389,6 @@ class Config {
   static [key] { __config[key]  }
 }
 Config.init()
-
 // ==================================
 class Palette {
 

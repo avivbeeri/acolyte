@@ -1,5 +1,5 @@
 {
   "title": "Acolyte's Pledge",
-  "logLevel": "info",
+  "logLevel": "DEBUG",
   "version": "0.0.4"
 }

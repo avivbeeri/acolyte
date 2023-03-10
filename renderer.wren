@@ -76,7 +76,7 @@ class CharacterViewer is Element {
     super()
     _pos = pos
     _size = size
-    _height = (size.y / 12).floor
+    _height = (size.y / 10).floor
     _lines = null
     _width = size.x
     _viewer = addElement(LineViewer.new(pos + Vec.new(8, 8), _size, _height, _lines))
@@ -104,7 +104,7 @@ class CharacterViewer is Element {
       }
 
       _width = (LineViewer.getWidth(_lines) + 2) * 8
-      _height = (_lines.count + 2) * 12
+      _height = (_lines.count + 2) * 10
       _size.x = _width
       _size.y = _height
 
@@ -129,7 +129,7 @@ class HistoryViewer is Element {
     _size = size
     _scroll = 0
     _log = log
-    _height = (size.y / 12).floor
+    _height = (size.y / 10).floor
     _viewer = addElement(LogViewer.new(pos + Vec.new(4, 4), log, _height))
     _viewer.full = true
   }
@@ -195,7 +195,7 @@ class LineViewer is Element {
     var line = 0
     var width = Canvas.width
     var glyphWidth = 8
-    var lineHeight = 12
+    var lineHeight = 10
     for (i in startLine...endLine) {
       var text = _lines[i]
       var x = 0
@@ -270,7 +270,7 @@ class LogViewer is Element {
     var line = 0
     var width = Canvas.width
     var glyphWidth = 8
-    var lineHeight = 12
+    var lineHeight = 10
     for (i in startLine...endLine) {
       var message = _messages[i]
       var x = 0
@@ -460,6 +460,9 @@ class AsciiRenderer is Element {
             }
             if (items[0].id == "scroll") {
               Canvas.print("~", x * 16 + 4, y * 16 + 4, INK["treasure"])
+            }
+            if (items[0].id == "sword") {
+              Canvas.print("/", x * 16 + 4, y * 16 + 4, INK["treasure"])
             }
           } else {
             Canvas.print(".", x * 16 + 4, y * 16 + 4, color)

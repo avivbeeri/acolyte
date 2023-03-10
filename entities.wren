@@ -2,19 +2,25 @@ import "parcel" for Entity, BehaviourEntity, GameSystem, JPS, Stateful, DIR_EIGH
 import "math" for Vec, M
 
 class Creature is BehaviourEntity {
-  construct new() {
+  construct new(stats) {
     super()
     this["symbol"] = "?"
     this["solid"] = true
     this["inventory"] = [
     ]
+    this["equipment"] = {}
     this["stats"] =  StatGroup.new({
       "hpMax": 1,
       "hp": 1,
+      "atk": 0,
+      "def": 0,
       "str": 1,
-      "dex": 0,
+      "dex": 1,
       "xp": 0
     })
+    for (entry in stats) {
+      this["stats"].set(entry.key, entry.value)
+    }
     this["conditions"] = {}
   }
   name { "Creature" }
@@ -23,18 +29,14 @@ class Creature is BehaviourEntity {
 
 class Player is Creature {
   construct new() {
-    super()
+    super({
+      "hpMax": 5,
+      "hp": 5
+    })
     this["symbol"] = "@"
     this["inventory"] = [
       InventoryEntry.new("potion", 1)
     ]
-    this["stats"] =  StatGroup.new({
-      "hpMax": 5,
-      "hp": 5,
-      "str": 1,
-      "dex": 1,
-      "xp": 0
-    })
   }
   name { data["name"] || "Player" }
   pronoun { Pronoun.you }
@@ -56,15 +58,11 @@ class Player is Creature {
 
 class Rat is Creature {
  construct new() {
-    super()
-    this["symbol"] = "r"
-    this["stats"] =  StatGroup.new({
+    super({
       "hpMax": 1,
-      "hp": 1,
-      "str": 1,
-      "dex": 1,
-      "xp": 0
+      "hp": 1
     })
+    this["symbol"] = "r"
 
     behaviours.add(SeekBehaviour.new())
   }

@@ -34,6 +34,27 @@ class LightningEvent is Event {
   target { data["src"] }
 }
 
+class UnequipItemEvent is Event {
+  construct new(src, itemId) {
+    super()
+    data["src"] = src
+    data["item"] = itemId
+  }
+
+  src { data["src"] }
+  item { data["item"] }
+}
+class EquipItemEvent is Event {
+  construct new(src, itemId) {
+    super()
+    data["src"] = src
+    data["item"] = itemId
+  }
+
+  src { data["src"] }
+  item { data["item"] }
+}
+
 class UseItemEvent is Event {
   construct new(src, itemId) {
     super()
@@ -76,6 +97,8 @@ class Events {
   static rest { RestEvent }
   static pickup { PickupEvent }
   static useItem { UseItemEvent }
+  static equipItem { EquipItemEvent }
+  static unequipItem { UnequipItemEvent }
   static extendCondition { ExtendConditionEvent }
   static inflictCondition { InflictConditionEvent }
   static clearCondition { ClearConditionEvent }

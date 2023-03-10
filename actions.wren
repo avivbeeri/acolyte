@@ -185,7 +185,9 @@ class MeleeAttackAction is Action {
     var targetPos = src.pos + _dir
     var targets = ctx.getEntitiesAtPosition(targetPos)
     for (target in targets) {
-      var atk = src["stats"].get("str")
+      var srcStats = src["stats"]
+      srcStats.set("atk", srcStats["str"])
+      var atk = srcStats.get("atk")
       var def = target["stats"].get("dex")
       var damage = Damage.calculate(atk, def)
       target["stats"].decrease("hp", damage)

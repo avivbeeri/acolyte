@@ -112,8 +112,25 @@ class RandomZoneGenerator {
       if (r < 0.2) {
         itemId = "fireball"
       }
+      if (r < 1) {
+        itemId = "sword"
+      }
       zone.map[pos]["items"] = [ InventoryEntry.new(itemId, 1) ]
     }
+      // place enemy
+ //     var x = RNG.int(room.p0.x + 1, room.p1.x - 1)
+//      var y = RNG.int(room.p0.y + 1, room.p1.y - 1)
+      var entities = zone["entities"] = []
+var x = current.x
+var y = current.y
+
+      var pos = Vec.new(x, y )
+
+      if (entities.isEmpty || !entities.any{|entity| entity.pos == pos }) {
+        var entity = Rat.new()
+        entity.pos = pos
+        entities.add(entity)
+      }
 
     return zone
   }

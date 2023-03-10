@@ -32,7 +32,7 @@ import "./events" for Events,RestEvent, PickupEvent, UseItemEvent, LightningEven
 import "./systems" for VisionSystem, DefeatSystem, InventorySystem, ConditionSystem, ExperienceSystem
 import "./generator" for WorldGenerator
 import "./combat" for AttackEvent, DefeatEvent, HealEvent
-import "./items" for ItemAction, PickupAction, Items
+import "./items" for ItemAction, PickupAction, Items,  Equipment
 
 class InventoryWindowState is State {
   construct new(scene) {
@@ -47,10 +47,17 @@ class InventoryWindowState is State {
     var player = _scene.world.getEntityByTag("player")
     var playerItems = player["inventory"]
     var i = 0
+    var label = ""
     var items = playerItems.map {|entry|
       i = i + 1
       var letter = getKey(i)
-      return "%(letter)) %(entry.qty)x %(worldItems[entry.id].name)"
+      if (worldItems[entry.id] is Equipment) {
+        var item = worldItems[entry.id]
+        if (player["equipment"][item.slot] == entry.id) {
+          label = "equipped"
+        }
+      }
+      return "%(letter)) %(entry.qty)x %(worldItems[entry.id].name) %(label)"
     }.toList
     items.insert(0, "")
     var max = 0
@@ -96,6 +103,7 @@ class InventoryWindowState is State {
       if (Keyboard[letter].justPressed) {
         var query = item.query("use")
         if (!query["target"]) {
+          //player.pushAction(item.default(player, []))
           player.pushAction(ItemAction.new(entry.id))
           return PlayerInputState.new(_scene)
         } else {
@@ -323,6 +331,7 @@ class GameScene is Scene {
     _world.systems.add(DefeatSystem.new())
     _world.systems.add(VisionSystem.new())
     _world["items"] = {
+      "sword": Items.sword,
       "potion": Items.healthPotion,
       "scroll": Items.lightningScroll,
       "wand": Items.confusionScroll,
@@ -338,7 +347,7 @@ class GameScene is Scene {
 
     world.start()
     _state = PlayerInputState.new(this)
-    addElement(AsciiRenderer.new(Vec.new(0, 20)))
+    addElement(AsciiRenderer.new(Vec.new(0, 9)))
     addElement(HealthBar.new(Vec.new(0, 0), player.ref))
     addElement(HoverText.new(Vec.new(Canvas.width, 0)))
     addElement(LogViewer.new(Vec.new(0, Canvas.height - 60), _messages))
