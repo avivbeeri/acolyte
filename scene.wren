@@ -40,11 +40,14 @@ class InventoryWindowState is State {
     super()
     _scene = scene
     _action = "use"
+    _title = ""
   }
   construct new(scene, action) {
     super()
     _scene = scene
     _action = action
+
+    _title = action == "drop" ? "(to drop)" : ""
   }
   onEnter() {
     var border = 24
@@ -82,6 +85,9 @@ class InventoryWindowState is State {
     }
     title = "%(title) ITEMS %(title)"
     items.insert(0, title)
+    if (_title) {
+      items.insert(1, "%(_title)")
+    }
     var x = Canvas.width - (max * 8 + 8)
     _window = LineViewer.new(Vec.new(x, border), Vec.new(Canvas.width - border*2, Canvas.height - border*2), items.count, items)
     _scene.addElement(_window)

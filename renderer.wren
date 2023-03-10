@@ -582,7 +582,10 @@ class AsciiRenderer is Element {
           if (map[x, y]["stairs"] == "up") {
             Canvas.print("<", x * 16 + 4, y * 16 + 4, INK["upstairs"])
           }
+        } else {
+          Canvas.print(".", x * 16 + 4, y * 16 + 4, color)
         }
+
         var items = map[x, y]["items"]
         if (items && items.count > 0) {
           var bg = INK["bg"] * 1
@@ -603,13 +606,21 @@ class AsciiRenderer is Element {
           if (items[0].id == "sword") {
             Canvas.print("/", x * 16 + 4, y * 16 + 4, INK["treasure"])
           }
-        } else {
-          Canvas.print(".", x * 16 + 4, y * 16 + 4, color)
         }
       }
     }
 
-    for (entity in _world.entities() + [ player ]) {
+    var tileEntities = _world.entities().sort {|a, b|
+      if (a["killed"]) {
+        return true
+      }
+      if (b["killed"]) {
+        return true
+      }
+      return true
+    } + [ player ]
+
+    for (entity in tileEntities) {
       if (!entity.pos) {
         continue
       }

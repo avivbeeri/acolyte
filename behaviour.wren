@@ -45,6 +45,11 @@ class UnconsciousBehaviour is Behaviour {
   }
   update(ctx, actor) {
     if (!actor["conditions"].containsKey("unconscious")) {
+      if (ctx.getEntitiesAtPosition(actor.pos).where {|entity| !entity["killed"] }.count > 1) {
+        // Wait til everyone else gets up
+        actor.pushAction(Action.none)
+        return true
+      }
       actor.removeBehaviour(this)
       actor["solid"] = true
       actor["killed"] = false

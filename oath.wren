@@ -152,7 +152,7 @@ class Boon is Stateful {
 
 class Quietus is Oath {
   construct new() {
-    super("succor", 3, 0, Boon.new())
+    super("quietus", 3, 0, Boon.new())
     data["attacked"] = {}
   }
   shouldHardStrike(ctx, event) { false }
