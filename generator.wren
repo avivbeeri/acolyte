@@ -312,8 +312,8 @@ class BossRoomGenerator {
         })
       }
     }
-    for (y in 8...24) {
-      for (x in 8...24) {
+    for (y in 11...22) {
+      for (x in 11...22) {
         map[x,y] = Tile.new({
           "solid": false
         })
@@ -324,8 +324,8 @@ class BossRoomGenerator {
     var zone = Zone.new(map)
     zone["level"] = level
     zone["entities"] = [ Demon.new() ]
-    zone["entities"][0].pos = Vec.new(16, 12)
-    zone["start"] = Vec.new(16, 22)
+    zone["entities"][0].pos = Vec.new(15, 13)
+    zone["start"] = Vec.new(15, 21)
     zone.map[zone["start"]]["stairs"] = "up"
     return zone
   }

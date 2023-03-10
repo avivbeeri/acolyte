@@ -446,15 +446,22 @@ class World is Stateful {
 
   generator { _generator }
   generator=(v) { _generator = v }
+
   loadZone(i) { loadZone(i, null) }
   loadZone(i, start) {
     var generated = false
-    if (_zones.count == 0 || i >= _zones.count) {
-      generated = true
-      var zone = addZone(_generator.generate(this, [ i, start ]))
+    var zone
+    if (_zones.count == 0 || i >= _zones.count || _zones[i] == null) {
+      if (i > _zones.count) {
+        for (x in ((_zones.count - 1).max(0))...i) {
+          _zones.add(null)
+        }
+      }
+      zone = addZone(_generator.generate(this, [ i, start ]))
     }
     changeZone(i)
-    return zone
+    System.print(_zones)
+    return _zones[i]
   }
   zone { _zones[_zoneIndex] }
   addZone(zone) {
