@@ -24,6 +24,7 @@ import "./renderer" for
   HistoryViewer,
   CharacterViewer,
   HoverText,
+  Pane,
   Dialog
 
 import "./actions" for BumpAction, RestAction, DescendAction
@@ -267,6 +268,7 @@ class ModalWindowState is State {
 class GameEndState is ModalWindowState {
   construct new(scene, message) {
     super(scene, Dialog.new(message))
+    scene.addElement(Pane.new(Vec.new(0, 0), Vec.new(Canvas.width, Canvas.height)))
   }
   update() {
     if (INPUT["reject"].firing || INPUT["confirm"].firing) {
@@ -369,7 +371,7 @@ class GameScene is Scene {
         message = "You were defeated. You have fallen, but perhaps others will take up your cause."
       }
       _messages.add(message, INK["playerDie"], false)
-      changeState(GameEndState.new(this, [ message, "Press Enter to try again" ]))
+      changeState(GameEndState.new(this, [ message, "", "Press Enter to try again" ]))
     }
     if (event is AttackEvent) {
       _messages.add("%(event.src.name) attacked %(event.target.name) for %(event.result) damage.", INK["enemyAtk"], true)

@@ -105,7 +105,7 @@ class Boon is Stateful {
 
 class Pacifism is Oath {
   construct new() {
-    super("pacifism", 3, Boon.new())
+    super("pacifism", 5, Boon.new())
   }
   shouldHardStrike(ctx, event) {
     return (event is Events.kill && event.src is Player)

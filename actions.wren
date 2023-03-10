@@ -285,6 +285,7 @@ class DescendAction is Action {
     ctx.addEvent(Events.descend.new())
     var zone = ctx.loadZone(ctx.zoneIndex + 1, src.pos)
     src.pos = zone["start"]
+    ctx.skipTo(Player)
     return ActionResult.success
   }
 }
@@ -304,3 +305,4 @@ class BumpAction is Action {
 }
 
 import "./behaviour" for ConfusedBehaviour
+import "./entities" for Player

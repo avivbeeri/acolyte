@@ -223,7 +223,8 @@ class CombatProcessor {
     var defeat = false
     var kill = false
     var ctx = src.ctx
-    if (target["stats"]["hp"] == 0) {
+    var killThreshold = target["stats"]["hpMax"] * 2
+    if (damage >= killThreshold || target["conditions"].containsKey("unconscious")) {
       kill = true
       ctx.removeEntity(target)
     } else {
