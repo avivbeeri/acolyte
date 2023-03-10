@@ -29,7 +29,6 @@ class ConfusedBehaviour is Behaviour {
   update(ctx, actor) {
     // TODO should this do 4 or 8?
     if (!actor["conditions"].containsKey("confusion")) {
-      event.target["solid"] = true
       actor.removeBehaviour(this)
       return false
     }
@@ -47,6 +46,7 @@ class UnconsciousBehaviour is Behaviour {
   update(ctx, actor) {
     if (!actor["conditions"].containsKey("unconscious")) {
       actor.removeBehaviour(this)
+      actor["solid"] = true
       actor["killed"] = false
       // What should we set this to?
       actor["stats"].set("hp", 1)

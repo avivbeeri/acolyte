@@ -415,33 +415,63 @@ class Cursor is Element {
 
 }
 
-class HealthBar is Element {
-  construct new(pos, entity) {
+class Gauge is Element {
+  construct new(pos, label, value, maxValue, segments) {
     super()
     _pos = pos
-    _entity = entity
+    _label = label
+    _segments = segments
+    _value = value
+    _maxValue = maxValue
   }
+
+  value { _value }
+  value=(v) { _value = v }
+  maxValue { _maxValue }
+  maxValue=(v) { _maxValue = v }
 
   update() {
     super.update()
-    _world = parent.world
   }
 
   draw() {
     var offset = Canvas.offset
     Canvas.offset(_pos.x,_pos.y)
-    var stats = _world.getEntityById(_entity)["stats"]
-    var hp = stats.get("hp")
-    var hpMax = stats.get("hpMax")
-    var width = 10
-    var current = hp / hpMax * width
+    var width = _segments
+    var current = _value / _maxValue * width
 
     Canvas.rectfill(0, 0, width * 16, 16, INK["barEmpty"])
     Canvas.rectfill(0, 0, current * 16, 16, INK["barFilled"])
-    Canvas.print("HP: %(hp) / %(hpMax)", 4, 4, INK["barText"])
+    Canvas.print("%(_label): %(_value) / %(_maxValue)", 4, 4, INK["barText"])
+
+    Canvas.offset(offset.x, offset.y)
+  }
+}
+class HealthBar is Element {
+  construct new(pos, entity) {
+    super()
+    _pos = pos
+    _entity = entity
+    _gauge = addElement(Gauge.new(_pos, "HP", 5, 5, 10))
+  }
+
+  update() {
+    super.update()
+    _world = parent.world
+    var stats = _world.getEntityById(_entity)["stats"]
+    var hp = stats.get("hp")
+    var hpMax = stats.get("hpMax")
+    _gauge.value = hp
+    _gauge.maxValue = hpMax
+  }
+
+  draw() {
+    var offset = Canvas.offset
+    Canvas.offset(_pos.x,_pos.y)
+    super.draw()
 
     var floor = _world.zoneIndex + 1
-    Canvas.print("Floor: %(floor)", (width + 1) * 16, 4, INK["barText"])
+    Canvas.print("Floor: %(floor)", (10 + 1) * 16, 4, INK["barText"])
 
     Canvas.offset(offset.x, offset.y)
   }

@@ -150,6 +150,7 @@ class AreaAttackAction is Action {
   perform() {
     var targetPos = _origin
     var defeats = []
+    var kills = []
     var dist = _range - 1
     var targets = HashMap.new()
     for (dy in (-dist)..(dist)) {
@@ -172,7 +173,7 @@ class AreaAttackAction is Action {
         kills.add(Events.kill.new(src, target))
       }
     }
-    for (event in defeats) {
+    for (event in defeats + kills) {
       ctx.addEvent(event)
     }
 
