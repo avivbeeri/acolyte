@@ -412,6 +412,10 @@ class World is Stateful {
   start() {
     _started = true
     systems.each{|system| system.start(this) }
+
+    for (event in _events) {
+      process(event)
+    }
   }
 
   systems { _systems }
@@ -482,6 +486,12 @@ class World is Stateful {
   addEvent(event) {
     _events.add(event)
     event.turn = _turn
+    if (_started) {
+      process(event)
+    }
+  }
+
+  process(event) {
     systems.each{|system| system.process(this, event) }
     entities().each{|entity| entity.events.add(event) }
   }

@@ -45,6 +45,8 @@ class WorldGenerator {
     world.systems.add(ConditionSystem.new())
     world.systems.add(DefeatSystem.new())
     world.systems.add(VisionSystem.new())
+    world.systems.add(InventorySystem.new())
+    world.systems.add(OathSystem.new())
 
     world["items"] = {
       "sword": Items.sword,
@@ -401,3 +403,4 @@ import "./items" for InventoryEntry
 import "./entities" for Rat, Demon, Player
 import "./systems" for VisionSystem, DefeatSystem, InventorySystem, ConditionSystem, ExperienceSystem
 import "./items" for Items
+import "./oath" for OathSystem

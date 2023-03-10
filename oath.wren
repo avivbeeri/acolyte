@@ -1,4 +1,5 @@
-import "parcel" for Stateful, GameSystem
+import "parcel" for Stateful, GameSystem, Event
+import "events" for Events
 import "entities" for Player
 
 class OathSystem is GameSystem {
@@ -9,23 +10,52 @@ class OathSystem is GameSystem {
   start(ctx) {
     var player = ctx.getEntityByTag("player")
     player["oaths"] = [
-      Oath.new("pacifism", 3, "stealth")
+      Pacifism.new()
     ]
+    for (oath in player["oaths"]) {
+      oath.onGrant(player)
+      ctx.addEvent(OathTaken.new(oath))
+    }
   }
 
   process(ctx, event) {
     var player = ctx.getEntityByTag("player")
+    if (player == null) {
+      return
+    }
     for (oath in player["oaths"]) {
       oath.process(ctx, event)
+      if (oath.broken) {
+        oath.onBreak(player)
+        player["oaths"].remove(oath)
+      }
     }
   }
 }
 
-class OathBroken is Event {
+class OathEvent is Event {
   construct new(oath) {
+    super()
     data["oath"] = oath
   }
   oath { data["oath"] }
+}
+class OathStrike is OathEvent {
+  construct new(oath) {
+    super(oath)
+  }
+}
+
+class OathTaken is OathEvent {
+  construct new(oath) {
+    super(oath)
+  }
+}
+
+class OathBroken is OathEvent {
+  construct new(oath) {
+    super(oath)
+  }
 }
 
 class Oath is Stateful {
@@ -53,10 +83,12 @@ class Pacifism is Oath {
     super("pacifism", 3, "stealth")
   }
   process(ctx, event) {
-    if (event is DefeatEvent && event.src is Player) {
+    if (event is Events.defeat && event.src is Player) {
       strike()
       if (broken) {
-        ctx.addEvent(OathBrokenEvent.new(this))
+        ctx.addEvent(OathBroken.new(this))
+      } else {
+        ctx.addEvent(OathStrike.new(this))
       }
     }
   }

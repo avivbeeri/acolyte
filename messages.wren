@@ -70,5 +70,4 @@ class MessageLog {
     count = count.clamp(0, _messages.count)
     return _messages[0...count]
   }
-
 }

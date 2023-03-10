@@ -31,6 +31,7 @@ import "./events" for Events,RestEvent, PickupEvent, UseItemEvent, LightningEven
 import "./generator" for WorldGenerator
 import "./combat" for AttackEvent, DefeatEvent, HealEvent
 import "./items" for ItemAction, PickupAction, Items, Equipment
+import "./oath" for OathBroken, OathTaken, OathStrike
 
 class InventoryWindowState is State {
   construct new(scene) {
@@ -346,6 +347,10 @@ class GameScene is Scene {
     addElement(HoverText.new(Vec.new(Canvas.width, 0)))
     addElement(LogViewer.new(Vec.new(0, Canvas.height - 60), _messages))
     //addElement(LogViewer.new(Vec.new(0, Canvas.height - 12 * 7), _messages))
+
+    for (event in _world.events) {
+      process(event)
+    }
   }
 
   world { _world }
@@ -355,6 +360,69 @@ class GameScene is Scene {
   process(event) {
     _state.process(event)
     super.process(event)
+
+    if (event is GameEndEvent) {
+      var message
+      if (event.win) {
+        message = "You have succeeded. Return to your home, and reflect on your deeds."
+      } else {
+        message = "You were defeated. You have fallen, but perhaps others will take up your cause."
+      }
+      _messages.add(message, INK["playerDie"], false)
+      changeState(GameEndState.new(this, [ message, "Press Enter to try again" ]))
+    }
+    if (event is AttackEvent) {
+      _messages.add("%(event.src.name) attacked %(event.target.name) for %(event.result) damage.", INK["enemyAtk"], true)
+    }
+    if (event is LightningEvent) {
+      _messages.add("%(event.target) was struck by lightning.", INK["playerAtk"], false)
+    }
+    if (event is DefeatEvent) {
+      _messages.add("%(event.target) was defeated.", INK["text"], false)
+    }
+    if (event is HealEvent) {
+      _messages.add("%(event.target) was healed for %(event.amount)", INK["healthRecovered"], false)
+    }
+    if (event is RestEvent) {
+      _messages.add("%(event.src) rests.", INK["text"], true)
+    }
+    if (event is Events.unequipItem) {
+      var itemName = _world["items"][event.item]["name"]
+      _messages.add("%(event.src) removed the %(itemName)", INK["text"], false)
+    }
+    if (event is Events.equipItem) {
+      var itemName = _world["items"][event.item]["name"]
+      _messages.add("%(event.src) equipped the %(itemName)", INK["text"], false)
+    }
+    if (event is PickupEvent) {
+      var itemName = _world["items"][event.item]["name"]
+      _messages.add("%(event.src) picked up %(event.qty) %(itemName)", INK["text"], false)
+    }
+    if (event is UseItemEvent) {
+      var itemName = _world["items"][event.item]["name"]
+      _messages.add("%(event.src) used %(itemName)", INK["text"], false)
+    }
+    if (event is Events.inflictCondition) {
+      _messages.add("%(event.target) became confused.", INK["text"], false)
+    }
+    if (event is Events.extendCondition) {
+      _messages.add("%(event.target)'s confusion was extended.", INK["text"], false)
+    }
+    if (event is Events.clearCondition) {
+      _messages.add("%(event.target) recovered from %(event.condition).", INK["text"], false)
+    }
+    if (event is Events.descend) {
+      _messages.add("You descend down the stairs.", INK["text"], false)
+    }
+    if (event is OathTaken) {
+      _messages.add("You have sworn an oath of \"%(event.oath.name)\".", INK["text"], false)
+    }
+    if (event is OathStrike) {
+      _messages.add("You have violated your oath of \"%(event.oath.name)\".", INK["text"], false)
+    }
+    if (event is OathBroken) {
+      _messages.add("You have broken your oath of \"%(event.oath.name)\".", INK["text"], false)
+    }
   }
 
   update() {
@@ -380,59 +448,7 @@ class GameScene is Scene {
 
     _world.advance()
     for (event in _world.events) {
-      if (event is GameEndEvent) {
-        var message
-        if (event.win) {
-          message = "You have succeeded. Return to your home, and reflect on your deeds."
-        } else {
-          message = "You were defeated. You have fallen, but perhaps others will take up your cause."
-        }
-        _messages.add(message, INK["playerDie"], false)
-        changeState(GameEndState.new(this, [ message, "Press Enter to try again" ]))
-      }
-      if (event is AttackEvent) {
-        _messages.add("%(event.src.name) attacked %(event.target.name) for %(event.result) damage.", INK["enemyAtk"], true)
-      }
-      if (event is LightningEvent) {
-        _messages.add("%(event.target) was struck by lightning.", INK["playerAtk"], false)
-      }
-      if (event is DefeatEvent) {
-        _messages.add("%(event.target) was defeated.", INK["text"], false)
-      }
-      if (event is HealEvent) {
-        _messages.add("%(event.target) was healed for %(event.amount)", INK["healthRecovered"], false)
-      }
-      if (event is RestEvent) {
-        _messages.add("%(event.src) rests.", INK["text"], true)
-      }
-      if (event is Events.unequipItem) {
-        var itemName = _world["items"][event.item]["name"]
-        _messages.add("%(event.src) removed the %(itemName)", INK["text"], false)
-      }
-      if (event is Events.equipItem) {
-        var itemName = _world["items"][event.item]["name"]
-        _messages.add("%(event.src) equipped the %(itemName)", INK["text"], false)
-      }
-      if (event is PickupEvent) {
-        var itemName = _world["items"][event.item]["name"]
-        _messages.add("%(event.src) picked up %(event.qty) %(itemName)", INK["text"], false)
-      }
-      if (event is UseItemEvent) {
-        var itemName = _world["items"][event.item]["name"]
-        _messages.add("%(event.src) used %(itemName)", INK["text"], false)
-      }
-      if (event is Events.inflictCondition) {
-        _messages.add("%(event.target) became confused.", INK["text"], false)
-      }
-      if (event is Events.extendCondition) {
-        _messages.add("%(event.target)'s confusion was extended.", INK["text"], false)
-      }
-      if (event is Events.clearCondition) {
-        _messages.add("%(event.target) recovered from %(event.condition).", INK["text"], false)
-      }
-      if (event is Events.descend) {
-        _messages.add("You descend down the stairs.", INK["text"], false)
-      }
+      process(event)
     }
   }
 
