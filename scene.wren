@@ -393,7 +393,7 @@ class GameScene is Scene {
     if (event is GameEndEvent) {
       var message
       if (event.win) {
-        message = "You have succeeded. Return to your home, and reflect on your deeds."
+        message = "You have succeeded where others have failed. Return to your home, and reflect on your deeds."
       } else {
         message = "You were defeated. You have fallen, but perhaps others will take up your cause."
       }

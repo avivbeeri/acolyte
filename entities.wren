@@ -10,12 +10,19 @@ class Creature is BehaviourEntity {
     this["stats"] =  StatGroup.new({
       "hpMax": 1,
       "hp": 1,
-      "atk": 0,
-      "def": 0,
+      "atk": 1,
+      "def": 1,
       "str": 1,
       "dex": 1,
       "xp": 0
-    })
+    }) {|stats, stat, value|
+      if (stat == "str") {
+        stats.set("atk", value)
+      }
+      if (stat == "dex") {
+        stats.set("def", value)
+      }
+    }
     this["conditions"] = {}
 
     this["inventory"] = [

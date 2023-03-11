@@ -3,6 +3,15 @@ import "stringUtils" for StringUtils
 import "palette" for INK
 
 class TextSplitter {
+  static leftPad(text, width) {
+    var out = text.toString
+    var diff = width - out.count
+    for (i in 0...diff) {
+      out = " " + out
+    }
+    return out
+  }
+
   static capitalize(text) {
     var out = StringUtils.toUppercase(text[0])
     out = out + text[1..-1]

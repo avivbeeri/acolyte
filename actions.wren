@@ -22,10 +22,7 @@ class PrayAction is Action {
     if (positions.any {|position| ctx.zone.map[position]["altar"]}) {
       if (RNG.float() <= success) {
         heard = true
-        var pietyMax = src["stats"].get("pietyMax")
-        var piety = src["stats"].get("piety")
-        var amount = 1.clamp(0, pietyMax - piety)
-        src["stats"].increase("piety", amount)
+        var amount = src["stats"].increase("piety", 1, "pietyMax")
       }
     }
     if (!heard && src["stats"]["hp"] == 1) {
@@ -101,10 +98,7 @@ class HealAction is Action {
   }
 
   perform() {
-    var hpMax = target["stats"].get("hpMax")
-    var hp = target["stats"].get("hp")
-    var amount = _amount.min(hpMax - hp)
-    target["stats"].increase("hp", amount)
+    var amount = target["stats"].increase("hp", _amount, "hpMax")
     ctx.addEvent(Events.heal.new(target, amount))
 
     return ActionResult.success

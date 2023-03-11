@@ -165,12 +165,12 @@ class CharacterViewer is Element {
       }
 
 
-      var str = player["stats"]["str"]
-      var dex = player["stats"]["dex"]
-      var atk = player["stats"]["atk"]
-      var def = player["stats"]["def"]
+      var str = player["stats"]["str"] + 9
+      var dex = player["stats"]["dex"] + 9
+      var atk = TextSplitter.leftPad(player["stats"]["atk"], 2)
+      var def = TextSplitter.leftPad(player["stats"]["def"], 2)
       _lines.add("Strength: %(str)   Dexterity: %(dex)")
-      _lines.add("Attack:   %(atk)   Defence: %(def)")
+      _lines.add("Attack:   %(atk)   Defence:   %(def)")
 
       _lines.add("")
       _lines.add("Conditions:")

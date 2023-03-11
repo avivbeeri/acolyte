@@ -109,9 +109,21 @@ class Attack {
 }
 
 class StatGroup {
+  construct new(statMap, onChange) {
+    _base = statMap
+    _mods = {}
+    _onChange = onChange
+    for (entry in statMap) {
+      set(entry.key, entry.value)
+    }
+  }
   construct new(statMap) {
     _base = statMap
     _mods = {}
+    _onChange = null
+    for (entry in statMap) {
+      set(entry.key, entry.value)
+    }
   }
 
   modifiers { _mods }
@@ -130,10 +142,27 @@ class StatGroup {
   }
 
   base(stat) { _base[stat] }
-  set(stat, value) { _base[stat] = value }
-  decrease(stat, by) { _base[stat] = _base[stat] - by }
-  increase(stat, by) { _base[stat] = _base[stat] + by }
-  increase(stat, by, maxStat) { _base[stat] = M.mid(0, _base[stat] + by, _base[maxStat]) }
+  onChange=(v) { _onChange = v }
+
+  set(stat, value) {
+    _base[stat] = value
+    if (_onChange) {
+      _onChange.call(this, stat, value)
+    }
+  }
+  decrease(stat, by) {
+    set(stat, _base[stat] - by)
+    return by
+  }
+  increase(stat, by) {
+    set(stat, _base[stat] + by)
+    return by
+  }
+  increase(stat, by, maxStat) {
+    var amount = by.min(_base[maxStat] - _base[stat])
+    set(stat, M.mid(0, _base[stat] + amount, _base[maxStat]))
+    return amount
+  }
 
   has(stat) { _base[stat] }
   [stat] { get(stat) }
