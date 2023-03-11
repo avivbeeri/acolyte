@@ -153,7 +153,7 @@ class Boon is Stateful {
   onBreak(actor) {}
 }
 
-class StatModifierBoon is Boon {
+class Vitality is Boon {
   construct new() {
     super()
   }
@@ -163,8 +163,23 @@ class StatModifierBoon is Boon {
   }
   onBreak(actor) {
     actor["stats"].removeModifier(oath.name)
-    var hp = actor["stats"].get("hp")
-    System.print("break %(hp)")
+  }
+}
+
+class StatModifierBoon is Boon {
+  construct new(stat, amount) {
+    super()
+    _stat = stat
+    _amount = amount
+  }
+  onGrant(actor) {
+    var statMap = {
+      _stat: _amount
+    }
+    actor["stats"].addModifier(Modifier.add(oath.name, statMap, true))
+  }
+  onBreak(actor) {
+    actor["stats"].removeModifier(oath.name)
   }
 }
 
@@ -240,7 +255,7 @@ class Poverty is Oath {
 
 class Indomitable is Oath {
   construct new() {
-    super("indomitable", 3, StatModifierBoon.new())
+    super("indomitable", 3, StatModifierBoon.new("def", 1))
     data["nearby"] = {}
   }
   shouldStrike(ctx, event) {

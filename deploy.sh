@@ -10,4 +10,4 @@ rm -f config.swap.json
 dome nest -c res *.wren config.json 
 mv game.egg ../dome-builds/acolytes-pledge
 cd ../dome-builds/acolytes-pledge
-./upload-all.sh $1
+./upload-all.sh $1 $2
