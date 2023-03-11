@@ -182,7 +182,7 @@ class RandomZoneGenerator {
       pos.y = RNG.int(zone.map.yRange.from + 1, zone.map.yRange.to - 1)
       valid = GeneratorUtils.isValidEntityLocation(zone, pos)
     }
-    var entity = Rat.new()
+    var entity = RNG.sample(Creatures.standard).new()
     entity.pos = pos
     zone["entities"].add(entity)
 
@@ -361,7 +361,7 @@ class BasicZoneGenerator {
       var pos = Vec.new(x, y )
 
       if ((entities.isEmpty || !entities.any{|entity| entity.pos == pos }) && pos != startPos) {
-        var entity = Rat.new()
+        var entity = RNG.sample(Creatures.standard).new()
         entity.pos = pos
         entities.add(entity)
       }
@@ -401,7 +401,7 @@ class BossRoomGenerator {
     var level = args[0]
     var zone = Zone.new(map)
     zone["level"] = level
-    zone["entities"] = [ Demon.new() ]
+    zone["entities"] = [ Creatures.demon.new() ]
     zone["entities"][0].pos = Vec.new(15, 13)
     zone["start"] = Vec.new(15, 21)
     zone.map[zone["start"]]["stairs"] = "up"
@@ -446,7 +446,7 @@ class RectangularRoom {
 }
 
 import "./items" for InventoryEntry
-import "./entities" for Rat, Demon, Player
+import "./entities" for Player, Creatures
 import "./systems" for VisionSystem, DefeatSystem, InventorySystem, ConditionSystem, ExperienceSystem
 import "./items" for Items
 import "./oath" for OathSystem

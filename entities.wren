@@ -6,9 +6,7 @@ class Creature is BehaviourEntity {
     super()
     this["symbol"] = "?"
     this["solid"] = true
-    this["inventory"] = [
-    ]
-    this["equipment"] = {}
+    this["butter"] = false
     this["stats"] =  StatGroup.new({
       "hpMax": 1,
       "hp": 1,
@@ -18,10 +16,14 @@ class Creature is BehaviourEntity {
       "dex": 1,
       "xp": 0
     })
+    this["conditions"] = {}
+
+    this["inventory"] = [
+    ]
+    this["equipment"] = {}
     for (entry in stats) {
       this["stats"].set(entry.key, entry.value)
     }
-    this["conditions"] = {}
   }
   name { "Creature" }
   pronoun { Pronoun.it }
@@ -58,6 +60,20 @@ class Player is Creature {
 }
 
 
+class Slime is Creature {
+ construct new() {
+    super({
+      "hpMax": 2,
+      "hp": 2
+    })
+    this["symbol"] = "S"
+    this["butter"] = true
+
+    behaviours.add(Behaviours.seek.new())
+  }
+  name { "Slime" }
+  pronoun { Pronoun.it }
+}
 class Rat is Creature {
  construct new() {
     super({
@@ -66,7 +82,7 @@ class Rat is Creature {
     })
     this["symbol"] = "r"
 
-    behaviours.add(SeekBehaviour.new())
+    behaviours.add(Behaviours.wander.new())
   }
   name { "Rat" }
   pronoun { Pronoun.it }
@@ -81,13 +97,29 @@ class Demon is Creature {
     this["symbol"] = "D"
     this["boss"] = true // allow multiple boss types
 
-    behaviours.add(BossBehaviour.new())
+    behaviours.add(Behaviours.boss.new())
   }
   name { "Demon" }
   pronoun { Pronoun.they }
 }
 
-import "behaviour" for SeekBehaviour, BossBehaviour
+
+class Creatures {
+  static all { [ Rat, Slime, Demon ]}
+  // Non-boss
+  static standard { [ Rat, Slime ]}
+
+  static rat { Rat }
+  static slime { Slime }
+  static demon { Demon }
+
+  /*
+  static gargoyle { Gargoyle }
+  static vampire { Vampire }
+  */
+}
+
+import "behaviour" for Behaviours
 import "items" for InventoryEntry
 import "combat" for StatGroup
 import "messages" for Pronoun

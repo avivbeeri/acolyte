@@ -249,8 +249,13 @@ class CombatProcessor {
     } else {
       target["stats"].decrease("hp", damage)
       if (target["stats"].get("hp") <= 0) {
-        target["stats"].set("hp", 0)
-        defeat = true
+        if (target["butter"] && target["stats"]["hp"] <= 0) {
+          kill = true
+          ctx.removeEntity(target)
+        } else {
+          target["stats"].set("hp", 0)
+          defeat = true
+        }
       }
     }
     ctx.addEvent(AttackEvent.new(src, target, "area", damage))

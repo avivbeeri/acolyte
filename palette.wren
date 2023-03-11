@@ -52,6 +52,7 @@ INK.setPurpose("barEmpty", "red")
 
 INK.setPurpose("blood", "red")
 
+INK.setPurpose("creature", "white")
 INK.setPurpose("altar", "orange")
 
 INK.setPurpose("border", "burgandy")

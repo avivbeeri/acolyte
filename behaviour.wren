@@ -27,13 +27,11 @@ class ConfusedBehaviour is Behaviour {
     super()
   }
   update(ctx, actor) {
-    // TODO should this do 4 or 8?
     if (!actor["conditions"].containsKey("confusion")) {
       actor.removeBehaviour(this)
       return false
     }
-    System.print(actor["conditions"]["confusion"].duration)
-    var dir = DIR_EIGHT[RNG.int(8)]
+    var dir = RNG.sample(DIR_EIGHT)
     actor.pushAction(BumpAction.new(dir))
     return true
   }
@@ -75,6 +73,53 @@ class BossBehaviour is Behaviour {
     // if in range, charge and target with a spell
   }
 }
+class RandomWalkBehaviour is Behaviour {
+  construct new() {
+    super()
+  }
+  update(ctx, actor) {
+    var options= ctx.zone.map.neighbours(actor.pos)
+    var next = RNG.sample(options)
+
+    var dir = next - actor.pos
+    var dx = M.mid(-1, dir.x, 1)
+    var dy = M.mid(-1, dir.y, 1)
+    dir.x = dx
+    dir.y = dy
+    actor.pushAction(BumpAction.new(dir))
+    return true
+  }
+}
+class WanderBehaviour is RandomWalkBehaviour {
+  construct new() {
+    super()
+  }
+  update(ctx, actor) {
+    // Pick a random place
+    // Calculate a path to it
+    // follow that path to it
+    // don't recalculate unless path is blocked
+    // when arrive/ clear the path
+    // repeat
+    var previous = actor["previousPosition"] || actor.pos
+    var previousDir = actor["previousDir"] || Vec.new()
+    var dir = previousDir
+    if (actor.pos == previous || RNG.float() < 0.25) {
+      while (dir == previousDir) {
+        dir = RNG.sample(DIR_EIGHT)
+      }
+    } else {
+      dir = actor.pos - previous
+      dir.x = M.mid(-1, dir.x, 1)
+      dir.y = M.mid(-1, dir.y, 1)
+    }
+    actor["previousDir"] = dir
+    actor["previousPosition"] = actor.pos
+    actor.pushAction(BumpAction.new(dir))
+    return true
+  }
+}
+
 class SeekBehaviour is Behaviour {
   construct new() {
     super()
@@ -104,5 +149,15 @@ class SeekBehaviour is Behaviour {
   }
 }
 
+class Behaviours {
+  static seek { SeekBehaviour }
+  static randomWalk { RandomWalkBehaviour }
+  static boss { BossBehaviour }
+  static confused { ConfusedBehaviour }
+  static unconscious { UnconsciousBehaviour }
+  static wander { WanderBehaviour }
+}
+
 import "actions" for BumpAction, SimpleMoveAction
 import "entities" for Player, Creature
+
