@@ -77,7 +77,7 @@ class DefeatSystem is GameSystem {
   }
   postUpdate(ctx, actor) {
     var player = ctx.getEntityByTag("player")
-    if (!player || player["killed"]) {
+    if (!player || player["killed"] || player["stats"]["hp"] <= 0) {
       ctx.addEvent(GameEndEvent.new(false))
     }
   }

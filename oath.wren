@@ -158,10 +158,13 @@ class StatModifierBoon is Boon {
     super()
   }
   onGrant(actor) {
-    actor["stats"].addModifier(Modifier.add(oath.name, { "hp": 1, "hpMax": 1 }, true))
+    actor["stats"].addModifier(Modifier.add(oath.name, { "hpMax": 1 }, true))
+    actor["stats"].increase("hp", 1)
   }
   onBreak(actor) {
     actor["stats"].removeModifier(oath.name)
+    var hp = actor["stats"].get("hp")
+    System.print("break %(hp)")
   }
 }
 
@@ -245,7 +248,7 @@ class Indomitable is Oath {
       if (event.src is Player) {
         for (id in data["nearby"].keys) {
           var enemy = ctx.getEntityById(id)
-          if (enemy == null) {
+          if (enemy == null || enemy["killed"]) {
             data["nearby"].remove(id)
             continue
           }

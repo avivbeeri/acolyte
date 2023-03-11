@@ -61,13 +61,14 @@ class WorldGenerator {
   static create() {
     var world = World.new()
     world.generator = WorldGenerator
+    world.systems.add(OathSystem.new())
     world.systems.add(InventorySystem.new())
     world.systems.add(ExperienceSystem.new())
     world.systems.add(ConditionSystem.new())
-    world.systems.add(DefeatSystem.new())
-    world.systems.add(VisionSystem.new())
     world.systems.add(InventorySystem.new())
-    world.systems.add(OathSystem.new())
+    world.systems.add(VisionSystem.new())
+    // Must come last
+    world.systems.add(DefeatSystem.new())
 
     world["items"] = {
       "armor": Items.armor,
@@ -96,8 +97,10 @@ class WorldGenerator {
     var zone = null
 
     if (level < 1) {
-      zone = BasicZoneGenerator.generate(args)
+      zone = StartRoomGenerator.generate(args)
     } else if (level < 2) {
+      zone = BasicZoneGenerator.generate(args)
+    } else if (level < 3) {
       zone = RandomZoneGenerator.generate(args)
     } else {
       zone = BossRoomGenerator.generate(args)
@@ -380,6 +383,28 @@ class BasicZoneGenerator {
   }
 }
 
+class StartRoomGenerator {
+  static generate(args) {
+    var map = TileMap8.new()
+    var range = 10
+    for (y in 0...32) {
+      for (x in 0...32) {
+        var clear = (x >= range && x < 32 - range && y >= range && y < 32 - range)
+        map[x,y] = Tile.new({
+          "solid": !clear
+        })
+      }
+    }
+
+    var level = args[0]
+    var zone = Zone.new(map)
+    zone["entities"] = []
+    zone["level"] = level
+    zone.map[Vec.new(15, 13)]["stairs"] = "down"
+    zone["start"] = Vec.new(15, 21)
+    return zone
+  }
+}
 class BossRoomGenerator {
   static generate(args) {
     var map = TileMap8.new()

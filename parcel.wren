@@ -64,10 +64,15 @@ class Event is Stateful {
   cancelled { _cancelled }
 }
 
+class EntityState {
+  static active { 2 }
+  static inactive { 1 }
+  static removed { 0 }
+}
 class Entity is Stateful {
   construct new() {
     super()
-    state = 2 // Active
+    state = EntityState.active
     pos = Vec.new()
     size = Vec.new(1, 1)
     zone = 0
@@ -642,10 +647,12 @@ class World is Stateful {
     _turn = turn
     Log.i("%(actor): performing %(action)")
     actor.events.clear()
+    var originalZone = _zoneIndex
     result = action.perform()
     actor.endTurn()
     actor.lastTurn = turn
-    if (actor.state != 2 || actor.pos == null || actor.zone == _zoneIndex) {
+    //if (actor.state == EntityState.active || actor.pos == null || actor.zone == originalZone) {
+    if (actor.zone == originalZone && actor.state == EntityState.active) {
       Log.d("%(actor): next turn is  %(turn + action.cost())")
       _queue.add(actorId, turn + action.cost())
     }
