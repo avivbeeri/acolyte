@@ -1,4 +1,4 @@
-import "parcel" for Stateful, GameSystem, Event
+import "parcel" for Stateful, GameSystem, Event, Line
 import "events" for Events
 import "entities" for Player
 
@@ -12,9 +12,10 @@ class OathSystem is GameSystem {
     player["brokenOaths"] = []
     player["oaths"] = [
 //      Pacifism.new(),
-      SelfDefense.new(),
-      Quietus.new(),
-      Poverty.new()
+//      SelfDefense.new(),
+ //     Quietus.new(),
+  //    Poverty.new()
+        Indomitable.new()
     ]
     for (oath in player["oaths"]) {
       oath.boon.onGrant(player)
@@ -195,7 +196,6 @@ class SelfDefense is Oath {
   }
   process(ctx, event) {
     if (event is Events.attack && event.target is Player) {
-      System.print("attacking me")
       data["attackedBy"][event.src.id] = (data["attackedBy"][event.src.id] || 0) + 1
     }
     super.process(ctx, event)
@@ -219,5 +219,61 @@ class Poverty is Oath {
   }
   shouldStrike(ctx, event) {
     return (event is Events.equipItem && event.src is Player)
+  }
+}
+
+class Indomitable is Oath {
+  construct new() {
+    super("indomitable", 3, Boon.new())
+    data["nearby"] = {}
+  }
+  shouldStrike(ctx, event) {
+    if (event is Events.move) {
+      if (event.src is Player) {
+        for (id in data["nearby"].keys) {
+          var enemy = ctx.getEntityById(id)
+          if (enemy == null) {
+            data["nearby"].remove(id)
+            continue
+          }
+          var range = Line.chebychev(enemy.pos, event.src.pos)
+          if (range > data["nearby"][id]) {
+            data["nearby"][id] = Num.infinity // mark for uniqueness?
+            return true
+          }
+        }
+      }
+    }
+    return false
+  }
+  process(ctx, event) {
+    // player moves to enemy - engage
+    // enemy moves to player - engage
+    // player moves away from enemy - strike
+    // Enemy moves away from player - fine
+    if (event is Events.defeat || event is Events.kill) {
+      data["nearby"].remove(event.target.id)
+    } else if (event is Events.move) {
+      var player = ctx.getEntityByTag("player")
+      if (event.src is Player) {
+        var enemies = ctx.entities().where {|entity| entity.pos }
+        for (enemy in enemies) {
+          var range = Line.chebychev(enemy.pos, player.pos)
+          if (!data["nearby"].containsKey(enemy.id) || range <= 1) {
+            data["nearby"][enemy.id] = range
+          }
+        }
+      } else {
+        var range = Line.chebychev(event.src.pos, player.pos)
+        if (range <= 1) {
+          // enemy is close now
+          data["nearby"][event.src.id] = range
+        } else if (data["nearby"].containsKey(event.src.id)) {
+          // enemy we care about runs away
+          data["nearby"][event.src.id] = Num.infinity
+        }
+      }
+    }
+    super.process(ctx, event)
   }
 }

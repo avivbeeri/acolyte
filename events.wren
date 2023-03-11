@@ -93,6 +93,16 @@ class PickupEvent is Event {
   qty { data["qty"] }
 }
 
+class MoveEvent is Event {
+  construct new(src, origin) {
+    super()
+    data["src"] = src
+    data["origin"] = origin
+  }
+
+  src { data["src"] }
+  origin { data["origin"] }
+}
 class PrayEvent is Event {
   construct new(src) {
     super()
@@ -132,4 +142,5 @@ class Events {
   static heal { HealEvent }
   static defeat { DefeatEvent }
   static kill { KillEvent }
+  static move { MoveEvent }
 }

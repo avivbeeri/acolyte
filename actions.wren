@@ -304,7 +304,9 @@ class SimpleMoveAction is Action {
   }
 
   perform() {
+    var origin = src.pos
     src.pos = src.pos + _dir
+    ctx.addEvent(Events.move.new(src, origin))
     return ActionResult.success
   }
 }
