@@ -24,6 +24,13 @@ class StartScene is Scene {
     if (INPUT["confirm"].firing) {
       game.push(GameScene)
     }
+    if (INPUT["mute"].firing) {
+      if (Jukebox.playing) {
+        Jukebox.stopMusic()
+      } else {
+        Jukebox.playMusic("soundTrack")
+      }
+    }
     _i = _i + 1
     var max = 5 * 60
     _a = (_i / max).clamp(0, 1)
@@ -34,7 +41,7 @@ class StartScene is Scene {
     return -((Num.pi * x).cos - 1) / 2
   }
   draw() {
-    Canvas.cls(INK["bg"])
+    Canvas.cls(INK["mainBg"])
 
     _book.draw((Canvas.width - _book.width) / 2, (Canvas.height - _book.height) / 2)
     var filter = INK["bg"] * 1

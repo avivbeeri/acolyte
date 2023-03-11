@@ -1,15 +1,6 @@
 import "math" for Vec
 import "parcel" for TileMap8, Tile, Zone, Line, RNG, Entity, DIR_FOUR, Dijkstra, World
 
-var ITEMS = [
-  "potion",
-  "scroll",
-  "wand",
-  "fireball",
-  "sword",
-  "armor"
-]
-
 class GeneratorUtils {
   static isValidTileLocation(zone, position) {
     var tile = zone.map[position]
@@ -70,22 +61,14 @@ class WorldGenerator {
     // Must come last
     world.systems.add(DefeatSystem.new())
 
-    world["items"] = {
-      "armor": Items.armor,
-      "sword": Items.sword,
-      "potion": Items.healthPotion,
-      "scroll": Items.lightningScroll,
-      "wand": Items.confusionScroll,
-      "fireball": Items.fireballScroll
-    }
-
-    // Add the player first so that they act first
     world.addEntity("player", Player.new())
     var zone = world.loadZone(0)
 
     var player = world.getEntityByTag("player")
     player.pos = zone["start"]
     world.skipTo(Player)
+    world["items"] = {}
+    Items.all.each {|item| world["items"][item.id] = item }
     world.start()
 
     return world
@@ -157,22 +140,12 @@ class RandomZoneGenerator {
     // place item somewhere
     var pockets = RNG.shuffle(GeneratorUtils.findPockets(map))
     if (!pockets.isEmpty) {
-      var pos = pockets[0]
-      var r = RNG.float()
-      var itemId = "potion"
-      if (r < 0.8) {
-        itemId = "scroll"
+      for (i in 1..(RNG.int(1, 5.min(pockets.count)))) {
+        var pos = pockets[0]
+        var itemId = RNG.sample(Items.all).id
+        System.print(itemId)
+        zone.map[pos]["items"] = [ InventoryEntry.new(itemId, 1) ]
       }
-      if (r < 0.6) {
-        itemId = "wand"
-      }
-      if (r < 0.2) {
-        itemId = "fireball"
-      }
-      if (r < 1) {
-        itemId = "sword"
-      }
-      zone.map[pos]["items"] = [ InventoryEntry.new(itemId, 1) ]
     }
       // place enemy
     var x = current.x
@@ -361,7 +334,8 @@ class BasicZoneGenerator {
       var pos = Vec.new(x, y)
 
       if ((entities.isEmpty || !entities.any{|entity| entity.pos == pos }) && pos != startPos) {
-        var itemId = RNG.sample(ITEMS)
+        var itemId = RNG.sample(Items.all).id
+        System.print(itemId)
         zone.map[pos]["items"] = [ InventoryEntry.new(itemId, 1) ]
       }
     }

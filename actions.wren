@@ -144,21 +144,13 @@ class LightningAttackAction is Action {
       return acc
     }
 
-    /*
-    target["stats"].decrease("hp", _damage)
-    if (target["stats"].get("hp") <= 0) {
-      ctx.addEvent(Events.defeat.new(src, target))
-      // TODO remove entity elsewhere?
-      ctx.removeEntity(target)
-    }
-    */
     var result = CombatProcessor.calculate(src, target, _damage)
     ctx.addEvent(LightningEvent.new(target))
     if (result[0]) {
       ctx.addEvent(Events.defeat.new(src, target))
     }
     if (result[1]) {
-      ctx.zone.map[src.pos]["blood"] = true
+      ctx.zone.map[target.pos]["blood"] = true
       ctx.addEvent(Events.kill.new(src, target))
     }
     return ActionResult.success
@@ -200,6 +192,7 @@ class AreaAttackAction is Action {
         defeats.add(Events.defeat.new(src, target))
       }
       if (result[1]) {
+        ctx.zone.map[target.pos]["blood"] = true
         kills.add(Events.kill.new(src, target))
       }
     }
@@ -230,7 +223,7 @@ class StrikeAttackAction is Action {
       }
       var result = CombatProcessor.calculate(src, target)
       if (result[1]) {
-        ctx.zone.map[src.pos]["blood"] = true
+        ctx.zone.map[target.pos]["blood"] = true
         ctx.addEvent(Events.kill.new(src, target))
       }
     }
@@ -263,7 +256,7 @@ class MeleeAttackAction is Action {
         ctx.addEvent(Events.defeat.new(src, target))
       }
       if (result[1]) {
-        ctx.zone.map[src.pos]["blood"] = true
+        ctx.zone.map[target.pos]["blood"] = true
         ctx.addEvent(Events.kill.new(src, target))
       }
     }

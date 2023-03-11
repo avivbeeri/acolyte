@@ -121,6 +121,7 @@ BASIC.register("info", [ Keyboard["t"] ])
 BASIC.register("strike", [ Keyboard["x"] ])
 BASIC.register("descend", [ Keyboard[","] ])
 BASIC.register("ascend", [ Keyboard[","] ])
+BASIC.register("mute", [ Keyboard["m"] ])
 BASIC.register("scrollUp", "north")
 BASIC.register("scrollDown", "south")
 

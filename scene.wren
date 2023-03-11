@@ -15,8 +15,9 @@ import "parcel" for
 
 import "./palette" for INK
 import "./inputs" for VI_SCHEME as INPUT
-import "./messages" for MessageLog
+import "./messages" for MessageLog, Pronoun
 import "./ui" for TextComplete, TextChanged, TargetEvent, TargetBeginEvent, TargetEndEvent, HoverEvent
+import "./text" for TextSplitter
 import "./renderer" for
   AsciiRenderer,
   HealthBar,
@@ -370,11 +371,11 @@ class GameScene is Scene {
 
     var player = world.getEntityByTag("player")
     _state = PlayerInputState.new(this)
-    addElement(AsciiRenderer.new(Vec.new(0, 9)))
-    addElement(HealthBar.new(Vec.new(0, 0), player.ref))
-    addElement(PietyBar.new(Vec.new(0, 16), player.ref))
+    addElement(AsciiRenderer.new(Vec.new((Canvas.width - (32 * 16))/2, 24)))
+    addElement(HealthBar.new(Vec.new(4, 0), player.ref))
+    addElement(PietyBar.new(Vec.new(4, 16), player.ref))
     addElement(HoverText.new(Vec.new(Canvas.width - 8, 8)))
-    addElement(LogViewer.new(Vec.new(0, Canvas.height - 60), _messages))
+    addElement(LogViewer.new(Vec.new(4, Canvas.height - 60), _messages))
     //addElement(LogViewer.new(Vec.new(0, Canvas.height - 12 * 7), _messages))
 
     for (event in _world.events) {
@@ -405,7 +406,15 @@ class GameScene is Scene {
       _messages.add("The mission has begun.", INK["welcome"], false)
     }
     if (event is AttackEvent) {
-      _messages.add("%(event.src.name) attacked %(event.target.name) for %(event.result) damage.", INK["enemyAtk"], true)
+      var srcName = event.src.name
+      if (event.src is Player) {
+        srcName = TextSplitter.capitalize(Pronoun.you.subject)
+      }
+      var targetName = event.target.name
+      if (event.target is Player) {
+        targetName = TextSplitter.capitalize(Pronoun.you.subject)
+      }
+      _messages.add("%(srcName) attacked %(targetName) for %(event.result) damage.", INK["enemyAtk"], true)
     }
     if (event is LightningEvent) {
       _messages.add("%(event.target) was struck by lightning.", INK["playerAtk"], false)
@@ -506,3 +515,4 @@ class GameScene is Scene {
     Canvas.print(_name, 0, Canvas.height - 17, Color.white)
   }
 }
+import "./entities" for Player

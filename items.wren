@@ -4,6 +4,7 @@ import "text" for TextSplitter
 class EquipmentSlot {
   static weapon { "WEAPON" }
   static armor { "ARMOR" }
+  static offhand { "OFF_HAND" }
   static trinket { "TRINKET" }
 }
 
@@ -148,10 +149,11 @@ class EquipItemAction is Action {
   perform() {
     var item = ctx["items"][_itemId]
     var existingItemId = src["equipment"][item.slot]
+    System.print(item)
     if (existingItemId != null) {
-      var item = ctx["items"][existingItemId]
-      item.onUnequip(src)
-      ctx.addEvent(Events.unequipItem.new(src, _itemId))
+      var existingItem = ctx["items"][existingItemId]
+      existingItem.onUnequip(src)
+      ctx.addEvent(Events.unequipItem.new(src, existingItemId))
     }
 
     src["equipment"][item.slot] = _itemId
@@ -224,15 +226,18 @@ class ItemAction is Action {
 }
 
 class Item is Stateful {
-  construct new(id) {
+  construct new(id, kind) {
     super()
+    System.print("state init")
     data["id"] = id
+    data["kind"] = kind
   }
 
   id { data["id"] }
+  kind { data["kind"] }
   consumable { true }
   name { data["name"] || this.type.name }
-  toString { name }
+//  toString { name }
   query(action) { {} }
 
   default(actor, args) { use(args) }
@@ -247,9 +252,8 @@ class Item is Stateful {
 }
 
 class Equipment is Item {
-
-  construct new(id, slot, stats) {
-    super(id)
+  construct new(id, kind, slot, stats) {
+    super(id, kind)
     data["slot"] = slot
     data["stats"] = stats
   }
@@ -269,8 +273,8 @@ class Equipment is Item {
 }
 
 class StatBoostEquipment is Equipment {
-  construct new(id, slot, stats) {
-    super(id, slot, stats)
+  construct new(id, kind, slot, stats) {
+    super(id, kind, slot, stats)
     data["name"] = TextSplitter.capitalize(id)
   }
 
@@ -287,21 +291,32 @@ class StatBoostEquipment is Equipment {
     actor["stats"].removeModifier(slot)
   }
 }
-class Armor is StatBoostEquipment {
-  construct new() {
-    super("armor", EquipmentSlot.armor, {
+
+class Shield is StatBoostEquipment {
+  construct new(name, value) {
+    super(name, "shield", EquipmentSlot.offhand, {
       "add": {
-        "def": 1
+        "def": value
+      }
+    })
+  }
+}
+
+class Armor is StatBoostEquipment {
+  construct new(name, value) {
+    super(name, "armor", EquipmentSlot.armor, {
+      "add": {
+        "def": value
       }
     })
   }
 }
 
 class Sword is StatBoostEquipment {
-  construct new() {
-    super("sword", EquipmentSlot.weapon, {
+  construct new(name, value) {
+    super(name, "sword", EquipmentSlot.weapon, {
       "add": {
-        "atk": 1
+        "atk": value
       }
     })
   }
@@ -309,7 +324,7 @@ class Sword is StatBoostEquipment {
 
 class HealthPotion is Item {
   construct new() {
-    super("potion")
+    super("potion", "potion")
     data["name"] = "Health Potion"
   }
 
@@ -318,7 +333,7 @@ class HealthPotion is Item {
 }
 class LightningScroll is Item {
   construct new() {
-    super("scroll")
+    super("scroll", "scroll")
     data["name"] = "Lightning Scroll"
   }
 
@@ -326,7 +341,7 @@ class LightningScroll is Item {
 }
 class ConfusionScroll is Item {
   construct new() {
-    super("wand")
+    super("wand", "scroll")
     data["name"] = "Confusion Scroll"
   }
 
@@ -346,7 +361,7 @@ class ConfusionScroll is Item {
 }
 class FireballScroll is Item {
   construct new() {
-    super("fireball")
+    super("fireball", "scroll")
     data["name"] = "Fireball Scroll"
   }
 
@@ -366,12 +381,29 @@ class FireballScroll is Item {
 }
 
 class Items {
+  static all {
+    return [
+      HealthPotion.new(),
+      LightningScroll.new(),
+      ConfusionScroll.new(),
+      FireballScroll.new(),
+      Sword.new("shortsword", 1),
+      Sword.new("longsword", 2),
+      Armor.new("leather armor", 1),
+      Armor.new("platemail", 1),
+      Shield.new("buckler", 1)
+    ]
+  }
+
   static healthPotion { HealthPotion.new() }
   static lightningScroll { LightningScroll.new() }
   static confusionScroll { ConfusionScroll.new() }
   static fireballScroll { FireballScroll.new() }
-  static sword { Sword.new() }
-  static armor { Armor.new() }
+  static shortsword { Sword.new("shortsword", 1) }
+  static longsword { Sword.new("longsword", 2) }
+  static leatherArmor { Armor.new("leather armor", 1) }
+  static platemail { Armor.new("platemail", 1) }
+  static buckler { Shield.new("buckler", 1) }
 }
 
 import "./actions" for HealAction, LightningAttackAction, InflictConfusionAction, AreaAttackAction

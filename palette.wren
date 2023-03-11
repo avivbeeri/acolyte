@@ -41,7 +41,8 @@ INK.setPurpose("playerAtk", "white")
 INK.setPurpose("enemyAtk", "red")
 
 INK.setPurpose("titleFg", "red")
-INK.setPurpose("titleBg", "black")
+INK.setPurpose("titleBg", "burgandy")
+INK.setPurpose("mainBg", "purple")
 
 INK.setPurpose("welcome", "white")
 INK.setPurpose("text", "white")

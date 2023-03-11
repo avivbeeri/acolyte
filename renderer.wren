@@ -616,33 +616,13 @@ class AsciiRenderer is Element {
           var color = INK["treasure"]
           var symbolMap = {
             "potion": "!",
-            "fireball": "~",
             "scroll": "~",
             "wand": "~",
             "sword": "/",
             "armor": "[",
           }
-          Canvas.print(symbolMap[items[0].id], x * 16 + 4, y * 16 + 4, color)
-          /*
-          if (items[0].id == "potion") {
-            Canvas.print("!", x * 16 + 4, y * 16 + 4, INK["treasure"])
-          }
-          if (items[0].id == "fireball") {
-            Canvas.print("~", x * 16 + 4, y * 16 + 4, INK["treasure"])
-          }
-          if (items[0].id == "wand") {
-            Canvas.print("~", x * 16 + 4, y * 16 + 4, INK["treasure"])
-          }
-          if (items[0].id == "scroll") {
-            Canvas.print("~", x * 16 + 4, y * 16 + 4, INK["treasure"])
-          }
-          if (items[0].id == "armor") {
-            Canvas.print("[", x * 16 + 4, y * 16 + 4, INK["treasure"])
-          }
-          if (items[0].id == "sword") {
-            Canvas.print("/", x * 16 + 4, y * 16 + 4, INK["treasure"])
-          }
-          */
+          var kind = _world["items"][items[0].id].kind
+          Canvas.print(symbolMap[kind], x * 16 + 4, y * 16 + 4, color)
         }
       }
     }

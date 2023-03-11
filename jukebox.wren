@@ -7,7 +7,7 @@ class JukeboxMode {
   static PLAY { 2 }
 }
 
-var MAX_VOLUME = 0.7
+var MAX_VOLUME = 1.0
 
 class Jukebox {
   static init() {
@@ -49,6 +49,8 @@ class Jukebox {
       __mode = JukeboxMode.FADE
     }
   }
+
+  static playing { __currentChannel != null }
 
   static stopMusic() {
     __previousChannel = __currentChannel
