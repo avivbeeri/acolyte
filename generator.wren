@@ -1,5 +1,5 @@
 import "math" for Vec
-import "parcel" for TileMap8, Tile, Zone, Line, RNG, Entity, DIR_FOUR, Dijkstra, World
+import "parcel" for TileMap8, Tile, Zone, Line, RNG, Entity, DIR_FOUR, Dijkstra, World, DIR_EIGHT
 
 class GeneratorUtils {
   static isValidTileLocation(zone, position) {
@@ -63,15 +63,18 @@ class WorldGenerator {
     world.systems.add(DefeatSystem.new())
 
     world.addEntity("player", Player.new())
-    var zone = world.loadZone(0)
+    var level = 6
     var player = world.getEntityByTag("player")
+    player.zone = level
+    var zone = world.loadZone(level)
+
     player.pos = zone["start"]
-    world.skipTo(Player)
     world["items"] = {}
     Items.all.each {|item| world["items"][item.id] = item }
     for (id in player["equipment"].values) {
       world["items"][id].onEquip(player)
     }
+    world.skipTo(Player)
     world.start()
 
     return world
@@ -95,6 +98,7 @@ class WorldGenerator {
       world.addEntity(entity)
       entity.zone = level
     }
+    System.print(world.entities())
     zone.data.remove("entities")
     zone["title"] = "The Courtyard"
     return zone
@@ -146,7 +150,6 @@ class RandomZoneGenerator {
       for (i in 1..(RNG.int(1, 5.min(pockets.count)))) {
         var pos = pockets[0]
         var itemId = RNG.sample(Items.findable).id
-        System.print(itemId)
         zone.map[pos]["items"] = [ InventoryEntry.new(itemId, 1) ]
       }
     }
@@ -182,16 +185,20 @@ class BasicZoneGenerator {
     var dy = Vec.new(0, 1)
     for (pos in Line.walk(a, corner) + Line.walk(b, corner)) {
       map[pos] = Tile.new({
-        "solid": false
+        "solid": false,
+        "blocking": true
       })
       map[pos + d] = Tile.new({
-        "solid": false
+        "solid": false,
+        "blocking": true
       })
       map[pos + dx] = Tile.new({
-        "solid": false
+        "solid": false,
+        "blocking": true
       })
       map[pos + dy] = Tile.new({
-        "solid": false
+        "solid": false,
+        "blocking": true
       })
     }
   }
@@ -204,7 +211,8 @@ class BasicZoneGenerator {
     }
     for (pos in Line.walk(a, corner) + Line.walk(b, corner)) {
       map[pos] = Tile.new({
-        "solid": false
+        "solid": false,
+        "blocking": false
       })
     }
   }
@@ -338,7 +346,6 @@ class BasicZoneGenerator {
 
       if ((entities.isEmpty || !entities.any{|entity| entity.pos == pos }) && pos != startPos) {
         var itemId = RNG.sample(Items.findable).id
-        System.print(itemId)
         zone.map[pos]["items"] = [ InventoryEntry.new(itemId, 1) ]
       }
     }
@@ -380,17 +387,16 @@ class StartRoomGenerator {
 class BossRoomGenerator {
   static generate(args) {
     var map = TileMap8.new()
+    var center = Vec.new(15.50, 15.50)
+    var range = 9
     for (y in 0...32) {
       for (x in 0...32) {
+        var dist = (center - Vec.new(x, y)).length.round
+        var clear = (dist < range)
         map[x,y] = Tile.new({
-          "solid": true
-        })
-      }
-    }
-    for (y in 11...22) {
-      for (x in 11...22) {
-        map[x,y] = Tile.new({
-          "solid": false
+          "blocking": !clear,
+          "solid": !clear,
+          "visible": (dist < range + 2) ? "maybe" : false
         })
       }
     }
@@ -400,6 +406,18 @@ class BossRoomGenerator {
     zone["level"] = level
     zone["entities"] = [ Creatures.demon.new() ]
     zone["entities"][0].pos = Vec.new(15, 13)
+
+    for (i in 0...4) {
+      var pos = (center + DIR_EIGHT[4 + i] * 3.5)
+      zone["entities"].add(Creatures.gargoyle.new())
+      pos.x = pos.x.floor
+      pos.y = pos.y.floor
+      zone["entities"][-1].pos = pos
+    }
+    zone.map[Vec.new(14, 20)]["statue"] = true
+    zone.map[Vec.new(14, 20)]["solid"] = true
+    zone.map[Vec.new(14, 20)]["blocking"] = false
+
     zone["start"] = Vec.new(15, 21)
     zone.map[zone["start"]]["stairs"] = "up"
     return zone

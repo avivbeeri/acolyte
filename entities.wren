@@ -103,6 +103,26 @@ class Rat is Creature {
   name { "Rat" }
   pronoun { Pronoun.it }
 }
+
+class Gargoyle is Creature {
+ construct new() {
+    super({
+      "hpMax": 5,
+      "hp": 5,
+      "dex": 4,
+      "str": 4
+    })
+    this["symbol"] = "G"
+    this["frozen"] = true
+    this["frozenTimer"] = 0
+    this["butter"] = true
+
+    behaviours.add(Behaviours.statue.new())
+  }
+  name { this["frozen"] ? "Statue" : "Gargoyle" }
+  pronoun { Pronoun.it }
+}
+
 class Demon is Creature {
  construct new() {
     super({
@@ -131,9 +151,9 @@ class Creatures {
   static rat { Rat }
   static hound { Hound }
   static demon { Demon }
+  static gargoyle { Gargoyle }
 
   /*
-  static gargoyle { Gargoyle }
   static vampire { Vampire }
   */
 }

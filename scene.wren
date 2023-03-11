@@ -299,7 +299,7 @@ class DialogueState is ModalWindowState {
     }
     _dialogue = message[moment]
     _index = 0
-    super(scene, Dialog.new(_dialogue[_index]))
+    super(scene, Dialog.new(_dialogue[_index] + ["", "Press 'confirm' to continue..."]))
     //_pane = scene.addElement(Pane.new(Vec.new(0, 0), Vec.new(Canvas.width, Canvas.height)))
   }
   onExit() {
@@ -434,7 +434,7 @@ class GameScene is Scene {
         message = "You were defeated. You have fallen, but perhaps others will take up your cause."
       }
       _messages.add(message, INK["playerDie"], false)
-      changeState(GameEndState.new(this, [ message, "", "Press Enter to try again" ]))
+      changeState(GameEndState.new(this, [ message, "", "Press 'confirm' to try again" ]))
     }
     if (event is Events.story) {
       changeState(DialogueState.new(this, event.moment))
@@ -453,6 +453,9 @@ class GameScene is Scene {
         targetName = Pronoun.you.subject
       }
       _messages.add("%(srcName) attacked %(targetName) for %(event.result) damage.", INK["enemyAtk"], true)
+    }
+    if (event is Events.statueAwaken) {
+      _messages.add("Stone cracks and flakes away as statues become %(event.src.name)'s.", INK["orange"], true)
     }
     if (event is LightningEvent) {
       _messages.add("%(event.target) was struck by lightning.", INK["playerAtk"], false)

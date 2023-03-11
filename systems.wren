@@ -9,6 +9,7 @@ class StorySystem is GameSystem {
   construct new() { super() }
   process(ctx, event) {
     if (event is ChangeZoneEvent && event.floor == 6) {
+      System.print("help")
       ctx.addEvent(Events.story.new("beforeBoss"))
     }
   }

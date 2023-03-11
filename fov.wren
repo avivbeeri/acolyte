@@ -153,14 +153,14 @@ class Vision2 {
       return false
     }
     var pos =  quadrant.transform(tile)
-    return _map.isSolid(pos)
+    return _map.isBlocking(pos)
   }
   isFloor(quadrant, tile) {
     if (tile == null) {
       return false
     }
     var pos =  quadrant.transform(tile)
-    return _map.isFloor(pos)
+    return !_map.isBlocking(pos)
   }
   reveal(quadrant, tile) {
     if (tile == null) {

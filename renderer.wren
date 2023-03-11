@@ -561,6 +561,10 @@ class AsciiRenderer is Element {
         var item = _world["items"][itemId]
         top.process(HoverEvent.new(item))
       }
+      if (!found && tile["statue"]) {
+        found = true
+        top.process(HoverEvent.new("Statue"))
+      }
       if (!found && tile["altar"]) {
         found = true
         top.process(HoverEvent.new("Altar"))
@@ -611,6 +615,11 @@ class AsciiRenderer is Element {
         } else if (map[x, y]["solid"]) {
           if (map[x, y]["altar"]) {
             Canvas.print("^", x * 16 + 4, y * 16 + 4, INK["altar"])
+          } else if (map[x, y]["statue"]) {
+            var bg = INK["lilac"] * 1
+            bg.a = 128
+            Canvas.rectfill(x * 16 + 2, y * 16 + 2, 12, 12, bg)
+            Canvas.print("£", x * 16 + 4, y * 16 + 4, INK["gray"])
           } else {
             Canvas.print("#", x * 16 + 4, y * 16 + 4, color)
           }
@@ -669,6 +678,11 @@ class AsciiRenderer is Element {
         color = (color * 1)
         color.a = 192
         symbol = "\%"
+      }
+      if (entity["frozen"]) {
+        symbol = "£"
+        color = INK["gray"]
+        Canvas.rectfill(entity.pos.x * 16 + 2, entity.pos.y * 16 + 2, 12 * entity.size.x, 12 * entity.size.y, INK["lilac"])
       }
       //Canvas.print(symbol, entity.pos.x * 16 + 4, entity.pos.y * 16 + 4, Color.white)
       printArea(symbol, entity.pos, entity.size, color)

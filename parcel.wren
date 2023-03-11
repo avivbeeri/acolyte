@@ -576,7 +576,7 @@ class World is Stateful {
     var actor = null
     var actorId
     var turn
-    while (_queue.count > 0 && !(actor is entityType)) {
+    while (!(actor is entityType)) {
       turn = _queue.peekPriority()
       actorId = _queue.peek()
       actor = getEntityById(actorId)
@@ -893,7 +893,7 @@ class TileMap is Graph {
 
   inBounds(vec) { inBounds(vec.x, vec.y) }
   inBounds(x, y) { !this[x, y]["void"] }
-  isBlocking(vec) { isSolid(vec.x, vec.y) }
+  isBlocking(vec) { isBlocking(vec.x, vec.y) }
   isBlocking(x, y) { !inBounds(x, y) || this[x, y]["blocking"] }
   isSolid(vec) { isSolid(vec.x, vec.y) }
   isSolid(x, y) { !inBounds(x, y) || this[x, y]["solid"] }

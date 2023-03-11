@@ -164,6 +164,30 @@ class SeekBehaviour is Behaviour {
   }
 }
 
+class StatueBehaviour is SeekBehaviour {
+  construct new() {
+    super()
+  }
+
+  update(ctx, actor) {
+    var player = ctx.getEntityByTag("player")
+    var power = (player["stats"]["atk"] / 2)
+    var target = (12 - power).max(6)
+
+    var frozenBefore = actor["frozen"]
+    if (actor["frozen"]) {
+      actor["frozenTimer"] = actor["frozenTimer"] + 1
+      actor["frozen"] = actor["frozenTimer"] < 7
+    }
+    if (actor["frozen"]) {
+      return false
+    } else if (frozenBefore) {
+      ctx.addEvent(Events.statueAwaken.new(actor))
+    }
+    return super.update(ctx, actor)
+  }
+}
+
 class LocalSeekBehaviour is SeekBehaviour {
   construct new(range) {
     super()
@@ -189,8 +213,10 @@ class Behaviours {
   static confused { ConfusedBehaviour }
   static unconscious { UnconsciousBehaviour }
   static wander { WanderBehaviour }
+  static statue { StatueBehaviour }
 }
 
+import "events" for Events
 import "actions" for BumpAction, SimpleMoveAction
 import "entities" for Player, Creature
 

@@ -103,6 +103,14 @@ class MoveEvent is Event {
   src { data["src"] }
   origin { data["origin"] }
 }
+class StatueAwakenEvent is Event {
+  construct new(src) {
+    super()
+    data["src"] = src
+  }
+
+  src { data["src"] }
+}
 class PrayEvent is Event {
   construct new(src) {
     super()
@@ -152,4 +160,5 @@ class Events {
   static defeat { DefeatEvent }
   static kill { KillEvent }
   static move { MoveEvent }
+  static statueAwaken { StatueAwakenEvent }
 }
