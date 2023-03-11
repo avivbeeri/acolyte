@@ -129,6 +129,10 @@ class SeekBehaviour is Behaviour {
     if (!player) {
       return false
     }
+    var dpath = player["map"][0]
+    if (dpath[actor.pos] > 10) {
+      return false
+    }
     var path = pathTo(ctx, actor.pos, player.pos)
     if (path == null || path.count < 2) {
       return false

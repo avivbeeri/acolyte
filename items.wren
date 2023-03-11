@@ -328,7 +328,7 @@ class HealthPotion is Item {
   }
 
   default(actor, args) { drink(args) }
-  drink(args) { HealAction.new(null, 1) }
+  drink(args) { HealAction.new(null, 0.25) }
 }
 class LightningScroll is Item {
   construct new() {
@@ -380,17 +380,23 @@ class FireballScroll is Item {
 }
 
 class Items {
-  static all {
+  static findable {
     return [
-      HealthPotion.new(),
-      LightningScroll.new(),
-      ConfusionScroll.new(),
-      FireballScroll.new(),
-      Sword.new("shortsword", 1),
-      Sword.new("longsword", 2),
-      Armor.new("leather armor", 1),
-      Armor.new("platemail", 1),
-      Shield.new("buckler", 1)
+      healthPotion,
+      lightningScroll,
+      confusionScroll,
+      fireballScroll,
+      shortsword,
+      longsword,
+      chainmail,
+      platemail,
+      buckler
+    ]
+  }
+  static all {
+    return findable + [
+      dagger,
+      leatherArmor
     ]
   }
 
@@ -398,10 +404,12 @@ class Items {
   static lightningScroll { LightningScroll.new() }
   static confusionScroll { ConfusionScroll.new() }
   static fireballScroll { FireballScroll.new() }
-  static shortsword { Sword.new("shortsword", 1) }
-  static longsword { Sword.new("longsword", 2) }
+  static dagger { Sword.new("dagger", 1) }
+  static shortsword { Sword.new("shortsword", 2) }
+  static longsword { Sword.new("longsword", 3) }
   static leatherArmor { Armor.new("leather armor", 1) }
-  static platemail { Armor.new("platemail", 1) }
+  static chainmail { Armor.new("chainmail", 2) }
+  static platemail { Armor.new("platemail", 3) }
   static buckler { Shield.new("buckler", 1) }
 }
 

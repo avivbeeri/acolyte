@@ -69,6 +69,7 @@ class InventoryWindowState is State {
           label = "(equipped)"
         }
       }
+      System.print(entry.id)
       return "%(letter)) %(entry.qty)x %(worldItems[entry.id].name) %(label)"
     }.toList
     items.insert(0, "")
@@ -412,7 +413,7 @@ class GameScene is Scene {
       }
       var targetName = event.target.name
       if (event.target is Player) {
-        targetName = TextSplitter.capitalize(Pronoun.you.subject)
+        targetName = Pronoun.you.subject
       }
       _messages.add("%(srcName) attacked %(targetName) for %(event.result) damage.", INK["enemyAtk"], true)
     }

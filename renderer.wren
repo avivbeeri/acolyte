@@ -170,8 +170,8 @@ class CharacterViewer is Element {
       }
 
 
-      var str = player["stats"]["str"] + 9
-      var dex = player["stats"]["dex"] + 9
+      var str = player["stats"]["str"] + 10
+      var dex = player["stats"]["dex"] + 10
       var atk = TextSplitter.leftPad(player["stats"]["atk"], 2)
       var def = TextSplitter.leftPad(player["stats"]["def"], 2)
       _lines.add("Strength: %(str)   Dexterity: %(dex)")
@@ -619,6 +619,7 @@ class AsciiRenderer is Element {
             "scroll": "~",
             "wand": "~",
             "sword": "/",
+            "shield": "}",
             "armor": "[",
           }
           var kind = _world["items"][items[0].id].kind

@@ -63,12 +63,14 @@ class WorldGenerator {
 
     world.addEntity("player", Player.new())
     var zone = world.loadZone(0)
-
     var player = world.getEntityByTag("player")
     player.pos = zone["start"]
     world.skipTo(Player)
     world["items"] = {}
     Items.all.each {|item| world["items"][item.id] = item }
+    for (id in player["equipment"].values) {
+      world["items"][id].onEquip(player)
+    }
     world.start()
 
     return world
@@ -81,9 +83,9 @@ class WorldGenerator {
 
     if (level < 1) {
       zone = StartRoomGenerator.generate(args)
-    } else if (level < 2) {
-      zone = BasicZoneGenerator.generate(args)
     } else if (level < 3) {
+      zone = BasicZoneGenerator.generate(args)
+    } else if (level < 6) {
       zone = RandomZoneGenerator.generate(args)
     } else {
       zone = BossRoomGenerator.generate(args)
@@ -142,7 +144,7 @@ class RandomZoneGenerator {
     if (!pockets.isEmpty) {
       for (i in 1..(RNG.int(1, 5.min(pockets.count)))) {
         var pos = pockets[0]
-        var itemId = RNG.sample(Items.all).id
+        var itemId = RNG.sample(Items.findable).id
         System.print(itemId)
         zone.map[pos]["items"] = [ InventoryEntry.new(itemId, 1) ]
       }
@@ -334,7 +336,7 @@ class BasicZoneGenerator {
       var pos = Vec.new(x, y)
 
       if ((entities.isEmpty || !entities.any{|entity| entity.pos == pos }) && pos != startPos) {
-        var itemId = RNG.sample(Items.all).id
+        var itemId = RNG.sample(Items.findable).id
         System.print(itemId)
         zone.map[pos]["items"] = [ InventoryEntry.new(itemId, 1) ]
       }
@@ -365,7 +367,7 @@ class StartRoomGenerator {
     zone["entities"] = []
     zone["level"] = level
     zone.map[Vec.new(15, 13)]["stairs"] = "down"
-    zone["start"] = Vec.new(15, 19)
+    zone["start"] = Vec.new(15, 17)
 
     var pos = Vec.new(12, 15)
     zone.map[pos]["solid"] = true

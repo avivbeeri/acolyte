@@ -98,7 +98,9 @@ class HealAction is Action {
   }
 
   perform() {
-    var amount = target["stats"].increase("hp", _amount, "hpMax")
+    var hpMax = target["stats"].get("hpMax")
+    var total = _amount * hpMax
+    var amount = target["stats"].increase("hp", total, "hpMax")
     ctx.addEvent(Events.heal.new(target, amount))
 
     return ActionResult.success

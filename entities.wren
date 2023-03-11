@@ -39,14 +39,19 @@ class Creature is BehaviourEntity {
 class Player is Creature {
   construct new() {
     super({
-      "hpMax": 5,
-      "hp": 5,
+      "hpMax": 10,
+      "hp": 10,
       "piety": 5,
       "pietyMax": 5
     })
     this["symbol"] = "@"
+    this["equipment"] = {
+      EquipmentSlot.weapon: "dagger",
+      EquipmentSlot.armor: "leather armor"
+    }
     this["inventory"] = [
-      InventoryEntry.new("longsword", 1)
+      InventoryEntry.new("dagger", 1),
+      InventoryEntry.new("leather armor", 1)
     ]
   }
   name { data["name"] || "Player" }
@@ -73,9 +78,10 @@ class Player is Creature {
 class Hound is Creature {
  construct new() {
     super({
-      "hpMax": 3,
-      "hp": 3,
-      "dex": 0
+      "hpMax": 4,
+      "hp": 4,
+      "dex": 2,
+      "atk": 2
     })
     this["symbol"] = "d"
 
@@ -100,8 +106,10 @@ class Rat is Creature {
 class Demon is Creature {
  construct new() {
     super({
-      "hpMax": 10,
-      "hp": 10
+      "hpMax": 12,
+      "hp": 12,
+      "dex": 3,
+      "str": 3
     })
     this["size"] = Vec.new(2, 2)
     this["symbol"] = "D"
@@ -131,6 +139,6 @@ class Creatures {
 }
 
 import "behaviour" for Behaviours
-import "items" for InventoryEntry
+import "items" for InventoryEntry, EquipmentSlot
 import "combat" for StatGroup
 import "messages" for Pronoun

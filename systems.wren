@@ -25,8 +25,8 @@ class InventorySystem is GameSystem {
         var itemB = ctx["items"][b.id]
         var itemEquipmentA = (itemA is Equipment)
         var itemEquipmentB = (itemB is Equipment)
-        var itemEquippedA = (itemEquipmentA && actor["equipment"][itemA.slot])
-        var itemEquippedB = (itemEquipmentB && actor["equipment"][itemB.slot])
+        var itemEquippedA = (itemEquipmentA && actor["equipment"][itemA.slot] == itemA.id)
+        var itemEquippedB = (itemEquipmentB && actor["equipment"][itemB.slot] == itemB.id)
         if (itemEquippedA && !itemEquippedB) {
           return true
         } else if (!itemEquippedA && itemEquippedB) {

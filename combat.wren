@@ -72,7 +72,7 @@ class Damage {
   static calculate(atk, def) {
     var low = calculateLow(atk, def)
     var high = calculateHigh(atk, def)
-    return RNG.float() < 0.5 ? low : high
+    return RNG.float() < 0.3 ? low : high
   }
 }
 
