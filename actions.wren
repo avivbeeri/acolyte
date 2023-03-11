@@ -1,7 +1,7 @@
 import "collections" for HashMap
 import "parcel" for Action, ActionResult, MAX_TURN_SIZE, JPS, Line, RNG
 import "math" for Vec
-import "./combat" for AttackEvent, Damage, Condition, CombatProcessor
+import "./combat" for Damage, Condition, CombatProcessor
 import "./events" for Events, RestEvent, LightningEvent
 
 class PrayAction is Action {

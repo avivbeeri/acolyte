@@ -31,18 +31,20 @@ class DefeatEvent is Event {
   target { _target }
 }
 class AttackEvent is Event {
-  construct new(src, target, attack, result) {
+  construct new(src, target, attack, result, damage) {
     super()
     data["src"] = src
     data["target"] = target
     data["attack"] = attack
     data["result"] = result
+    data["damage"] = damage
   }
 
   src { data["src"] }
   target { data["target"] }
   attack { data["attack"] }
   result { data["result"] }
+  damage { data["damage"] }
 }
 
 class Damage {
@@ -77,10 +79,12 @@ class Damage {
 }
 
 class AttackResult {
-  static success { "success" }
-  static blocked { "blocked" }
-  static missed { "missed" }
-  static inert { "inert" }
+  static success { "success" } // Hit and did damage
+  static overkill { "overkill" } // Hit and did excessive damage
+  static blocked { "blocked" } // hit but did no damage, high defend
+  static missed { "missed" } // didn't hit
+  static inert { "inert" } // couldn't hit (attack capability reduced to zero)
+  static invulnerable { "invulnerable" } // special blocked, it's invulnerable
 }
 
 class AttackType {
@@ -272,6 +276,12 @@ class Modifier {
 class CombatProcessor {
   static calculate(src, target) { calculate(src, target, null) }
   static calculate(src, target, damage) {
+    var ctx = src.ctx
+    var result = AttackResult.success
+    if (target["conditions"].containsKey("invulnerable")) {
+      ctx.addEvent(AttackEvent.new(src, target, "area", AttackResult.invulnerable, 0))
+      return [false, false, 0]
+    }
     if (damage == null) {
       var srcStats = src["stats"]
       var atk = srcStats.get("atk")
@@ -281,11 +291,15 @@ class CombatProcessor {
 
       damage = Damage.calculate(atk, def)
     }
+    if (damage == 0) {
+      result = AttackResult.blocked
+    }
+
     var defeat = false
     var kill = false
-    var ctx = src.ctx
     var killThreshold = target["stats"]["hpMax"] * 2
     if (damage >= killThreshold || target["conditions"].containsKey("unconscious")) {
+      result = AttackResult.overkill
       kill = true
       ctx.removeEntity(target)
     } else {
@@ -300,7 +314,7 @@ class CombatProcessor {
         }
       }
     }
-    ctx.addEvent(AttackEvent.new(src, target, "area", damage))
+    ctx.addEvent(AttackEvent.new(src, target, "area", result, damage))
     return [defeat, kill]
   }
 

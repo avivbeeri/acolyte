@@ -51,7 +51,7 @@ class Player is Creature {
     }
     this["inventory"] = [
       InventoryEntry.new("dagger", 1),
-      InventoryEntry.new("leather armor", 1)
+      InventoryEntry.new("leather armor", 1),
     ]
   }
   name { data["name"] || "Player" }
@@ -110,7 +110,7 @@ class Gargoyle is Creature {
       "hpMax": 5,
       "hp": 5,
       "dex": 4,
-      "str": 4
+      "str": 3
     })
     this["symbol"] = "G"
     this["frozen"] = true
@@ -126,18 +126,21 @@ class Gargoyle is Creature {
 class Demon is Creature {
  construct new() {
     super({
-      "hpMax": 12,
-      "hp": 12,
+      "hpMax": 5,
+      "hp": 5,
       "dex": 3,
       "str": 3
     })
     this["size"] = Vec.new(2, 2)
     this["symbol"] = "?"
     this["boss"] = true // allow multiple boss types
+    this["conditions"] = {
+      "invulnerable": Condition.new("invulnerable", null, null)
+    }
 
     behaviours.add(Behaviours.boss.new())
   }
-  name { "Demon" }
+  name { "????" }
   pronoun { Pronoun.they }
 }
 
@@ -160,5 +163,5 @@ class Creatures {
 
 import "behaviour" for Behaviours
 import "items" for InventoryEntry, EquipmentSlot
-import "combat" for StatGroup
+import "combat" for StatGroup, Condition
 import "messages" for Pronoun

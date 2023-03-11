@@ -34,7 +34,7 @@ import "./renderer" for
 import "./actions" for BumpAction, PrayAction, RestAction, DescendAction, StrikeAttackAction
 import "./events" for Events,RestEvent, PickupEvent, UseItemEvent, LightningEvent
 import "./generator" for WorldGenerator
-import "./combat" for AttackEvent, DefeatEvent, HealEvent
+import "./combat" for AttackEvent, DefeatEvent, HealEvent, AttackResult
 import "./items" for ItemAction, PickupAction, Items, Equipment, DropAction
 import "./oath" for OathBroken, OathTaken, OathStrike
 
@@ -70,7 +70,6 @@ class InventoryWindowState is State {
           label = "(equipped)"
         }
       }
-      System.print(entry.id)
       return "%(letter)) %(entry.qty)x %(worldItems[entry.id].name) %(label)"
     }.toList
     items.insert(0, "")
@@ -295,6 +294,11 @@ class DialogueState is ModalWindowState {
         ["????: Yes, I've been expecting you."],
         ["????: I scarcely remember if any of your kind have made it this far before."],
         ["????: This ought to be amusing."]
+      ],
+      "freeBoss": [
+        ["????: Ha-ha-ha-ha ha! Free at last."],
+        ["????: Now My influence can truly spread..."],
+        ["????: ...starting with you!"]
       ]
     }
     _dialogue = message[moment]
@@ -319,13 +323,14 @@ class DialogueState is ModalWindowState {
   }
 }
 class GameEndState is ModalWindowState {
-  construct new(scene, message) {
+  construct new(scene, message, restart) {
     super(scene, Dialog.new(message))
     scene.addElement(Pane.new(Vec.new(0, 0), Vec.new(Canvas.width, Canvas.height)))
+    _restart = restart
   }
   update() {
     if (INPUT["reject"].firing || INPUT["confirm"].firing) {
-      scene.game.push(GameScene)
+      scene.game.push(_restart ? GameScene : StartScene)
     }
     return this
   }
@@ -408,9 +413,9 @@ class GameScene is Scene {
     _state = PlayerInputState.new(this)
     addElement(AsciiRenderer.new(Vec.new((Canvas.width - (32 * 16))/2, 24)))
     addElement(HealthBar.new(Vec.new(4, 0), player.ref))
-    addElement(PietyBar.new(Vec.new(4, 16), player.ref))
+    //addElement(PietyBar.new(Vec.new(4, 16), player.ref))
     addElement(HoverText.new(Vec.new(Canvas.width - 8, 8)))
-    addElement(LogViewer.new(Vec.new(4, Canvas.height - 60), _messages))
+    addElement(LogViewer.new(Vec.new(4, Canvas.height - 5 * 10), _messages))
     //addElement(LogViewer.new(Vec.new(0, Canvas.height - 12 * 7), _messages))
 
     for (event in _world.events) {
@@ -428,16 +433,25 @@ class GameScene is Scene {
 
     if (event is GameEndEvent) {
       var message
+      var restart = true
       if (event.win) {
+        restart = false
         message = "You have succeeded where others have failed. Return to your home, and reflect on your deeds."
       } else {
         message = "You were defeated. You have fallen, but perhaps others will take up your cause."
       }
       _messages.add(message, INK["playerDie"], false)
-      changeState(GameEndState.new(this, [ message, "", "Press 'confirm' to try again" ]))
+      changeState(GameEndState.new(this, [ message, "", "Press 'confirm' to try again" ], restart))
     }
     if (event is Events.story) {
-      changeState(DialogueState.new(this, event.moment))
+      if (event.moment.startsWith("dialogue:")) {
+        changeState(DialogueState.new(this, event.moment[9..-1]))
+      } else if (event.moment == "bossWeaken") {
+        _messages.add("As the gargoyle crumbles, ???? pulses with horrible energy.", INK["orange"], true)
+      } else if (event.moment == "bossVulnerable") {
+        _messages.add("The surface of ???? shatters, revealing a demon(?) encased within.", INK["orange"], true)
+        changeState(DialogueState.new(this, "freeBoss"))
+      }
     }
     if (event is ChangeZoneEvent && event.floor == 1) {
       _messages.add("Welcome, acolyte, to the catacombs.", INK["welcome"], false)
@@ -445,14 +459,25 @@ class GameScene is Scene {
     }
     if (event is AttackEvent) {
       var srcName = event.src.name
+      var noun = srcName
       if (event.src is Player) {
+        noun = Pronoun.you.subject
         srcName = TextSplitter.capitalize(Pronoun.you.subject)
       }
       var targetName = event.target.name
       if (event.target is Player) {
         targetName = Pronoun.you.subject
       }
-      _messages.add("%(srcName) attacked %(targetName) for %(event.result) damage.", INK["enemyAtk"], true)
+      if (event.result == AttackResult.invulnerable) {
+        _messages.add("%(srcName) attacked %(targetName) but it seems unaffected.", INK["orange"], true)
+
+      } else if (event.result == AttackResult.blocked) {
+        _messages.add("%(srcName) hit %(targetName) but %(noun) wasn't powerful enough.", INK["orange"], true)
+      } else if (event.src is Player && event.result == AttackResult.overkill) {
+        _messages.add("%(targetName) is no more, by your hand.", INK["enemyAtk"], true)
+      } else {
+        _messages.add("%(srcName) attacked %(targetName) for %(event.damage) damage.", INK["enemyAtk"], true)
+      }
     }
     if (event is Events.statueAwaken) {
       _messages.add("Stone cracks and flakes away as statues become %(event.src.name)'s.", INK["orange"], true)
@@ -564,3 +589,4 @@ class GameScene is Scene {
   }
 }
 import "./entities" for Player
+import "./main" for StartScene

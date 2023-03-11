@@ -5,13 +5,12 @@ class GeneratorUtils {
   static isValidTileLocation(zone, position) {
     var tile = zone.map[position]
     var entities = zone["entities"]
-    return !(tile["solid"] || tile["stairs"] || tile["altar"])
+    return !tile["solid"] && !tile["stairs"] && !tile["altar"]
   }
   static isValidEntityLocation(zone, position) {
-    var tile = zone.map[position]
     var entities = zone["entities"]
     return isValidTileLocation(zone, position) &&
-      (entities.isEmpty || !entities.any{|entity| entity.pos == pos })
+      (entities.isEmpty || !entities.any{|entity| entity.pos == position })
   }
 
   static findFurthestPoint(map, startPos) {
@@ -63,7 +62,7 @@ class WorldGenerator {
     world.systems.add(DefeatSystem.new())
 
     world.addEntity("player", Player.new())
-    var level = 6
+    var level = 0
     var player = world.getEntityByTag("player")
     player.zone = level
     var zone = world.loadZone(level)
@@ -98,7 +97,6 @@ class WorldGenerator {
       world.addEntity(entity)
       entity.zone = level
     }
-    System.print(world.entities())
     zone.data.remove("entities")
     zone["title"] = "The Courtyard"
     return zone
@@ -144,31 +142,51 @@ class RandomZoneGenerator {
     }
     var exit = GeneratorUtils.findFurthestPoint(map, startPos)
     zone.map[exit]["stairs"] = "down"
+    RandomZoneGenerator.placeAltar(zone)
     // place item somewhere
     var pockets = RNG.shuffle(GeneratorUtils.findPockets(map))
     if (!pockets.isEmpty) {
-      for (i in 1..(RNG.int(1, 5.min(pockets.count)))) {
+      for (i in 1..(RNG.int(2, ((level/2).floor + 1).min(pockets.count)))) {
         var pos = pockets[0]
         var itemId = RNG.sample(Items.findable).id
         zone.map[pos]["items"] = [ InventoryEntry.new(itemId, 1) ]
       }
     }
-      // place enemy
     var x = current.x
     var y = current.y
-    var pos = Vec.new(x, y)
+    for (i in 1..(RNG.int(2, level))) {
+      var pos = Vec.new(x, y)
+      // place enemy
 
-    var valid = false
-    while (!valid) {
-      pos.x = RNG.int(zone.map.xRange.from + 1, zone.map.xRange.to - 1)
-      pos.y = RNG.int(zone.map.yRange.from + 1, zone.map.yRange.to - 1)
-      valid = GeneratorUtils.isValidEntityLocation(zone, pos)
+      var valid = false
+      while (!valid) {
+        pos.x = RNG.int(zone.map.xRange.from + 1, zone.map.xRange.to - 1)
+        pos.y = RNG.int(zone.map.yRange.from + 1, zone.map.yRange.to - 1)
+        valid = GeneratorUtils.isValidEntityLocation(zone, pos)
+      }
+      var entity = RNG.sample(Creatures.standard).new()
+      entity.pos = pos
+      zone["entities"].add(entity)
     }
-    var entity = RNG.sample(Creatures.standard).new()
-    entity.pos = pos
-    zone["entities"].add(entity)
+
 
     return zone
+  }
+  static placeAltar(zone) {
+    var map = zone.map
+    var pos = Vec.new()
+
+    var valid = false
+    var attempts = 0
+    while (!valid && attempts < 30) {
+      pos.x = RNG.int(zone.map.xRange.from + 1, zone.map.xRange.to - 1)
+      pos.y = RNG.int(zone.map.yRange.from + 1, zone.map.yRange.to - 1)
+      valid = GeneratorUtils.isValidTileLocation(zone, pos) && zone.map.allNeighbours(pos).all {|tile| zone.map.isFloor(tile) }
+      attempts = attempts + 1
+    }
+    zone.map[pos]["solid"] = true
+    zone.map[pos]["altar"] = true
+
   }
 }
 

@@ -3,7 +3,6 @@ import "parcel" for ParcelMain, Scene
 import "graphics" for Canvas, Font, ImageData
 import "inputs" for VI_SCHEME as INPUT
 import "palette" for INK
-import "./scene" for GameScene
 
 class StartScene is Scene {
   construct new(args) {
@@ -73,4 +72,5 @@ class StartScene is Scene {
   }
 }
 
+import "./scene" for GameScene
 var Game = ParcelMain.new(StartScene)

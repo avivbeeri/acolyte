@@ -1,6 +1,6 @@
 import "fov" for Vision, Vision2
 import "parcel" for GameSystem, JPS, GameEndEvent, ChangeZoneEvent
-import "./entities" for Player
+import "./entities" for Player, Creatures
 import "items" for Equipment
 import "combat" for Condition
 import "behaviour" for UnconsciousBehaviour
@@ -9,8 +9,22 @@ class StorySystem is GameSystem {
   construct new() { super() }
   process(ctx, event) {
     if (event is ChangeZoneEvent && event.floor == 6) {
-      System.print("help")
-      ctx.addEvent(Events.story.new("beforeBoss"))
+      ctx["fightBegan"] = true
+      ctx.addEvent(Events.story.new("dialogue:beforeBoss"))
+    }
+    if (ctx["fightBegan"] && event is Events.kill && event.target is Creatures.gargoyle) {
+      var stillGargoyles = ctx.entities().any {|entity| entity is Creatures.gargoyle }
+
+      if (!event.target["frozen"] && stillGargoyles) {
+        ctx.addEvent(Events.story.new("bossWeaken"))
+      }
+      if (!stillGargoyles) {
+        var demon = ctx.entities().where {|entity| entity is Creatures.demon }.toList[0]
+        demon["conditions"].remove("invulnerable")
+        demon["name"] = "Demon?"
+        demon["symbol"] = "D"
+        ctx.addEvent(Events.story.new("bossVulnerable"))
+      }
     }
   }
 }
