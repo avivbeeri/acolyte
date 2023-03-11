@@ -1,4 +1,4 @@
-import "parcel" for Stateful, GameSystem, Event, Line, ChangeZoneEvent
+import "parcel" for Stateful, GameSystem, Event, Line, ChangeZoneEvent, RNG
 import "events" for Events
 import "entities" for Player
 import "combat" for Modifier
@@ -10,14 +10,15 @@ class OathSystem is GameSystem {
 
   start(ctx) {
     var player = ctx.getEntityByTag("player")
-    player["brokenOaths"] = []
-    player["oaths"] = [
-//      Pacifism.new(),
-//      SelfDefense.new(),
- //     Quietus.new(),
-  //    Poverty.new()
-        Piety.new()
+    var oaths = [
+      Pacifism,
+      SelfDefense,
+      Quietus,
+      Poverty,
+      Piety
     ]
+    player["brokenOaths"] = []
+    player["oaths"] = RNG.sample(oaths, 2).map {|oath| oath.new() }
     for (oath in player["oaths"]) {
       oath.boon.onGrant(player)
       ctx.addEvent(OathTaken.new(oath))

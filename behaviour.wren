@@ -120,7 +120,7 @@ class WanderBehaviour is RandomWalkBehaviour {
   }
 }
 
-class SeekBehaviour is Behaviour {
+class LocalSeekBehaviour is SeekBehaviour {
   construct new() {
     super()
   }
@@ -131,6 +131,18 @@ class SeekBehaviour is Behaviour {
     }
     var dpath = player["map"][0]
     if (dpath[actor.pos] > 10) {
+      return false
+    }
+    return super.update(ctx, actor)
+  }
+}
+class SeekBehaviour is Behaviour {
+  construct new() {
+    super()
+  }
+  update(ctx, actor) {
+    var player = ctx.getEntityByTag("player")
+    if (!player) {
       return false
     }
     var path = pathTo(ctx, actor.pos, player.pos)
