@@ -101,7 +101,7 @@ var KEY_SET_ORDER = [
 
 var KEY_SET = []
 for (i in 0...KEY_SET_1.count) {
-  KEY_SET.add(KEY_SET_1[i] + KEY_SET_2[i] + KEY_SET_3[i])
+  KEY_SET.add(KEY_SET_1[i] + KEY_SET_2[i] + KEY_SET_3[i] + KEY_SET_4[i])
 }
 
 //var DIR_INPUTS = KEY_SET.map {|keys| InputGroup.new(keys) }.toList
@@ -111,7 +111,7 @@ var BASIC = InputScheme.new()
 BASIC.register("confirm", [ Keyboard["return"], Keyboard["space"] ])
 BASIC.register("reject", [ Keyboard["escape"], Keyboard["backspace"], Keyboard["delete"]  ])
 BASIC.register("exit", [ Keyboard["escape"] ])
-BASIC.register("rest", [ Keyboard["space"], Keyboard["keypad ."]  ])
+BASIC.register("rest", [ Keyboard["space"], Keyboard["keypad ."], Keyboard["keypad 5"], Keyboard["5"]  ])
 BASIC.register("pray", [ Keyboard["p"]  ])
 BASIC.register("drop", [ Keyboard["r"]  ])
 BASIC.register("pickup", [ Keyboard["g"] ])
@@ -119,7 +119,7 @@ BASIC.register("inventory", [ Keyboard["i"] ])
 BASIC.register("log", [ Keyboard["v"] ])
 BASIC.register("info", [ Keyboard["t"] ])
 BASIC.register("strike", [ Keyboard["x"] ])
-BASIC.register("descend", [ Keyboard["."] ])
+BASIC.register("descend", [ Keyboard[","] ])
 BASIC.register("ascend", [ Keyboard[","] ])
 BASIC.register("scrollUp", "north")
 BASIC.register("scrollDown", "south")

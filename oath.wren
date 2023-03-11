@@ -12,6 +12,7 @@ class OathSystem is GameSystem {
     player["brokenOaths"] = []
     player["oaths"] = [
 //      Pacifism.new(),
+      SelfDefense.new(),
       Quietus.new(),
       Poverty.new()
     ]
@@ -179,23 +180,36 @@ class Quietus is Oath {
     }
   }
 }
+class SelfDefense is Oath {
+  construct new() {
+    super("self defense", 3, 0, Boon.new())
+    data["attackedBy"] = {}
+  }
+  shouldHardStrike(ctx, event) {
+    return (event is Events.kill && event.src is Player) &&
+      !(data["attackedBy"][event.target.id])
+  }
+  shouldStrike(ctx, event) {
+    return (event is Events.attack && event.src is Player) &&
+      !(data["attackedBy"][event.target.id])
+  }
+  process(ctx, event) {
+    if (event is Events.attack && event.target is Player) {
+      System.print("attacking me")
+      data["attackedBy"][event.src.id] = (data["attackedBy"][event.src.id] || 0) + 1
+    }
+    super.process(ctx, event)
+  }
+}
 class Pacifism is Oath {
   construct new() {
     super("pacifism", 3, 0, Boon.new())
-    data["attackedBy"] = {}
   }
   shouldHardStrike(ctx, event) {
     return (event is Events.kill && event.src is Player)
   }
   shouldStrike(ctx, event) {
-    return (event is Events.defeat && event.src is Player) && !data["attackedBy"][event.target.id]
-  }
-  process(ctx, event) {
-    if (event is Events.attack && event.target is Player) {
-      System.print("attacked by %(event.src.id)")
-      data["attackedBy"][event.src.id] = true
-    }
-    super.process(ctx, event)
+    return (event is Events.defeat && event.src is Player)
   }
 }
 
