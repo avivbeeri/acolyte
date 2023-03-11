@@ -67,18 +67,18 @@ class Player is Creature {
 }
 
 
-class Slime is Creature {
+class Hound is Creature {
  construct new() {
     super({
-      "hpMax": 2,
-      "hp": 2
+      "hpMax": 3,
+      "hp": 3,
+      "dex": 0
     })
-    this["symbol"] = "S"
-    this["butter"] = true
+    this["symbol"] = "d"
 
     behaviours.add(Behaviours.seek.new())
   }
-  name { "Slime" }
+  name { "Hound" }
   pronoun { Pronoun.it }
 }
 class Rat is Creature {
@@ -112,12 +112,13 @@ class Demon is Creature {
 
 
 class Creatures {
-  static all { [ Rat, Slime, Demon ]}
   // Non-boss
-  static standard { [ Rat, Slime ]}
+  static standard { [ Rat, Hound ]}
+  // With bosses
+  static all { standard + [ Demon ]}
 
   static rat { Rat }
-  static slime { Slime }
+  static hound { Hound }
   static demon { Demon }
 
   /*

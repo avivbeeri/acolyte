@@ -1,6 +1,7 @@
 import "parcel" for Stateful, GameSystem, Event, Line
 import "events" for Events
 import "entities" for Player
+import "combat" for Modifier
 
 class OathSystem is GameSystem {
   construct new() {
@@ -152,6 +153,18 @@ class Boon is Stateful {
   onBreak(actor) {}
 }
 
+class StatModifierBoon is Boon {
+  construct new() {
+    super()
+  }
+  onGrant(actor) {
+    actor["stats"].addModifier(Modifier.add(oath.name, { "hp": 1, "hpMax": 1 }, true))
+  }
+  onBreak(actor) {
+    actor["stats"].removeModifier(oath.name)
+  }
+}
+
 class Quietus is Oath {
   construct new() {
     super("quietus", 3, 0, Boon.new())
@@ -224,7 +237,7 @@ class Poverty is Oath {
 
 class Indomitable is Oath {
   construct new() {
-    super("indomitable", 3, Boon.new())
+    super("indomitable", 3, StatModifierBoon.new())
     data["nearby"] = {}
   }
   shouldStrike(ctx, event) {

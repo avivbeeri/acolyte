@@ -229,13 +229,26 @@ class Condition is Stateful {
   Multipliers are a "percentage change", so +0.5 adds 50% of base to the value.
 */
 class Modifier {
+  construct add(id, add, duration, positive) {
+    init_(id, add, null, duration, positive)
+  }
+  construct add(id, add, positive) {
+    init_(id, add, null, null, positive)
+  }
+
   construct new(id, add, mult, duration, positive) {
+    init_(id, add, mult, duration, positive)
+  }
+
+  init_(id, add, mult, duration, positive) {
     _id = id
     _add = add || {}
     _mult = mult || {}
     _duration = duration || null
     _positive = positive || false
   }
+
+
 
   id { _id }
   add { _add }
@@ -261,11 +274,11 @@ class CombatProcessor {
   static calculate(src, target, damage) {
     if (damage == null) {
       var srcStats = src["stats"]
-      var targetStats = target["stats"]
-      srcStats.set("atk", srcStats["str"])
-      targetStats.set("def", srcStats["dex"])
       var atk = srcStats.get("atk")
+
+      var targetStats = target["stats"]
       var def = targetStats.get("def")
+
       damage = Damage.calculate(atk, def)
     }
     var defeat = false
