@@ -9,6 +9,7 @@ import "parcel" for
   World,
   Entity,
   TurnEvent,
+  ChangeZoneEvent,
   Line,
   GameEndEvent
 
@@ -361,7 +362,6 @@ class GameScene is Scene {
     super(args)
     _t = 0
     _messages = MessageLog.new()
-    _messages.add("Welcome, acolyte, to the catacombs. It's time to decend.", INK["welcome"], false)
 
     var world = _world = WorldGenerator.create()
 
@@ -399,6 +399,10 @@ class GameScene is Scene {
       }
       _messages.add(message, INK["playerDie"], false)
       changeState(GameEndState.new(this, [ message, "", "Press Enter to try again" ]))
+    }
+    if (event is ChangeZoneEvent && event.floor == 1) {
+      _messages.add("Welcome, acolyte, to the catacombs.", INK["welcome"], false)
+      _messages.add("The mission has begun.", INK["welcome"], false)
     }
     if (event is AttackEvent) {
       _messages.add("%(event.src.name) attacked %(event.target.name) for %(event.result) damage.", INK["enemyAtk"], true)

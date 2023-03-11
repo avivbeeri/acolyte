@@ -180,9 +180,11 @@ class GameEndEvent is Event {
 }
 
 class ChangeZoneEvent is Event {
-  construct new() {
+  construct new(floor) {
     super()
+    data["floor"] = floor
   }
+  floor { data["floor"] }
 }
 class EntityEvent is Event {
   construct new(entity) {
@@ -446,7 +448,7 @@ class World is Stateful {
     for (entity in entities()) {
       _queue.add(entity.id, _turn)
     }
-    addEvent(ChangeZoneEvent.new())
+    addEvent(ChangeZoneEvent.new(_zoneIndex))
   }
 
   nextId() {

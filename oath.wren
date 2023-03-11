@@ -1,4 +1,4 @@
-import "parcel" for Stateful, GameSystem, Event, Line
+import "parcel" for Stateful, GameSystem, Event, Line, ChangeZoneEvent
 import "events" for Events
 import "entities" for Player
 import "combat" for Modifier
@@ -16,7 +16,7 @@ class OathSystem is GameSystem {
 //      SelfDefense.new(),
  //     Quietus.new(),
   //    Poverty.new()
-        Indomitable.new()
+        Piety.new()
     ]
     for (oath in player["oaths"]) {
       oath.boon.onGrant(player)
@@ -181,6 +181,34 @@ class StatModifierBoon is Boon {
   onBreak(actor) {
     actor["stats"].removeModifier(oath.name)
   }
+}
+
+class Piety is Oath {
+  construct new() {
+    super("piety", 1, 0, Boon.new())
+    data["currentFloor"] = 0
+    data["floors"] = 0
+  }
+  shouldStrike(ctx, event) {
+    if (event is ChangeZoneEvent) {
+      if (event.floor > data["currentFloor"]) {
+        data["floors"] = data["floors"] + 1
+      }
+
+      data["currentFloor"] = event.floor
+      if (data["floors"] > 3) {
+        return true
+      }
+    }
+  }
+
+  process(ctx, event) {
+    if (event is Events.pray) {
+      data["floors"] = 0
+    }
+    super.process(ctx, event)
+  }
+
 }
 
 class Quietus is Oath {
