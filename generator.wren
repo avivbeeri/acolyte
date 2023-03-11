@@ -311,21 +311,6 @@ class BasicZoneGenerator {
     return zone
   }
   static placeAltar(zone, room) {
-    /*
-    var beforeMap = Dijkstra.map(zone.map, room.center)
-    var pos = Vec.new()
-
-    var valid = false
-    while (!valid) {
-      pos.x = RNG.int(room.p0.x + 1, room.p1.x - 1)
-      pos.y = RNG.int(room.p0.y + 1, room.p1.y - 1)
-      zone.map[pos]["solid"] = true
-      var afterMap = Dijkstra.map(zone.map, room.center)
-      valid = GeneratorUtils.isValidTileLocation(zone, pos)
-      valid = valid || afterMap[0].count == beforeMap[0].count
-      zone.map[pos]["solid"] = valid
-    }
-    */
     var pos = Vec.new()
 
     var valid = false
@@ -386,12 +371,17 @@ class BasicZoneGenerator {
 class StartRoomGenerator {
   static generate(args) {
     var map = TileMap8.new()
-    var range = 10
+    var center = Vec.new(15, 15)
+    var range = 5
     for (y in 0...32) {
       for (x in 0...32) {
-        var clear = (x >= range && x < 32 - range && y >= range && y < 32 - range)
+        var dist = (center - Vec.new(x, y)).manhattan
+        var clear = (dist < range)
+        //var clear = (x >= range && x < 32 - range && y >= range && y < 32 - range)
         map[x,y] = Tile.new({
-          "solid": !clear
+          "blocking": !clear,
+          "solid": !clear,
+          "visible": (dist < range + 2) ? "maybe" : false
         })
       }
     }
@@ -401,7 +391,12 @@ class StartRoomGenerator {
     zone["entities"] = []
     zone["level"] = level
     zone.map[Vec.new(15, 13)]["stairs"] = "down"
-    zone["start"] = Vec.new(15, 21)
+    zone["start"] = Vec.new(15, 19)
+
+    var pos = Vec.new(12, 15)
+    zone.map[pos]["solid"] = true
+    zone.map[pos]["altar"] = true
+    zone.map[pos]["blocking"] = false
     return zone
   }
 }

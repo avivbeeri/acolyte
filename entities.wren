@@ -1,4 +1,4 @@
-import "parcel" for Entity, BehaviourEntity, GameSystem, JPS, Stateful, DIR_EIGHT, RNG, Action, Set
+import "parcel" for Entity, BehaviourEntity, GameSystem, JPS, Stateful, DIR_EIGHT, RNG, Action, Set, Dijkstra
 import "math" for Vec, M
 
 class Creature is BehaviourEntity {
@@ -63,6 +63,9 @@ class Player is Creature {
       return null
     }
     return action
+  }
+  endTurn() {
+    data["map"] = Dijkstra.map(ctx.zone.map, pos)
   }
 }
 

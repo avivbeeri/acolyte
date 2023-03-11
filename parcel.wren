@@ -1125,7 +1125,7 @@ class Dijkstra {
       var current = frontier.remove()
       var currentCost = costSoFar[current]
       var newCost = currentCost + 1
-      for (next in map.neighbours(current)) {
+      for (next in (DIR_EIGHT.map{|dir| dir + current}.where {|pos| !map.isSolid(pos) })) {
         if (!cameFrom.containsKey(next) || newCost < costSoFar[next]) {
           costSoFar[next] = newCost
           frontier.add(next)

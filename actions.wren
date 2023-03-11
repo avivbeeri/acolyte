@@ -158,6 +158,7 @@ class LightningAttackAction is Action {
       ctx.addEvent(Events.defeat.new(src, target))
     }
     if (result[1]) {
+      ctx.zone.map[src.pos]["blood"] = true
       ctx.addEvent(Events.kill.new(src, target))
     }
     return ActionResult.success
@@ -262,6 +263,7 @@ class MeleeAttackAction is Action {
         ctx.addEvent(Events.defeat.new(src, target))
       }
       if (result[1]) {
+        ctx.zone.map[src.pos]["blood"] = true
         ctx.addEvent(Events.kill.new(src, target))
       }
     }

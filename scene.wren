@@ -373,7 +373,7 @@ class GameScene is Scene {
     addElement(AsciiRenderer.new(Vec.new(0, 9)))
     addElement(HealthBar.new(Vec.new(0, 0), player.ref))
     addElement(PietyBar.new(Vec.new(0, 16), player.ref))
-    addElement(HoverText.new(Vec.new(Canvas.width, 0)))
+    addElement(HoverText.new(Vec.new(Canvas.width - 8, 8)))
     addElement(LogViewer.new(Vec.new(0, Canvas.height - 60), _messages))
     //addElement(LogViewer.new(Vec.new(0, Canvas.height - 12 * 7), _messages))
 

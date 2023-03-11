@@ -1,6 +1,7 @@
 import "graphics" for Color, Canvas
 import "math" for Vec
 import "input" for Mouse
+import "messages" for Pronoun
 import "./parcel" for
   Element,
   Event,
@@ -15,6 +16,7 @@ import "./ui" for
   TargetEndEvent
 
 import "./inputs" for VI_SCHEME as INPUT
+import "./entities" for Player
 import "./text" for TextSplitter
 //SCROLL_UP, SCROLL_DOWN, SCROLL_BEGIN, SCROLL_END
 
@@ -37,6 +39,9 @@ class HoverText is Element {
     if (event is HoverEvent) {
       if (event.target && event.target is Entity) {
         _text = event.target.name
+        if (event.target is Player) {
+          _text = TextSplitter.capitalize(Pronoun.you.subject)
+        }
         if (event.target["killed"]) {
           _text = "Body of %(event.target.name)"
         }
@@ -531,11 +536,25 @@ class AsciiRenderer is Element {
           top.process(HoverEvent.new(entity))
         }
       }
+    }
+    if (!found && tile["visible"]) {
       if (!found && tile["items"] && !tile["items"].isEmpty) {
         found = true
         var itemId = tile["items"][0].id
         var item = _world["items"][itemId]
         top.process(HoverEvent.new(item))
+      }
+      if (!found && tile["altar"]) {
+        found = true
+        top.process(HoverEvent.new("Altar"))
+      }
+      if (!found && tile["stairs"]) {
+        found = true
+        top.process(HoverEvent.new(tile["stairs"] == "down" ? "Stairs Down" : "Stairs Up"))
+      }
+      if (!found && tile["blood"]) {
+        found = true
+        top.process(HoverEvent.new("Pool of blood"))
       }
     }
     if (!found) {
