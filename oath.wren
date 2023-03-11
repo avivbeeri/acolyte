@@ -154,6 +154,18 @@ class Boon is Stateful {
   onBreak(actor) {}
 }
 
+class Favor is Boon {
+  construct new() {
+    super()
+  }
+  onGrant(actor) {
+    actor["stats"].addModifier(Modifier.add(oath.name, { "pietyMax": 1 }, true))
+    actor["stats"].increase("piety", 1)
+  }
+  onBreak(actor) {
+    actor["stats"].removeModifier(oath.name)
+  }
+}
 class Vitality is Boon {
   construct new() {
     super()
@@ -214,7 +226,7 @@ class Piety is Oath {
 
 class Quietus is Oath {
   construct new() {
-    super("quietus", 3, 0, Boon.new())
+    super("quietus", 3, 0, StatModifierBoon.new("def", 1))
     data["attacked"] = {}
   }
   shouldHardStrike(ctx, event) { false }
@@ -275,7 +287,7 @@ class Pacifism is Oath {
 
 class Poverty is Oath {
   construct new() {
-    super("poverty", 1, Boon.new())
+    super("poverty", 1, Favor.new())
   }
   shouldStrike(ctx, event) {
     return (event is Events.equipItem && event.src is Player)
@@ -284,7 +296,7 @@ class Poverty is Oath {
 
 class Indomitable is Oath {
   construct new() {
-    super("indomitable", 3, StatModifierBoon.new("def", 1))
+    super("indomitable", 3, StatModifierBoon.new("atk", 1))
     data["nearby"] = {}
   }
   shouldStrike(ctx, event) {
