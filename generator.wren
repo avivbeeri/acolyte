@@ -378,6 +378,11 @@ class BasicZoneGenerator {
     var altarRoom = rooms[RNG.int(rooms.count)]
     BasicZoneGenerator.placeAltar(zone, altarRoom)
 
+    for (i in 0...RNG.int(rooms.count)) {
+      var statueRoom = rooms[RNG.int(rooms.count)]
+      BasicZoneGenerator.placeStatue(zone, statueRoom)
+    }
+
     for (room in rooms) {
       BasicZoneGenerator.placeEntities(zone, room, monstersPerRoom, itemsPerRoom)
     }
@@ -397,19 +402,33 @@ class BasicZoneGenerator {
     zone.map[pos]["altar"] = true
 
   }
-  static placeStairs(zone, room) {
+  static placeStatue(zone, room) {
+    var map = zone.map
     var pos = Vec.new()
-    pos.x = RNG.int(room.p0.x + 1, room.p1.x - 1)
-    pos.y = RNG.int(room.p0.y + 1, room.p1.y - 1)
 
-    while (!GeneratorUtils.isValidTileLocation(zone, pos)) {
+    var valid = false
+    var attempts = 0
+    while (!valid && attempts < 30) {
       pos.x = RNG.int(room.p0.x + 1, room.p1.x - 1)
       pos.y = RNG.int(room.p0.y + 1, room.p1.y - 1)
+      valid = GeneratorUtils.isValidTileLocation(zone, pos) && zone.map.allNeighbours(pos).all {|tile| zone.map.isFloor(tile) }
+      attempts = attempts + 1
     }
+    zone.map[pos]["solid"] = true
+    zone.map[pos]["statue"] = true
+    zone.map[pos]["blocking"] = false
 
+  }
+  static placeStairs(zone, room) {
+    var pos = Vec.new()
+    var valid = false
+    while (!valid) {
+      pos.x = RNG.int(room.p0.x + 1, room.p1.x - 1)
+      pos.y = RNG.int(room.p0.y + 1, room.p1.y - 1)
+      valid = GeneratorUtils.isValidTileLocation(zone, pos)
+    }
     zone.map[pos]["stairs"] = "down"
   }
-
 
   static placeEntities(zone, room, maxMonsters, maxItems) {
     var totalMonsters = RNG.int(maxMonsters + 1)

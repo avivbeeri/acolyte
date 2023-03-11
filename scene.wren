@@ -411,7 +411,7 @@ class GameScene is Scene {
 
     var player = world.getEntityByTag("player")
     _state = PlayerInputState.new(this)
-    addElement(AsciiRenderer.new(Vec.new((Canvas.width - (32 * 16))/2, 24)))
+    addElement(AsciiRenderer.new(Vec.new((Canvas.width - (32 * 16))/2, 16)))
     addElement(HealthBar.new(Vec.new(4, 0), player.ref))
     //addElement(PietyBar.new(Vec.new(4, 16), player.ref))
     addElement(HoverText.new(Vec.new(Canvas.width - 8, 8)))

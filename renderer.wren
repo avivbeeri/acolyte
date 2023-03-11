@@ -614,6 +614,7 @@ class AsciiRenderer is Element {
         if (map[x, y]["void"]) {
         } else if (map[x, y]["solid"]) {
           if (map[x, y]["altar"]) {
+            Canvas.rectfill(x * 16 + 2, y * 16 + 2, 12, 12, INK["altarBg"])
             Canvas.print("^", x * 16 + 4, y * 16 + 4, INK["altar"])
           } else if (map[x, y]["statue"]) {
             var bg = INK["lilac"] * 1
