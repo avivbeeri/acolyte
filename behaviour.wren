@@ -20,6 +20,11 @@ class Behaviour is GameSystem {
     var path = JPS.buildPath(map, start, end, search)
     return path
   }
+
+  static spaceAvailable(ctx, pos) {
+    var destEntities = ctx.getEntitiesAtPosition(pos)
+    return (destEntities.isEmpty || !destEntities.any{|entity| !(entity is Player) && entity is Creature && !entity["killed"] })
+  }
 }
 
 class ConfusedBehaviour is Behaviour {
@@ -52,7 +57,8 @@ class UnconsciousBehaviour is Behaviour {
       actor["solid"] = true
       actor["killed"] = false
       // What should we set this to?
-      actor["stats"].set("hp", 1)
+      var maxHp = actor["stats"].get("hpMax")
+      actor["stats"].set("hp", RNG.int(maxHp) + 1)
       return false
     }
     actor.pushAction(Action.none)
@@ -104,14 +110,25 @@ class WanderBehaviour is RandomWalkBehaviour {
     var previous = actor["previousPosition"] || actor.pos
     var previousDir = actor["previousDir"] || Vec.new()
     var dir = previousDir
-    if (actor.pos == previous || RNG.float() < 0.25) {
-      while (dir == previousDir) {
-        dir = RNG.sample(DIR_EIGHT)
+    var options = RNG.shuffle(DIR_EIGHT[0..-1])
+    var i = 0
+    var fine = false
+    while (!fine && i < options.count) {
+      if (actor.pos == previous || RNG.float() < 0.25) {
+        while (dir == previousDir) {
+          dir = RNG.sample(options)
+        }
+      } else {
+        dir = actor.pos - previous
+        dir.x = M.mid(-1, dir.x, 1)
+        dir.y = M.mid(-1, dir.y, 1)
       }
-    } else {
-      dir = actor.pos - previous
-      dir.x = M.mid(-1, dir.x, 1)
-      dir.y = M.mid(-1, dir.y, 1)
+      var dest = actor.pos + dir
+      fine = ctx.zone.map.isFloor(dest) && Behaviour.spaceAvailable(ctx, dest)
+      i = i + 1
+    }
+    if (!fine) {
+      dir = RNG.sample(DIR_EIGHT)
     }
     actor["previousDir"] = dir
     actor["previousPosition"] = actor.pos
@@ -120,22 +137,6 @@ class WanderBehaviour is RandomWalkBehaviour {
   }
 }
 
-class LocalSeekBehaviour is SeekBehaviour {
-  construct new() {
-    super()
-  }
-  update(ctx, actor) {
-    var player = ctx.getEntityByTag("player")
-    if (!player) {
-      return false
-    }
-    var dpath = player["map"][0]
-    if (dpath[actor.pos] > 10) {
-      return false
-    }
-    return super.update(ctx, actor)
-  }
-}
 class SeekBehaviour is Behaviour {
   construct new() {
     super()
@@ -151,17 +152,33 @@ class SeekBehaviour is Behaviour {
     }
     var next = path[1]
     var dir = next - actor.pos
-    var dx = M.mid(-1, dir.x, 1)
-    var dy = M.mid(-1, dir.y, 1)
-    var dest = Vec.new(dx, dy)
+    dir.x = M.mid(-1, dir.x, 1)
+    dir.y = M.mid(-1, dir.y, 1)
 
-    var destEntities = ctx.getEntitiesAtPosition(next)
-    if (!destEntities.isEmpty && destEntities.any{|entity| !(entity is Player) && entity is Creature && !entity["killed"] }) {
+    if (!Behaviour.spaceAvailable(ctx, next)) {
       // Stop swarms eating each other
       return false
     }
-    actor.pushAction(BumpAction.new(dest))
+    actor.pushAction(BumpAction.new(dir))
     return true
+  }
+}
+
+class LocalSeekBehaviour is SeekBehaviour {
+  construct new(range) {
+    super()
+    _range = range
+  }
+  update(ctx, actor) {
+    var player = ctx.getEntityByTag("player")
+    if (!player) {
+      return false
+    }
+    var dpath = player["map"][0]
+    if (dpath[actor.pos] > range) {
+      return false
+    }
+    return super.update(ctx, actor)
   }
 }
 

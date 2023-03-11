@@ -18,7 +18,7 @@ class OathSystem is GameSystem {
       Piety
     ]
     player["brokenOaths"] = []
-    player["oaths"] = RNG.sample(oaths, 2).map {|oath| oath.new() }
+    player["oaths"] = RNG.sample(oaths, 2).map {|oath| oath.new() }.toList
     for (oath in player["oaths"]) {
       oath.boon.onGrant(player)
       ctx.addEvent(OathTaken.new(oath))
