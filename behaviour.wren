@@ -199,7 +199,7 @@ class LocalSeekBehaviour is SeekBehaviour {
       return false
     }
     var dpath = player["map"][0]
-    if (dpath[actor.pos] > range) {
+    if (dpath[actor.pos] > _range) {
       return false
     }
     return super.update(ctx, actor)
@@ -214,6 +214,7 @@ class Behaviours {
   static unconscious { UnconsciousBehaviour }
   static wander { WanderBehaviour }
   static statue { StatueBehaviour }
+  static localSeek { LocalSeekBehaviour }
 }
 
 import "events" for Events

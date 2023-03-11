@@ -75,6 +75,21 @@ class Player is Creature {
 }
 
 
+class Zombie is Creature {
+ construct new() {
+    super({
+      "hpMax": 2,
+      "hp": 2,
+      "dex": 1,
+      "atk": 3
+    })
+    this["symbol"] = "z"
+
+    behaviours.add(Behaviours.localSeek.new(7))
+  }
+  name { "Zombie" }
+  pronoun { Pronoun.it }
+}
 class Hound is Creature {
  construct new() {
     super({
@@ -147,14 +162,15 @@ class Demon is Creature {
 
 class Creatures {
   // Non-boss
-  static standard { [ Rat, Hound ]}
+  static standard { [ Rat, Hound, Zombie ]}
   // With bosses
-  static all { standard + [ Demon ]}
+  static all { standard + [ Demon, Gargoyle ]}
 
   static rat { Rat }
   static hound { Hound }
   static demon { Demon }
   static gargoyle { Gargoyle }
+  static zombie { Zombie }
 
   /*
   static vampire { Vampire }

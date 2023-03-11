@@ -4,35 +4,6 @@ import "parcel" for TileMap8, Tile, Zone, Line, RNG, Entity, DIR_FOUR, Dijkstra,
 // Which tier am I in? (beginner, middle, endgame)
 // Items
 //
-var Distribution = [
-
-  {
-    "items": [
-      ["shortsword", 0.2],
-      ["scroll", 0.3],
-      ["wand", 0.4]
-    ]
-  },
-  {
-    "items": [
-      ["fireball", 0.05],
-      ["chainmail", 0.2],
-      ["longsword", 0.2],
-      ["scroll", 0.2],
-      ["potion", 0.3]
-    ]
-  },
-  {
-    "items": [
-      ["longsword", 0.05],
-      ["potion", 0.05],
-      ["platemail", 0.1],
-      ["fireball", 0.1],
-      ["wand", 0.15],
-      ["scroll", 0.15]
-    ]
-  }
-]
 
 var TierMap = {
   0 :1,
@@ -45,6 +16,31 @@ var TierMap = {
 }
 
 class GeneratorUtils {
+  static pickEnemy(level) {
+    var tier = TierMap[level]
+    var table = Distribution[tier - 1]
+    var enemyTable = table["enemies"]
+
+    var total = 0
+    var weighted = enemyTable.reduce([]) {|acc, entry|
+      total = total + entry[1]
+      acc.add([entry[0], total])
+      return acc
+    }
+    var r = RNG.float()
+    var i = 0
+    var entry = null
+    var result = null
+    while (i < weighted.count) {
+      entry = weighted[i]
+      i = i + 1
+      if (r < entry[1]) {
+        result = entry[0]
+        break
+      }
+    }
+    return result
+  }
   static pickItem(level) {
     var tier = TierMap[level]
     var table = Distribution[tier - 1]
@@ -59,14 +55,15 @@ class GeneratorUtils {
     var r = RNG.float()
     var i = 0
     var entry = null
+    var result = null
     while (i < weighted.count) {
       entry = weighted[i]
       i = i + 1
       if (r < entry[1]) {
+        result = entry[0]
         break
       }
     }
-    var result = entry[0]
     return result
   }
 
@@ -148,7 +145,6 @@ class WorldGenerator {
   }
   static generate(world, args) {
     var level = args[0]
-    System.print(GeneratorUtils.pickItem(level))
     var startPos = args.count > 1 ? args[1] : null
 
     var zone = null
@@ -218,6 +214,9 @@ class RandomZoneGenerator {
       for (i in 1..(RNG.int(2, ((level/2).floor + 1).min(pockets.count)))) {
         var pos = pockets[0]
         var itemId = GeneratorUtils.pickItem(level) //RNG.sample(Items.findable).id
+        if (itemId == null) {
+          continue
+        }
         zone.map[pos]["items"] = [ InventoryEntry.new(itemId, 1) ]
       }
     }
@@ -233,7 +232,11 @@ class RandomZoneGenerator {
         pos.y = RNG.int(zone.map.yRange.from + 1, zone.map.yRange.to - 1)
         valid = GeneratorUtils.isValidEntityLocation(zone, pos)
       }
-      var entity = RNG.sample(Creatures.standard).new()
+      var entity = GeneratorUtils.pickEnemy(level)
+      if (entity == null) {
+        continue
+      }
+      entity = entity.new()
       entity.pos = pos
       zone["entities"].add(entity)
     }
@@ -421,7 +424,11 @@ class BasicZoneGenerator {
       var pos = Vec.new(x, y )
 
       if ((entities.isEmpty || !entities.any{|entity| entity.pos == pos }) && pos != startPos) {
-        var entity = RNG.sample(Creatures.standard).new()
+        var entity = GeneratorUtils.pickEnemy(level)
+        if (entity == null) {
+          continue
+        }
+        entity = entity.new()
         entity.pos = pos
         entities.add(entity)
       }
@@ -435,6 +442,9 @@ class BasicZoneGenerator {
       if ((entities.isEmpty || !entities.any{|entity| entity.pos == pos }) && pos != startPos) {
         //var itemId = RNG.sample(Items.findable).id
         var itemId = GeneratorUtils.pickItem(level) //RNG.sample(Items.findable).id
+        if (itemId == null) {
+          continue
+        }
         zone.map[pos]["items"] = [ InventoryEntry.new(itemId, 1) ]
       }
     }
@@ -549,8 +559,50 @@ class RectangularRoom {
   }
 }
 
-import "./items" for InventoryEntry
 import "./entities" for Player, Creatures
+var Distribution = [
+  {
+    "items": [
+      ["shortsword", 0.2],
+      ["scroll", 0.3],
+      ["wand", 0.4]
+    ],
+    "enemies": [
+      [Creatures.rat, 0.4],
+      [Creatures.zombie, 0.3],
+      [Creatures.hound, 0.1]
+    ]
+  },
+  {
+    "items": [
+      ["fireball", 0.05],
+      ["chainmail", 0.2],
+      ["longsword", 0.2],
+      ["scroll", 0.2],
+      ["potion", 0.3]
+    ],
+    "enemies": [
+      [Creatures.rat, 0.2],
+      [Creatures.zombie, 0.5],
+      [Creatures.hound, 0.2]
+    ]
+  },
+  {
+    "items": [
+      ["longsword", 0.05],
+      ["potion", 0.05],
+      ["platemail", 0.1],
+      ["fireball", 0.1],
+      ["wand", 0.15],
+      ["scroll", 0.15]
+    ],
+    "enemies": [
+      [Creatures.rat, 0.1],
+      [Creatures.hound, 0.8]
+    ]
+  }
+]
+import "./items" for InventoryEntry
 import "./systems" for VisionSystem, DefeatSystem, InventorySystem, ConditionSystem, ExperienceSystem, StorySystem
 import "./items" for Items
 import "./oath" for OathSystem
