@@ -124,8 +124,17 @@ class DescendEvent is Event {
     super()
   }
 }
+class StoryEvent is Event {
+  construct new(moment) {
+    super()
+    data["moment"] = moment
+  }
+
+  moment { data["moment"] }
+}
 
 class Events {
+  static story { StoryEvent }
   static rest { RestEvent }
   static pray { PrayEvent }
   static pickup { PickupEvent }

@@ -52,6 +52,7 @@ class WorldGenerator {
   static create() {
     var world = World.new()
     world.generator = WorldGenerator
+    world.systems.add(StorySystem.new())
     world.systems.add(OathSystem.new())
     world.systems.add(InventorySystem.new())
     world.systems.add(ExperienceSystem.new())
@@ -443,6 +444,6 @@ class RectangularRoom {
 
 import "./items" for InventoryEntry
 import "./entities" for Player, Creatures
-import "./systems" for VisionSystem, DefeatSystem, InventorySystem, ConditionSystem, ExperienceSystem
+import "./systems" for VisionSystem, DefeatSystem, InventorySystem, ConditionSystem, ExperienceSystem, StorySystem
 import "./items" for Items
 import "./oath" for OathSystem

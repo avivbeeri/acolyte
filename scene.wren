@@ -267,6 +267,7 @@ class ModalWindowState is State {
     _window = window
   }
   scene { _scene }
+  window { _window }
   onEnter() {
     var border = 24
     if (_window == "history") {
@@ -282,6 +283,37 @@ class ModalWindowState is State {
   update() {
     if (INPUT["reject"].firing || INPUT["confirm"].firing) {
       return PlayerInputState.new(_scene)
+    }
+    return this
+  }
+}
+class DialogueState is ModalWindowState {
+  construct new(scene, moment) {
+    var message = {
+      "beforeBoss": [
+        ["????: Well well, you made it..."],
+        ["????: Yes, I've been expecting you."],
+        ["????: I scarcely remember if any of your kind have made it this far before."],
+        ["????: This ought to be amusing."]
+      ]
+    }
+    _dialogue = message[moment]
+    _index = 0
+    super(scene, Dialog.new(_dialogue[_index]))
+    //_pane = scene.addElement(Pane.new(Vec.new(0, 0), Vec.new(Canvas.width, Canvas.height)))
+  }
+  onExit() {
+    super.onExit()
+    //scene.removeElement(_pane)
+  }
+  update() {
+    if (INPUT["reject"].firing || INPUT["confirm"].firing) {
+      if (_index < _dialogue.count - 1) {
+        _index = _index + 1
+        window.setMessage(_dialogue[_index])
+      } else {
+        return PlayerInputState.new(scene)
+      }
     }
     return this
   }
@@ -403,6 +435,9 @@ class GameScene is Scene {
       }
       _messages.add(message, INK["playerDie"], false)
       changeState(GameEndState.new(this, [ message, "", "Press Enter to try again" ]))
+    }
+    if (event is Events.story) {
+      changeState(DialogueState.new(this, event.moment))
     }
     if (event is ChangeZoneEvent && event.floor == 1) {
       _messages.add("Welcome, acolyte, to the catacombs.", INK["welcome"], false)

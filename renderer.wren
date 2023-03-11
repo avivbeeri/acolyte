@@ -81,6 +81,11 @@ class ScrollEvent is Event {
 }
 
 class Pane is Element {
+  construct new() {
+    super()
+    _pos = Vec.new()
+    _size = Vec.new()
+  }
   construct new(pos, size) {
     super()
     _pos = pos
@@ -88,6 +93,14 @@ class Pane is Element {
   }
 
   content() {}
+  size { _size }
+  size=(v) {
+    _size = v
+  }
+  pos { _pos }
+  pos=(v) {
+    _pos = v
+  }
 
   draw() {
     var border = 4
@@ -106,6 +119,11 @@ class Pane is Element {
 
 class Dialog is Pane {
   construct new(message) {
+    super()
+    setMessage(message)
+  }
+
+  setMessage(message) {
     if (!(message is List)) {
       message = [ message ]
     }
@@ -116,15 +134,14 @@ class Dialog is Pane {
 
     var maxWidth = (2 * (Canvas.width / 3)).round
     _message = TextSplitter.split(message, maxWidth)
-    _size = Vec.new(((width + 2) * 8).min(maxWidth), (2 + _message.count) * _height)
-    _pos = (Vec.new(Canvas.width, Canvas.height) - _size) / 2
-    super(_pos, _size)
+    size = Vec.new(((width + 2) * 8).min(maxWidth), (2 + _message.count) * _height)
+    pos = (Vec.new(Canvas.width, Canvas.height) - size) / 2
   }
 
   content() {
     for (i in 0..._message.count) {
-      var x = _center ? (_size.x - (_message[i].count * 8)) / 2: 8
-      Canvas.print(_message[i], x, ((_size.y - _message.count * _height) / 2) + i * _height, INK["gameover"])
+      var x = _center ? (size.x - (_message[i].count * 8)) / 2: 8
+      Canvas.print(_message[i], x, ((size.y - _message.count * _height) / 2) + i * _height, INK["gameover"])
     }
   }
 }

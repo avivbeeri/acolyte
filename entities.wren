@@ -112,7 +112,7 @@ class Demon is Creature {
       "str": 3
     })
     this["size"] = Vec.new(2, 2)
-    this["symbol"] = "D"
+    this["symbol"] = "?"
     this["boss"] = true // allow multiple boss types
 
     behaviours.add(Behaviours.boss.new())

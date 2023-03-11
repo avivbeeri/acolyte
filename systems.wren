@@ -1,10 +1,18 @@
 import "fov" for Vision, Vision2
-import "parcel" for GameSystem, JPS, GameEndEvent
+import "parcel" for GameSystem, JPS, GameEndEvent, ChangeZoneEvent
 import "./entities" for Player
 import "items" for Equipment
 import "combat" for Condition
 import "behaviour" for UnconsciousBehaviour
 
+class StorySystem is GameSystem {
+  construct new() { super() }
+  process(ctx, event) {
+    if (event is ChangeZoneEvent && event.floor == 6) {
+      ctx.addEvent(Events.story.new("beforeBoss"))
+    }
+  }
+}
 
 class ExperienceSystem is GameSystem {
   construct new() { super() }

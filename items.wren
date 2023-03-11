@@ -149,7 +149,6 @@ class EquipItemAction is Action {
   perform() {
     var item = ctx["items"][_itemId]
     var existingItemId = src["equipment"][item.slot]
-    System.print(item)
     if (existingItemId != null) {
       var existingItem = ctx["items"][existingItemId]
       existingItem.onUnequip(src)
