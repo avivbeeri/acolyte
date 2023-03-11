@@ -438,7 +438,7 @@ class GameScene is Scene {
         restart = false
         message = "You have succeeded where others have failed. Return to your home, and reflect on your deeds."
       } else {
-        message = "You were defeated. You have fallen, but perhaps others will take up your cause."
+        message = "You have fallen, but perhaps others will take up your cause."
       }
       _messages.add(message, INK["playerDie"], false)
       changeState(GameEndState.new(this, [ message, "", "Press 'confirm' to try again" ], restart))

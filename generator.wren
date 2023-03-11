@@ -1,7 +1,75 @@
 import "math" for Vec
 import "parcel" for TileMap8, Tile, Zone, Line, RNG, Entity, DIR_FOUR, Dijkstra, World, DIR_EIGHT
 
+// Which tier am I in? (beginner, middle, endgame)
+// Items
+//
+var Distribution = [
+
+  {
+    "items": [
+      ["shortsword", 0.2],
+      ["scroll", 0.3],
+      ["wand", 0.4]
+    ]
+  },
+  {
+    "items": [
+      ["fireball", 0.05],
+      ["chainmail", 0.2],
+      ["longsword", 0.2],
+      ["scroll", 0.2],
+      ["potion", 0.3]
+    ]
+  },
+  {
+    "items": [
+      ["longsword", 0.05],
+      ["potion", 0.05],
+      ["platemail", 0.1],
+      ["fireball", 0.1],
+      ["wand", 0.15],
+      ["scroll", 0.15]
+    ]
+  }
+]
+
+var TierMap = {
+  0 :1,
+  1: 1,
+  2: 1,
+  3: 2,
+  4: 2,
+  5: 3,
+  6:3
+}
+
 class GeneratorUtils {
+  static pickItem(level) {
+    var tier = TierMap[level]
+    var table = Distribution[tier - 1]
+    var itemTable = table["items"]
+
+    var total = 0
+    var weighted = itemTable.reduce([]) {|acc, entry|
+      total = total + entry[1]
+      acc.add([entry[0], total])
+      return acc
+    }
+    var r = RNG.float()
+    var i = 0
+    var entry = null
+    while (i < weighted.count) {
+      entry = weighted[i]
+      i = i + 1
+      if (r < entry[1]) {
+        break
+      }
+    }
+    var result = entry[0]
+    return result
+  }
+
   static isValidTileLocation(zone, position) {
     var tile = zone.map[position]
     var entities = zone["entities"]
@@ -80,6 +148,7 @@ class WorldGenerator {
   }
   static generate(world, args) {
     var level = args[0]
+    System.print(GeneratorUtils.pickItem(level))
     var startPos = args.count > 1 ? args[1] : null
 
     var zone = null
@@ -148,7 +217,7 @@ class RandomZoneGenerator {
     if (!pockets.isEmpty) {
       for (i in 1..(RNG.int(2, ((level/2).floor + 1).min(pockets.count)))) {
         var pos = pockets[0]
-        var itemId = RNG.sample(Items.findable).id
+        var itemId = GeneratorUtils.pickItem(level) //RNG.sample(Items.findable).id
         zone.map[pos]["items"] = [ InventoryEntry.new(itemId, 1) ]
       }
     }
@@ -342,6 +411,7 @@ class BasicZoneGenerator {
   static placeEntities(zone, room, maxMonsters, maxItems) {
     var totalMonsters = RNG.int(maxMonsters + 1)
     var startPos = zone["start"]
+    var level = zone["level"]
     var totalItems = RNG.int(maxItems + 1)
     var entities = zone["entities"]
     for (i in 0...totalMonsters) {
@@ -363,7 +433,8 @@ class BasicZoneGenerator {
       var pos = Vec.new(x, y)
 
       if ((entities.isEmpty || !entities.any{|entity| entity.pos == pos }) && pos != startPos) {
-        var itemId = RNG.sample(Items.findable).id
+        //var itemId = RNG.sample(Items.findable).id
+        var itemId = GeneratorUtils.pickItem(level) //RNG.sample(Items.findable).id
         zone.map[pos]["items"] = [ InventoryEntry.new(itemId, 1) ]
       }
     }
