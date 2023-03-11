@@ -650,7 +650,7 @@ class AsciiRenderer is Element {
       var color = INK["creature"]
       if (entity["killed"]) {
         color = (color * 1)
-        color.a = 128
+        color.a = 192
         symbol = "\%"
       }
       //Canvas.print(symbol, entity.pos.x * 16 + 4, entity.pos.y * 16 + 4, Color.white)
