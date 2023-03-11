@@ -228,7 +228,6 @@ class ItemAction is Action {
 class Item is Stateful {
   construct new(id, kind) {
     super()
-    System.print("state init")
     data["id"] = id
     data["kind"] = kind
   }
