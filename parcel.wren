@@ -4,6 +4,7 @@ import "collections" for PriorityQueue, Queue, Set, HashMap, Stack
 import "math" for Vec, Elegant, M
 import "json" for Json
 import "random" for Random
+import "jukebox" for Jukebox
 
 import "input" for Keyboard, Clipboard
 
@@ -773,6 +774,7 @@ class ParcelMain {
   }
 
   update() {
+    Jukebox.update()
     if (_nextScene) {
       _scene = _nextScene
       _nextScene = null

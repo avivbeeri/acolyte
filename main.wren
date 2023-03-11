@@ -1,3 +1,4 @@
+import "jukebox" for Jukebox
 import "parcel" for ParcelMain, Scene
 import "graphics" for Canvas, Font, ImageData
 import "inputs" for VI_SCHEME as INPUT
@@ -7,26 +8,39 @@ import "./scene" for GameScene
 class StartScene is Scene {
   construct new(args) {
     super(args)
+    Jukebox.register("soundTrack", "res/audio/soundtrack.ogg")
+    Jukebox.playMusic("soundTrack")
     Font.load("nightmare", "res/fonts/nightmare.ttf", 128)
     _area = [
       Font["nightmare"].getArea("Acolyte's"),
       Font["nightmare"].getArea("PLedge"),
     ]
     _book = ImageData.load("res/img/book.png")
+    _i = 0
+    _a = 0
   }
 
   update() {
     if (INPUT["confirm"].firing) {
       game.push(GameScene)
     }
+    _i = _i + 1
+    var max = 5 * 60
+    _a = (_i / max).clamp(0, 1)
   }
 
+
+  ease(x) {
+    return -((Num.pi * x).cos - 1) / 2
+  }
   draw() {
     Canvas.cls(INK["bg"])
+
     _book.draw((Canvas.width - _book.width) / 2, (Canvas.height - _book.height) / 2)
     var filter = INK["bg"] * 1
-    filter.a = 128
+    filter.a = 255 - 192 * ease(_a)
     Canvas.rectfill(0, 0, Canvas.width, Canvas.height, filter)
+
     var height = _area.reduce(0) {|acc, area| acc + area.y }
     var top = (Canvas.height - height) / 2
     var x0 = (Canvas.width - _area[0].x) / 2
