@@ -5,6 +5,7 @@ class JukeboxMode {
   static NONE { 0 }
   static FADE { 1 }
   static PLAY { 2 }
+  static FADE_TARGET { 3 }
 }
 
 var MAX_VOLUME = 1.0
@@ -14,6 +15,7 @@ class Jukebox {
     __previousChannel = null
     __currentChannel = null
     __mode = JukeboxMode.NONE
+    __target = MAX_VOLUME * 0.5
   }
   static register(name, path) {
     AudioEngine.load(name, path)
@@ -31,7 +33,7 @@ class Jukebox {
 
       if (__currentChannel != null) {
         __currentChannel.volume = M.min(1, __currentChannel.volume + dt)
-        if (__currentChannel.volume >= MAX_VOLUME) {
+        if (__currentChannel.volume >= __target) {
           __mode = JukeboxMode.PLAY
         }
       }
@@ -45,12 +47,21 @@ class Jukebox {
     if (__currentChannel == null || __currentChannel.soundId != path) {
       __currentChannel = AudioEngine.play(path)
       __currentChannel.volume = 0
+      __target = MAX_VOLUME
       __currentChannel.loop = true
       __mode = JukeboxMode.FADE
     }
   }
 
   static playing { __currentChannel != null }
+  static volumeDown() {
+    __target = __target - 0.025
+    __currentChannel.volume = __currentChannel.volume - 0.025
+  }
+  static volumeUp() {
+    __target = __target + 0.025
+    __currentChannel.volume = __currentChannel.volume + 0.025
+  }
 
   static stopMusic() {
     __previousChannel = __currentChannel

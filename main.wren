@@ -8,7 +8,6 @@ class StartScene is Scene {
   construct new(args) {
     super(args)
     Jukebox.register("soundTrack", "res/audio/soundtrack.ogg")
-    Jukebox.playMusic("soundTrack")
     Font.load("nightmare", "res/fonts/nightmare.ttf", 128)
     _area = [
       Font["nightmare"].getArea("Acolyte's"),
@@ -21,8 +20,18 @@ class StartScene is Scene {
   }
 
   update() {
+    _t = _t + 1
+    if (_t == 15) {
+      Jukebox.playMusic("soundTrack")
+    }
     if (INPUT["confirm"].firing) {
       game.push(GameScene)
+    }
+    if (INPUT["volUp"].firing) {
+      Jukebox.volumeUp()
+    }
+    if (INPUT["volDown"].firing) {
+      Jukebox.volumeDown()
     }
     if (INPUT["mute"].firing) {
       if (Jukebox.playing) {
@@ -31,11 +40,11 @@ class StartScene is Scene {
         Jukebox.playMusic("soundTrack")
       }
     }
-    _t = _t + 1
-    if (_t > 30) {
+    var start = 2 * 60
+    if (_t > 2 * 60) {
       _i = _i + 1
-      var max = 5 * 60
-      _a = (_i / max).clamp(0, 1)
+      var max = (5 * 60)
+      _a = ((_i - start) / max).clamp(0, 1)
     }
   }
 
@@ -67,7 +76,7 @@ class StartScene is Scene {
       Font["nightmare"].print("Pledge", x1, top + 128, INK["titleFg"])
 
       var x = (Canvas.width - 30 * 8)/ 2
-      Canvas.print("Press SPACE or ENTER to begin", x, top + 256 + 32, INK["title"])
+      Canvas.print("Press SPACE or ENTER to begin", x, Canvas.height * 0.90, INK["title"])
     }
   }
 }

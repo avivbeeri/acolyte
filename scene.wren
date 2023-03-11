@@ -540,6 +540,12 @@ class GameScene is Scene {
   }
 
   update() {
+    if (INPUT["volUp"].firing) {
+      Jukebox.volumeUp()
+    }
+    if (INPUT["volDown"].firing) {
+      Jukebox.volumeDown()
+    }
     if (INPUT["mute"].firing) {
       if (Jukebox.playing) {
         Jukebox.stopMusic()
