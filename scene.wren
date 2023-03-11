@@ -1,3 +1,4 @@
+import "jukebox" for Jukebox
 import "dome" for Process, Log
 import "graphics" for Canvas, Color
 import "input" for Keyboard, Mouse
@@ -307,7 +308,6 @@ class PlayerInputState is State {
   }
 
   update() {
-     /* TODO temp */
     if (INPUT["inventory"].firing) {
       return InventoryWindowState.new(_scene)
     }
@@ -317,9 +317,11 @@ class PlayerInputState is State {
     if (INPUT["info"].firing) {
       return ModalWindowState.new(_scene, "character")
     }
+    /*
     if (INPUT["exit"].firing) {
       return ConfirmState.new(_scene)
     }
+    */
 
     if (_world.complete) {
       if (INPUT["confirm"].firing) {
@@ -475,6 +477,13 @@ class GameScene is Scene {
   }
 
   update() {
+    if (INPUT["mute"].firing) {
+      if (Jukebox.playing) {
+        Jukebox.stopMusic()
+      } else {
+        Jukebox.playMusic("soundTrack")
+      }
+    }
     super.update()
     // Global animation timer
     _t = _t + 1
