@@ -752,19 +752,19 @@ class Scene is Element {
 class ParcelMain {
   construct new(scene) {
     Window.lockstep = true
-    Window.integerScale = false
+    Window.integerScale = Config["integer"]
     Window.title = Config["title"]
     Canvas.resize(Config["width"], Config["height"])
-    //Window.resize(Canvas.width*SCALE, Canvas.height*SCALE)
+    Window.resize(Canvas.width*SCALE, Canvas.height*SCALE)
     _initial = scene
     _args = []
   }
 
   construct new(scene, args) {
     Window.lockstep = true
-    Window.integerScale = false
-    Canvas.resize(768,576)
-    //Window.resize(Canvas.width*SCALE, Canvas.height*SCALE)
+    Window.integerScale = Config["integer"]
+    Canvas.resize(Config["width"], Config["height"])
+    Window.resize(Canvas.width*SCALE, Canvas.height*SCALE)
     Window.title = Config && Config["title"] || "Parcel"
     _initial = scene
     _args = args
@@ -1434,8 +1434,10 @@ class Config {
       "logLevel": "DEBUG",
       "seed": Platform.time,
       "title": "Parcel",
+      "scale": 2,
       "width": 768,
-      "height": 576
+      "height": 576,
+      "integer": false
     }
     var fiber = Fiber.new {
       var data = Json.load("config.json")
@@ -1451,6 +1453,7 @@ class Config {
     var Seed = __config["seed"]
     Log.d("RNG Seed: %(Seed)")
     RNG = Random.new(Seed)
+    SCALE = __config["scale"]
   }
 
   static [key] { __config[key]  }
