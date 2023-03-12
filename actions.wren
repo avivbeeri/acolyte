@@ -306,6 +306,10 @@ class SimpleMoveAction is Action {
     ctx.addEvent(Events.move.new(src, origin))
     return ActionResult.success
   }
+
+  cost() {
+    return super.cost() * src["stats"]["spd"]
+  }
 }
 
 class DescendAction is Action {

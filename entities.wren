@@ -10,6 +10,7 @@ class Creature is BehaviourEntity {
     this["stats"] =  StatGroup.new({
       "hpMax": 1,
       "hp": 1,
+      "spd": 1,
       "atk": 1,
       "def": 1,
       "str": 1,
@@ -80,6 +81,7 @@ class Zombie is Creature {
     super({
       "hpMax": 2,
       "hp": 2,
+      "spd": 2,
       "dex": 1,
       "atk": 3
     })
