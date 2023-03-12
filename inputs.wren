@@ -110,7 +110,7 @@ var BASIC = InputScheme.new()
 // TODO: space can't be confirm during text entry
 BASIC.register("confirm", [ Keyboard["return"], Keyboard["space"] ])
 BASIC.register("reject", [ Keyboard["escape"], Keyboard["backspace"], Keyboard["delete"]  ])
-BASIC.register("exit", [ Keyboard["escape"] ])
+BASIC.register("exit", [ Keyboard["F12"] ])
 BASIC.register("rest", [ Keyboard["space"], Keyboard["keypad ."], Keyboard["keypad 5"], Keyboard["5"]  ])
 BASIC.register("pray", [ Keyboard["p"]  ])
 BASIC.register("drop", [ Keyboard["r"]  ])

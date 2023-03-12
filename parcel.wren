@@ -775,6 +775,10 @@ class ParcelMain {
 
   update() {
     Jukebox.update()
+    if (Keyboard["F12"].justPressed) {
+      Process.exit()
+      return
+    }
     if (_nextScene) {
       _scene = _nextScene
       _nextScene = null
