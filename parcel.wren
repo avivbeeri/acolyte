@@ -752,18 +752,19 @@ class Scene is Element {
 class ParcelMain {
   construct new(scene) {
     Window.lockstep = true
-    Window.integerScale = true
+    Window.integerScale = false
     Window.title = Config["title"]
     Canvas.resize(Config["width"], Config["height"])
-    Window.resize(Canvas.width*SCALE, Canvas.height*SCALE)
+    //Window.resize(Canvas.width*SCALE, Canvas.height*SCALE)
     _initial = scene
     _args = []
   }
 
   construct new(scene, args) {
     Window.lockstep = true
+    Window.integerScale = false
     Canvas.resize(768,576)
-    Window.resize(Canvas.width*SCALE, Canvas.height*SCALE)
+    //Window.resize(Canvas.width*SCALE, Canvas.height*SCALE)
     Window.title = Config && Config["title"] || "Parcel"
     _initial = scene
     _args = args
