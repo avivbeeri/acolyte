@@ -39,7 +39,7 @@ class Vision {
     for (x in xmin..xmax) {
       var realx = _origin.x + transform[0] * x + transform[1] * y
       var realy = _origin.y + transform[2] * x + transform[3] * y
-      if (_map.isBlocking(realx, realy)) {
+      if (!_map.isBlocking(realx, realy)) {
         if (x >= y * start && x <= y * end) {
           reveal(realx, realy)
         }
