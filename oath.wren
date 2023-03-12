@@ -1,4 +1,4 @@
-import "parcel" for Stateful, GameSystem, Event, Line, ChangeZoneEvent, RNG
+idmport "parcel" for Stateful, GameSystem, Event, Line, ChangeZoneEvent, RNG
 import "events" for Events
 import "entities" for Player
 import "combat" for Modifier
@@ -209,7 +209,7 @@ class Piety is Oath {
       }
 
       data["currentFloor"] = event.floor
-      if (data["floors"] > 3) {
+      if (data["floors"] > 2) {
         return true
       }
     }
@@ -232,8 +232,16 @@ class Quietus is Oath {
   shouldHardStrike(ctx, event) { false }
   shouldStrike(ctx, event) { false }
   process(ctx, event) {
-    if (event is Events.defeat && event.src is Player) {
+
+    if (event is ChangeZoneEvent) {
+      if (!data["attacked"].isEmpty) {
+        strike()
+      }
+      data["attacked"].clear()
+    } else if (event is Events.defeat && event.src is Player) {
       data["attacked"][event.target.id] = 4
+    } else if (event is Events.kill && event.src is Player) {
+      data["attacked"].remove(event.target.id)
     }
     super.process(ctx, event)
   }
@@ -241,9 +249,14 @@ class Quietus is Oath {
     var index = data["attacked"]
     for (id in index.keys) {
       var target = ctx.getEntityById(id)
-      if (target && !target["killed"]) {
+      if (!target) {
         index.remove(id)
-      } else if (target && target["killed"]) {
+        continue
+      }
+      if (!target["killed"]) {
+        index.remove(id)
+        strike()
+      } else {
         index[id] = index[id] - 1
         if (index[id] <= 0) {
           index.remove(id)

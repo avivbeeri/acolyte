@@ -295,6 +295,7 @@ class HelpState is ModalWindowState {
         "(Bump to attack)",
         "Rest - Space",
         "Coup-de-grace - 'x'",
+        "Pick up item - 'g'",
         "Descend to next floor - ','",
         "",
         "Character Info - 't'",
@@ -514,7 +515,7 @@ class GameScene is Scene {
       }
     }
     if (event is Events.statueAwaken) {
-      _messages.add("Stone cracks and flakes away as statues become %(event.src.name)'s.", INK["orange"], true)
+      _messages.add("Stone cracks and flakes away as statues become %(event.src.name)s.", INK["orange"], true)
     }
     if (event is LightningEvent) {
       _messages.add("%(event.target) was struck by lightning.", INK["playerAtk"], false)
