@@ -1,6 +1,6 @@
 import "dome" for Window
 import "jukebox" for Jukebox
-import "parcel" for ParcelMain, Scene
+import "parcel" for ParcelMain, Scene, Config
 import "graphics" for Canvas, Font, ImageData
 import "inputs" for VI_SCHEME as INPUT
 import "palette" for INK
@@ -57,6 +57,8 @@ class StartScene is Scene {
   draw() {
       Canvas.cls(INK["mainBg"])
       _book.draw((Canvas.width - _book.width) / 2, (Canvas.height - _book.height) / 2)
+      var v = Config["version"]
+      Canvas.print(v, Canvas.width - 8 - v.count * 8, Canvas.height - 16 , INK["title"])
       var filter = (_t > 28 && _t < 30 ? INK["white"] : INK["bg"]) * 1
       //var filter = INK["bg"] * 1
       filter.a = 255 - 192 * ease(_a)

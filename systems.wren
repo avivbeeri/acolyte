@@ -1,5 +1,5 @@
 import "math" for Vec
-import "fov" for Vision, Vision2
+import "fov" for Vision2 as Vision
 import "parcel" for GameSystem, JPS, GameEndEvent, ChangeZoneEvent
 import "./entities" for Player, Creatures
 import "items" for Equipment
@@ -131,7 +131,7 @@ class VisionSystem is GameSystem {
         }
       }
     }
-    Vision2.new(map, player.pos, 8).compute()
+    Vision.new(map, player.pos, 8).compute()
   }
 }
 

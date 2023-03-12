@@ -9,6 +9,7 @@ class JukeboxMode {
 }
 
 var MAX_VOLUME = 1.0
+var VOL_STEP = 0.05
 
 class Jukebox {
   static init() {
@@ -55,12 +56,12 @@ class Jukebox {
 
   static playing { __currentChannel != null }
   static volumeDown() {
-    __target = __target - 0.025
-    __currentChannel.volume = __currentChannel.volume - 0.025
+    __target = __target - VOL_STEP
+    __currentChannel.volume = __currentChannel.volume - VOL_STEP
   }
   static volumeUp() {
-    __target = __target + 0.025
-    __currentChannel.volume = __currentChannel.volume + 0.025
+    __target = __target + VOL_STEP
+    __currentChannel.volume = __currentChannel.volume + VOL_STEP
   }
 
   static stopMusic() {
