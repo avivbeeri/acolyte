@@ -120,21 +120,22 @@ class Pane is Element {
 class Dialog is Pane {
   construct new(message) {
     super()
+    _center = true
+    _height = 10
     setMessage(message)
   }
+
+  center=(v) { _center = v }
+  center { _center }
 
   setMessage(message) {
     if (!(message is List)) {
       message = [ message ]
     }
     var width = TextSplitter.getWidth(message)
-
-    _center = true
-    _height = 10
-
-    var maxWidth = (2 * (Canvas.width / 3)).round
+    var maxWidth = (2 * (Canvas.width / 3)).ceil
     _message = TextSplitter.split(message, maxWidth)
-    size = Vec.new(((width + 2) * 8).min(maxWidth), (2 + _message.count) * _height)
+    size = Vec.new(((width + 4) * 8).min(maxWidth), (2 + _message.count) * _height)
     pos = (Vec.new(Canvas.width, Canvas.height) - size) / 2
   }
 

@@ -286,6 +286,37 @@ class ModalWindowState is State {
     return this
   }
 }
+class HelpState is ModalWindowState {
+  construct new(scene) {
+    var message = [
+        "'Confirm' - Return, Space",
+        "'Reject' - Escape, Backspace, Delete",
+        "Move - HJKLYUNB, WASDQECZ, Arrow Keys, Numpad",
+        "(Bump to attack)",
+        "Rest - Space",
+        "Coup-de-grace - 'x'",
+        "Descend to next floor - ','",
+        "",
+        "Character Info - 't'",
+        "Open Log - 'v'",
+        "Inventory - 'i', then number to use/equip/unequip",
+        "Drop from Inventory - 'r' then number"
+      ]
+    super(scene, Dialog.new(message))
+    window.center = false
+    _pane = scene.addElement(Pane.new(Vec.new(0, 0), Vec.new(Canvas.width, Canvas.height)))
+  }
+  onExit() {
+    scene.removeElement(_pane)
+    super.onExit()
+  }
+  update() {
+    if (INPUT["reject"].firing || INPUT["confirm"].firing) {
+      return PlayerInputState.new(scene)
+    }
+    return this
+  }
+}
 class DialogueState is ModalWindowState {
   construct new(scene, moment) {
     var message = {
@@ -353,6 +384,9 @@ class PlayerInputState is State {
     }
     if (INPUT["info"].firing) {
       return ModalWindowState.new(_scene, "character")
+    }
+    if (INPUT["help"].firing) {
+      return HelpState.new(_scene)
     }
     /*
     if (INPUT["exit"].firing) {

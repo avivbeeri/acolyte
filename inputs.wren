@@ -126,6 +126,7 @@ BASIC.register("volDown", [ Keyboard["["] ])
 BASIC.register("volUp", [ Keyboard["]"] ])
 BASIC.register("scrollUp", "north")
 BASIC.register("scrollDown", "south")
+BASIC.register("help", [ Keyboard["/"] ])
 
 var VI_SCHEME = BASIC.copy()
 for (i in 0...KEY_SET_1.count) {
