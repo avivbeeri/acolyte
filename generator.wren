@@ -130,6 +130,19 @@ class WorldGenerator {
     var level = 0
     var player = world.getEntityByTag("player")
     player.zone = level
+
+    /*
+     Debug power armor
+    player["equipment"] = {
+      EquipmentSlot.weapon: "longsword",
+      EquipmentSlot.armor: "platemail"
+    }
+    player["inventory"] = [
+      InventoryEntry.new("longsword", 1),
+      InventoryEntry.new("platemail", 1),
+    ]
+    */
+
     var zone = world.loadZone(level)
 
     player.pos = zone["start"]
@@ -621,7 +634,7 @@ var Distribution = [
     ]
   }
 ]
-import "./items" for InventoryEntry
+import "./items" for InventoryEntry, EquipmentSlot
 import "./systems" for VisionSystem, DefeatSystem, InventorySystem, ConditionSystem, ExperienceSystem, StorySystem
 import "./items" for Items
 import "./oath" for OathSystem

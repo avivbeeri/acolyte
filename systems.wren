@@ -1,9 +1,10 @@
+import "math" for Vec
 import "fov" for Vision, Vision2
 import "parcel" for GameSystem, JPS, GameEndEvent, ChangeZoneEvent
 import "./entities" for Player, Creatures
 import "items" for Equipment
 import "combat" for Condition
-import "behaviour" for UnconsciousBehaviour
+import "behaviour" for UnconsciousBehaviour, SeekBehaviour
 
 class StorySystem is GameSystem {
   construct new() { super() }
@@ -23,6 +24,9 @@ class StorySystem is GameSystem {
         demon["conditions"].remove("invulnerable")
         demon["name"] = "Demon?"
         demon["symbol"] = "D"
+        demon["size"] = Vec.new(1, 1)
+        demon["pos"] = demon["pos"] + Vec.new(1, 1)
+        demon.behaviours.add(SeekBehaviour.new())
         ctx.addEvent(Events.story.new("bossVulnerable"))
       }
     }

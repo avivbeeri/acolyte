@@ -8,7 +8,7 @@ import "jukebox" for Jukebox
 
 import "input" for Keyboard, Clipboard
 
-var SCALE = 3
+var SCALE = 2
 var MAX_TURN_SIZE = 30
 
 class Stateful {
