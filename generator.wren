@@ -269,9 +269,10 @@ class RandomZoneGenerator {
       valid = GeneratorUtils.isValidTileLocation(zone, pos) && zone.map.allNeighbours(pos).all {|tile| zone.map.isFloor(tile) }
       attempts = attempts + 1
     }
-    zone.map[pos]["solid"] = true
-    zone.map[pos]["altar"] = true
-
+    if (valid) {
+      zone.map[pos]["solid"] = true
+      zone.map[pos]["altar"] = true
+    }
   }
 }
 
@@ -411,9 +412,10 @@ class BasicZoneGenerator {
       pos.y = RNG.int(room.p0.y + 1, room.p1.y - 1)
       valid = GeneratorUtils.isValidTileLocation(zone, pos) && zone.map.allNeighbours(pos).all {|tile| zone.map.isFloor(tile) }
     }
-    zone.map[pos]["solid"] = true
-    zone.map[pos]["altar"] = true
-
+    if (valid) {
+      zone.map[pos]["solid"] = true
+      zone.map[pos]["altar"] = true
+    }
   }
   static placeStatue(zone, room) {
     var map = zone.map
@@ -427,10 +429,11 @@ class BasicZoneGenerator {
       valid = GeneratorUtils.isValidTileLocation(zone, pos) && zone.map.allNeighbours(pos).all {|tile| zone.map.isFloor(tile) }
       attempts = attempts + 1
     }
-    zone.map[pos]["solid"] = true
-    zone.map[pos]["statue"] = true
-    zone.map[pos]["blocking"] = false
-
+    if (valid) {
+      zone.map[pos]["solid"] = true
+      zone.map[pos]["statue"] = true
+      zone.map[pos]["blocking"] = false
+    }
   }
   static placeStairs(zone, room) {
     var pos = Vec.new()

@@ -1,3 +1,4 @@
+import "dome" for Window
 import "jukebox" for Jukebox
 import "parcel" for ParcelMain, Scene
 import "graphics" for Canvas, Font, ImageData
@@ -7,6 +8,7 @@ import "palette" for INK
 class StartScene is Scene {
   construct new(args) {
     super(args)
+    Window.color = INK["bg"]
     Jukebox.register("soundTrack", "res/audio/soundtrack.ogg")
     Font.load("nightmare", "res/fonts/nightmare.ttf", 128)
     _area = [
