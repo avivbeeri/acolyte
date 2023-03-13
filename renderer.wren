@@ -6,6 +6,7 @@ import "./parcel" for
   Element,
   Event,
   Entity,
+  ChangeZoneEvent,
   Palette
 import "./palette" for INK
 import "./items" for Item
@@ -23,6 +24,42 @@ import "./text" for TextSplitter
 
 var DEBUG = false
 
+class HintText is Element {
+  construct new(pos) {
+    super()
+    _pos = pos
+    _text = "press 'h' for help"
+    _t = 0
+  }
+
+  update() {
+    _world = parent.world
+    _t = _t + 1
+    if (_t > 10 * 60) {
+      removeSelf()
+    }
+  }
+
+  process(event) {
+    if (event is ChangeZoneEvent && event.floor > 0) {
+      removeSelf()
+    }
+    super.process(event)
+  }
+
+  draw() {
+    var offset = Canvas.offset
+    Canvas.offset(_pos.x,_pos.y)
+
+    var left = -(_text.count * 4)
+
+    if (_text) {
+      Canvas.print(_text, left, 0, INK["text"])
+    }
+
+    Canvas.offset(offset.x, offset.y)
+  }
+}
 class HoverText is Element {
   construct new(pos) {
     super()

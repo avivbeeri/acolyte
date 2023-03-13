@@ -29,6 +29,7 @@ import "./renderer" for
   CharacterViewer,
   HoverText,
   Pane,
+  HintText,
   Dialog
 
 import "./actions" for BumpAction, PrayAction, RestAction, DescendAction, StrikeAttackAction
@@ -296,6 +297,7 @@ class HelpState is ModalWindowState {
         "Rest - Space",
         "Coup-de-grace - 'x'",
         "Pick up item - 'g'",
+        "Pray - 'p'",
         "Descend to next floor - ','",
         "",
         "Character Info - 't'",
@@ -357,10 +359,22 @@ class DialogueState is ModalWindowState {
 class GameEndState is ModalWindowState {
   construct new(scene, message, restart) {
     super(scene, Dialog.new(message))
-    scene.addElement(Pane.new(Vec.new(0, 0), Vec.new(Canvas.width, Canvas.height)))
+    // scene.addElement(Pane.new(Vec.new(0, 0), Vec.new(Canvas.width, Canvas.height)))
     _restart = restart
   }
   update() {
+    if (INPUT["inventory"].firing) {
+      return InventoryWindowState.new(_scene, "readonly")
+    }
+    if (INPUT["log"].firing) {
+      return ModalWindowState.new(_scene, "history")
+    }
+    if (INPUT["info"].firing) {
+      return ModalWindowState.new(_scene, "character")
+    }
+    if (INPUT["help"].firing) {
+      return HelpState.new(_scene)
+    }
     if (INPUT["reject"].firing || INPUT["confirm"].firing) {
       scene.game.push(_restart ? GameScene : StartScene)
     }
@@ -451,6 +465,7 @@ class GameScene is Scene {
     //addElement(PietyBar.new(Vec.new(4, 16), player.ref))
     addElement(HoverText.new(Vec.new(Canvas.width - 8, 8)))
     addElement(LogViewer.new(Vec.new(4, Canvas.height - 5 * 10), _messages))
+    addElement(HintText.new(Vec.new(Canvas.width / 2, Canvas.height * 0.75)))
     //addElement(LogViewer.new(Vec.new(0, Canvas.height - 12 * 7), _messages))
 
     for (event in _world.events) {
@@ -614,9 +629,12 @@ class GameScene is Scene {
     }
   }
 
+  previous { _previousState }
+
   changeState(nextState) {
     _state.onExit()
-    nextState.onEnter()
+    nextState.onEnter(this)
+    _previousState = _state
     _state = nextState
   }
 
