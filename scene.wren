@@ -372,6 +372,9 @@ class GameEndState is ModalWindowState {
     _message = arg(0)
     _restart = arg(1)
     _state = null
+    if (!_restart) {
+      _pane = scene.addElement(Pane.new(Vec.new(0, 0), Vec.new(Canvas.width, Canvas.height)))
+    }
     window = Dialog.new(_message)
   }
   changeState(nextState) {
