@@ -431,6 +431,7 @@ class BasicZoneGenerator {
       pos.x = RNG.int(room.p0.x + 1, room.p1.x - 1)
       pos.y = RNG.int(room.p0.y + 1, room.p1.y - 1)
       valid = GeneratorUtils.isValidTileLocation(zone, pos) && zone.map.allNeighbours(pos).all {|tile| zone.map.isFloor(tile) }
+      valid = valid && (!map[pos]["items"] || map[pos]["items"].isEmpty)
       attempts = attempts + 1
     }
     if (valid) {

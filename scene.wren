@@ -119,7 +119,7 @@ class InventoryWindowState is SceneState {
           var query = item.query("use")
           if (!query["target"]) {
               player.pushAction(ItemAction.new(entry.id))
-            return previous
+            return PlayerInputState.new()
           } else {
             query["item"] = entry.id
             return TargetQueryState.new().with(query)
@@ -129,8 +129,7 @@ class InventoryWindowState is SceneState {
       i = i + 1
     }
     if (INPUT["reject"].firing || INPUT["confirm"].firing) {
-      return previous //PlayerInputState.new()
-     // return PlayerInputState.new()
+      return previous
     }
     return this
   }
@@ -203,7 +202,7 @@ class TargetQueryState is SceneState {
   }
   update() {
     if (INPUT["reject"].firing) {
-      return previous //PlayerInputState.new()
+      return previous
     }
     if ((INPUT["confirm"].firing || Mouse["left"].justPressed) && targetValid(_origin, _cursorPos)) {
       var player = scene.world.getEntityByTag("player")
@@ -343,7 +342,7 @@ class DialogueState is ModalWindowState {
     _dialogue = message[moment]
     _index = 0
     super.onEnter()
-    super(Dialog.new(_dialogue[_index] + ["", "Press 'confirm' to continue..."]))
+    window = Dialog.new(_dialogue[_index] + ["", "Press 'confirm' to continue..."])
     //_pane = scene.addElement(Pane.new(Vec.new(0, 0), Vec.new(Canvas.width, Canvas.height)))
   }
   onExit() {
