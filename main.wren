@@ -1,7 +1,7 @@
 import "dome" for Window
 import "jukebox" for Jukebox
-import "parcel" for ParcelMain, Scene, Config
 import "graphics" for Canvas, Font, ImageData, Color
+import "parcel" for ParcelMain, Scene, Config, Scheduler
 import "inputs" for VI_SCHEME as INPUT
 import "palette" for INK
 

@@ -8,7 +8,41 @@ import "jukebox" for Jukebox
 
 import "input" for Keyboard, Clipboard
 
-var SCALE = 2
+class Scheduler {
+  static init_() {
+    __waiting = Queue.new()
+  }
+  static yield() {
+    var current = Fiber.current
+    __waiting.add(current)
+    Fiber.yield()
+  }
+
+  static runNext() {
+    if (!__waiting.isEmpty) {
+      var fiber = __waiting.remove()
+      return fiber.transfer()
+    }
+  }
+  static runUntilEmpty() {
+    while (!__waiting.isEmpty) {
+      var fiber = __waiting.get()
+      fiber.transfer()
+    }
+  }
+  static update(fn) {
+    Fiber.new(fn).call()
+  }
+  static schedule(fn) {
+    __waiting.add(Fiber.new {
+      fn
+      runNext()
+    })
+  }
+}
+Scheduler.init_()
+
+var SCALE = 1
 var MAX_TURN_SIZE = 30
 
 class Stateful {
@@ -406,12 +440,12 @@ class World is Stateful {
     _systems = []
     addEntity("turnMarker", Turn.new())
     _fn = Fn.new {
-      while (true) {
+      while (!complete) {
         processTurn()
         if (complete) {
           break
         }
-        Fiber.yield()
+        Scheduler.yield()
       }
     }
     _fiber = null
@@ -566,10 +600,18 @@ class World is Stateful {
   // Attempt to advance the world by one turn
   // returns true if something changed
   advance() {
+    Scheduler.update {
+      while (!complete) {
+        processTurn()
+        Scheduler.yield()
+      }
+    }
+    /*
     if (!_fiber || _fiber.isDone) {
       _fiber = Fiber.new(_fn)
     }
     _fiber.call()
+    */
   }
   skipTo(entityType) {
     // TODO: check if player exists?
@@ -755,7 +797,6 @@ class ParcelMain {
     Window.integerScale = Config["integer"]
     Window.title = Config["title"]
     Canvas.resize(Config["width"], Config["height"])
-    Window.resize(Canvas.width*SCALE, Canvas.height*SCALE)
     _initial = scene
     _args = []
   }
@@ -764,14 +805,17 @@ class ParcelMain {
     Window.lockstep = true
     Window.integerScale = Config["integer"]
     Canvas.resize(Config["width"], Config["height"])
-    Window.resize(Canvas.width*SCALE, Canvas.height*SCALE)
     Window.title = Config && Config["title"] || "Parcel"
     _initial = scene
     _args = args
   }
 
   init() {
-    push(_initial, _args)
+    Window.resize(Canvas.width * SCALE, Canvas.height * SCALE)
+    Scheduler.update {
+      push(_initial, _args)
+    }
+    Scheduler.runUntilEmpty()
   }
 
   update() {
@@ -788,13 +832,16 @@ class ParcelMain {
       Process.exit()
       return
     }
-    _scene.update()
+    Scheduler.update {
+      return _scene.update()
+    }
+    Scheduler.runNext()
   }
   draw(dt) {
     if (_scene == null) {
-      update()
+    } else {
+      _scene.draw()
     }
-    _scene.draw()
   }
 
   push(scene) { push(scene, []) }
