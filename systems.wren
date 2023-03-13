@@ -1,6 +1,6 @@
 import "math" for Vec
 import "fov" for Vision2 as Vision
-import "parcel" for GameSystem, JPS, GameEndEvent, ChangeZoneEvent
+import "parcel" for GameSystem, JPS, GameEndEvent, ChangeZoneEvent, Dijkstra
 import "./entities" for Player, Creatures
 import "items" for Equipment
 import "combat" for Condition
@@ -116,6 +116,12 @@ class VisionSystem is GameSystem {
     postUpdate(ctx, player)
   }
 
+  process(ctx, event) {
+    if (event is ChangeZoneEvent) {
+      var player = ctx.getEntityByTag("player")
+      ctx["map"] = Dijkstra.map(ctx.zone.map, player.pos)
+    }
+  }
   postUpdate(ctx, actor) {
     var player = ctx.getEntityByTag("player")
     if (!player) {

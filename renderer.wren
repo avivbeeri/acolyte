@@ -28,7 +28,7 @@ class HintText is Element {
   construct new(pos) {
     super()
     _pos = pos
-    _text = "press 'h' for help"
+    _text = "press '/' for help"
     _t = 0
   }
 

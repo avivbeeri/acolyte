@@ -17,7 +17,7 @@ import "parcel" for
 import "./palette" for INK
 import "./inputs" for VI_SCHEME as INPUT
 import "./messages" for MessageLog, Pronoun
-import "./ui" for TextComplete, TextChanged, TargetEvent, TargetBeginEvent, TargetEndEvent, HoverEvent
+import "./ui" for TextComplete, TextChanged, TargetEvent, TargetBeginEvent, TargetEndEvent, HoverEvent, SceneState
 import "./text" for TextSplitter
 import "./renderer" for
   AsciiRenderer,
@@ -39,26 +39,20 @@ import "./combat" for AttackEvent, DefeatEvent, HealEvent, AttackResult
 import "./items" for ItemAction, PickupAction, Items, Equipment, DropAction
 import "./oath" for OathBroken, OathTaken, OathStrike
 
-class InventoryWindowState is State {
-  construct new(scene) {
+class InventoryWindowState is SceneState {
+  construct new() {
     super()
-    _scene = scene
-    _action = "use"
-    _title = ""
   }
-  construct new(scene, action) {
-    super()
-    _scene = scene
-    _action = action
 
-    _title = action == "drop" ? "(to drop)" : ""
-  }
   onEnter() {
+    _action = arg(0) || "use"
+    _title = _action == "drop" ? "(to drop)" : ""
+
     var border = 24
-    var world = _scene.world
+    var world = scene.world
     var worldItems = world["items"]
 
-    var player = _scene.world.getEntityByTag("player")
+    var player = scene.world.getEntityByTag("player")
     var playerItems = player["inventory"]
     var i = 0
     var items = playerItems.map {|entry|
@@ -94,10 +88,10 @@ class InventoryWindowState is State {
     }
     var x = Canvas.width - (max * 8 + 8)
     _window = LineViewer.new(Vec.new(x, border), Vec.new(Canvas.width - border*2, Canvas.height - border*2), items.count, items)
-    _scene.addElement(_window)
+    scene.addElement(_window)
   }
   onExit() {
-    _scene.removeElement(_window)
+    scene.removeElement(_window)
   }
   getKey(i) {
     var letter = i.toString
@@ -110,41 +104,45 @@ class InventoryWindowState is State {
     return letter
   }
   update() {
-    var player = _scene.world.getEntityByTag("player")
+    var player = scene.world.getEntityByTag("player")
     var playerItems = player["inventory"]
 
     var i = 1
     for (entry in playerItems) {
       var letter = getKey(i)
-      var item = _scene.world["items"][entry.id]
+      var item = scene.world["items"][entry.id]
       if (Keyboard[letter].justPressed) {
         if (_action == "drop") {
           player.pushAction(DropAction.new(entry.id))
-          return PlayerInputState.new(_scene)
+          return previous
         } else if (_action == "use") {
           var query = item.query("use")
           if (!query["target"]) {
               player.pushAction(ItemAction.new(entry.id))
-            return PlayerInputState.new(_scene)
+            return previous
           } else {
             query["item"] = entry.id
-            return TargetQueryState.new(_scene, query)
+            return TargetQueryState.new().with(query)
           }
         }
       }
       i = i + 1
     }
     if (INPUT["reject"].firing || INPUT["confirm"].firing) {
-      return PlayerInputState.new(_scene)
+      return previous //PlayerInputState.new()
+     // return PlayerInputState.new()
     }
     return this
   }
 }
 
-class TargetQueryState is State {
-  construct new(scene, query) {
+class TargetQueryState is SceneState {
+  construct new() {
     super()
-    _scene = scene
+  }
+
+  onEnter() {
+    var query = arg(0)
     var player = scene.world.getEntityByTag("player")
     _origin = player.pos
     _cursorPos = player.pos
@@ -156,13 +154,10 @@ class TargetQueryState is State {
     _allowSolid = query.containsKey("allowSolid") ? query["allowSolid"] : false
     _needEntity = query.containsKey("needEntity") ? query["needEntity"] : true
     _needSight = query.containsKey("needSight") ? query["needSight"] : true
-  }
-
-  onEnter() {
-    _scene.process(TargetBeginEvent.new(_cursorPos, _area))
+    scene.process(TargetBeginEvent.new(_cursorPos, _area))
   }
   onExit() {
-    _scene.process(TargetEndEvent.new())
+    scene.process(TargetEndEvent.new())
   }
   process(event) {
     if (event is HoverEvent &&
@@ -174,7 +169,7 @@ class TargetQueryState is State {
   }
   targetValid(origin, position) {
       // check next
-    var map = _scene.world.zone.map
+    var map = scene.world.zone.map
     if (!_allowSolid && map[position]["solid"]) {
       return false
     }
@@ -185,7 +180,7 @@ class TargetQueryState is State {
       return false
     }
 
-    if (_needEntity && _scene.world.getEntitiesAtPosition(position).isEmpty) {
+    if (_needEntity && scene.world.getEntitiesAtPosition(position).isEmpty) {
       return false
     }
 
@@ -193,7 +188,7 @@ class TargetQueryState is State {
   }
   cursorValid(origin, position) {
       // check next
-    var map = _scene.world.zone.map
+    var map = scene.world.zone.map
     if (!_allowSolid && map[position]["solid"]) {
       return false
     }
@@ -208,12 +203,12 @@ class TargetQueryState is State {
   }
   update() {
     if (INPUT["reject"].firing) {
-      return PlayerInputState.new(_scene)
+      return previous //PlayerInputState.new()
     }
     if ((INPUT["confirm"].firing || Mouse["left"].justPressed) && targetValid(_origin, _cursorPos)) {
-      var player = _scene.world.getEntityByTag("player")
+      var player = scene.world.getEntityByTag("player")
       player.pushAction(ItemAction.new(_query["item"], [ _cursorPos, _area ]))
-      return PlayerInputState.new(_scene)
+      return PlayerInputState.new()
     }
 
     // TODO handle mouse targeting
@@ -229,66 +224,71 @@ class TargetQueryState is State {
 
     if (_hoverPos) {
       _cursorPos = _hoverPos
-      _scene.process(TargetEvent.new(_cursorPos))
+      scene.process(TargetEvent.new(_cursorPos))
     }
     if (next && cursorValid(_origin, next)) {
       _cursorPos = next
-      _scene.process(TargetEvent.new(_cursorPos))
+      scene.process(TargetEvent.new(_cursorPos))
     }
 
     return this
   }
 }
 
-class ConfirmState is State {
-  construct new(scene) {
+class ConfirmState is SceneState {
+  construct new() {
     super()
-    _scene = scene
-  }
-  onEnter() {
-  }
-  onExit() {
   }
   update() {
     if (INPUT["confirm"].firing) {
       Process.exit()
       return
     } else if (INPUT["reject"].firing) {
-      return PlayerInputState.new(_scene)
+      return previous//PlayerInputState.new()
     }
     return this
   }
 }
 
-class ModalWindowState is State {
-  construct new(scene, window) {
+class ModalWindowState is SceneState {
+  construct new() {
     super()
-    _scene = scene
-    _window = window
   }
-  scene { _scene }
+
   window { _window }
-  onEnter() {
-    var border = 24
-    if (_window == "history") {
-      _window = HistoryViewer.new(Vec.new(border, border), Vec.new(Canvas.width - border*2, Canvas.height - border*2), _scene.messages)
-    } else if (_window == "character") {
-      _window = CharacterViewer.new(Vec.new(border, border), Vec.new(Canvas.width - border*2, Canvas.height - border*2))
+  window=(v) {
+    if (_window) {
+      scene.removeElement(_window)
     }
-    _scene.addElement(_window)
+    _window = v
+    scene.addElement(_window)
+  }
+  onEnter() {
+    var windowType = arg(0)
+    var border = 24
+    if (windowType == "history") {
+      window = HistoryViewer.new(Vec.new(border, border), Vec.new(Canvas.width - border*2, Canvas.height - border*2), scene.messages)
+    } else if (windowType == "character") {
+      window = CharacterViewer.new(Vec.new(border, border), Vec.new(Canvas.width - border*2, Canvas.height - border*2))
+    }
   }
   onExit() {
-    _scene.removeElement(_window)
+    scene.removeElement(_window)
   }
   update() {
     if (INPUT["reject"].firing || INPUT["confirm"].firing) {
-      return PlayerInputState.new(_scene)
+      return previous
+//      return PlayerInputState.new()
     }
     return this
   }
 }
 class HelpState is ModalWindowState {
-  construct new(scene) {
+  construct new() {
+    super()
+    // super(scene, Dialog.new(message))
+  }
+  onEnter() {
     var message = [
         "'Confirm' - Return, Space",
         "'Reject' - Escape, Backspace, Delete",
@@ -305,9 +305,10 @@ class HelpState is ModalWindowState {
         "Inventory - 'i', then number to use/equip/unequip",
         "Drop from Inventory - 'r' then number"
       ]
-    super(scene, Dialog.new(message))
+
+   // _pane = scene.addElement(Pane.new(Vec.new(0, 0), Vec.new(Canvas.width, Canvas.height)))
+    window = Dialog.new(message)
     window.center = false
-    _pane = scene.addElement(Pane.new(Vec.new(0, 0), Vec.new(Canvas.width, Canvas.height)))
   }
   onExit() {
     scene.removeElement(_pane)
@@ -315,13 +316,16 @@ class HelpState is ModalWindowState {
   }
   update() {
     if (INPUT["reject"].firing || INPUT["confirm"].firing) {
-      return PlayerInputState.new(scene)
+      return previous
     }
     return this
   }
 }
 class DialogueState is ModalWindowState {
-  construct new(scene, moment) {
+  construct new() {
+    super()
+  }
+  onEnter() {
     var message = {
       "beforeBoss": [
         ["????: Well well, you made it..."],
@@ -335,9 +339,11 @@ class DialogueState is ModalWindowState {
         ["????: ...starting with you!"]
       ]
     }
+    var moment = arg(0)
     _dialogue = message[moment]
     _index = 0
-    super(scene, Dialog.new(_dialogue[_index] + ["", "Press 'confirm' to continue..."]))
+    super.onEnter()
+    super(Dialog.new(_dialogue[_index] + ["", "Press 'confirm' to continue..."]))
     //_pane = scene.addElement(Pane.new(Vec.new(0, 0), Vec.new(Canvas.width, Canvas.height)))
   }
   onExit() {
@@ -350,30 +356,54 @@ class DialogueState is ModalWindowState {
         _index = _index + 1
         window.setMessage(_dialogue[_index])
       } else {
-        return PlayerInputState.new(scene)
+        return PlayerInputState.new()
       }
     }
     return this
   }
 }
 class GameEndState is ModalWindowState {
-  construct new(scene, message, restart) {
-    super(scene, Dialog.new(message))
-    // scene.addElement(Pane.new(Vec.new(0, 0), Vec.new(Canvas.width, Canvas.height)))
-    _restart = restart
+  construct new() {
+    super()
+  }
+
+  onEnter() {
+    _world = scene.world
+    _message = arg(0)
+    _restart = arg(1)
+    _state = null
+    window = Dialog.new(_message)
+  }
+  changeState(nextState) {
+    if (_state) {
+      _state.onExit()
+    }
+    if (nextState) {
+      nextState.withScene(scene).from(this).onEnter()
+    }
+    _state = nextState
   }
   update() {
+    if (_state) {
+      var result = _state.update()
+      if (result == this) {
+        changeState(null)
+      } else if (_state != result) {
+        changeState(_state)
+      }
+      return this
+    }
     if (INPUT["inventory"].firing) {
-      return InventoryWindowState.new(_scene, "readonly")
+      changeState(InventoryWindowState.new().with("readonly"))
     }
     if (INPUT["log"].firing) {
-      return ModalWindowState.new(_scene, "history")
+      changeState(ModalWindowState.new().with("history"))
     }
     if (INPUT["info"].firing) {
-      return ModalWindowState.new(_scene, "character")
+      changeState(ModalWindowState.new().with("character"))
     }
     if (INPUT["help"].firing) {
-      return HelpState.new(_scene)
+      changeState(HelpState.new())
     }
     if (INPUT["reject"].firing || INPUT["confirm"].firing) {
       scene.game.push(_restart ? GameScene : StartScene)
@@ -382,36 +412,37 @@ class GameEndState is ModalWindowState {
   }
 }
 
-class PlayerInputState is State {
+class PlayerInputState is SceneState {
 
-  construct new(scene) {
+  construct new() {
     super()
-    _scene = scene
+  }
+  onEnter() {
     _world = scene.world
   }
 
   update() {
     if (INPUT["inventory"].firing) {
-      return InventoryWindowState.new(_scene)
+      return InventoryWindowState.new()
     }
     if (INPUT["log"].firing) {
-      return ModalWindowState.new(_scene, "history")
+      return ModalWindowState.new().with("history")
     }
     if (INPUT["info"].firing) {
-      return ModalWindowState.new(_scene, "character")
+      return ModalWindowState.new().with("character")
     }
     if (INPUT["help"].firing) {
-      return HelpState.new(_scene)
+      return HelpState.new()
     }
     /*
     if (INPUT["exit"].firing) {
-      return ConfirmState.new(_scene)
+      return ConfirmState.new()
     }
     */
 
     if (_world.complete) {
       if (INPUT["confirm"].firing) {
-        _scene.game.push(GameScene)
+        scene.game.push(GameScene)
       }
       return this
     }
@@ -431,7 +462,7 @@ class PlayerInputState is State {
       player.pushAction(PrayAction.new())
     }
     if (INPUT["drop"].firing) {
-      return InventoryWindowState.new(_scene, "drop")
+      return InventoryWindowState.new().with("drop")
     }
     if (INPUT["rest"].firing) {
       player.pushAction(RestAction.new())
@@ -459,7 +490,7 @@ class GameScene is Scene {
     _currentText = ""
 
     var player = world.getEntityByTag("player")
-    _state = PlayerInputState.new(this)
+    changeState(PlayerInputState.new())
     addElement(AsciiRenderer.new(Vec.new((Canvas.width - (32 * 16))/2, 16)))
     addElement(HealthBar.new(Vec.new(4, 0), player.ref))
     //addElement(PietyBar.new(Vec.new(4, 16), player.ref))
@@ -491,16 +522,16 @@ class GameScene is Scene {
         message = "You have fallen, but perhaps others will take up your cause."
       }
       _messages.add(message, INK["playerDie"], false)
-      changeState(GameEndState.new(this, [ message, "", "Press 'confirm' to try again" ], restart))
+      changeState(GameEndState.new().with([ [ message, "", "Press 'confirm' to try again" ], restart ]))
     }
     if (event is Events.story) {
       if (event.moment.startsWith("dialogue:")) {
-        changeState(DialogueState.new(this, event.moment[9..-1]))
+        changeState(DialogueState.new().with(event.moment[9..-1]))
       } else if (event.moment == "bossWeaken") {
         _messages.add("As the gargoyle crumbles, ???? pulses with horrible energy.", INK["orange"], true)
       } else if (event.moment == "bossVulnerable") {
         _messages.add("The surface of ???? shatters, revealing a demon(?) encased within.", INK["orange"], true)
-        changeState(DialogueState.new(this, "freeBoss"))
+        changeState(DialogueState.new().with("freeBoss"))
       }
     }
     if (event is ChangeZoneEvent && event.floor == 1) {
@@ -632,9 +663,11 @@ class GameScene is Scene {
   previous { _previousState }
 
   changeState(nextState) {
-    _state.onExit()
-    nextState.onEnter(this)
-    _previousState = _state
+    if (_state) {
+      _state.onExit()
+    }
+    nextState.withScene(this).onEnter()
+    _previousState = _state || nextState
     _state = nextState
   }
 

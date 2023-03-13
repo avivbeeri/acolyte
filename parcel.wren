@@ -655,7 +655,7 @@ class World is Stateful {
     actor.endTurn()
     actor.lastTurn = turn
     //if (actor.state == EntityState.active || actor.pos == null || actor.zone == originalZone) {
-    if (actor.zone == originalZone && actor.state == EntityState.active) {
+    if (actor.pos == null || actor.zone == originalZone && actor.state == EntityState.active) {
       Log.d("%(actor): next turn is  %(turn + action.cost())")
       _queue.add(actorId, turn + action.cost())
     }
