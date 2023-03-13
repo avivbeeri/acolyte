@@ -1,7 +1,7 @@
 import "dome" for Window
 import "jukebox" for Jukebox
 import "parcel" for ParcelMain, Scene, Config
-import "graphics" for Canvas, Font, ImageData
+import "graphics" for Canvas, Font, ImageData, Color
 import "inputs" for VI_SCHEME as INPUT
 import "palette" for INK
 
@@ -17,13 +17,12 @@ class StartScene is Scene {
     ]
     _book = ImageData.load("res/img/book.png")
     _t = 0
-    _i = 0
     _a = 0
   }
 
   update() {
     _t = _t + 1
-    if (_t == 15) {
+    if (_t == 60) {
       Jukebox.playMusic("soundTrack")
     }
     if (INPUT["confirm"].firing) {
@@ -42,11 +41,10 @@ class StartScene is Scene {
         Jukebox.playMusic("soundTrack")
       }
     }
-    var start = 2 * 60
-    if (_t > 2 * 60) {
-      _i = _i + 1
-      var max = (5 * 60)
-      _a = ((_i - start) / max).clamp(0, 1)
+    var start = 3 * 60
+    if (_t > start) {
+      var max = (3 * 60)
+      _a = ((_t - start) / max).clamp(0, 1)
     }
   }
 
@@ -54,17 +52,21 @@ class StartScene is Scene {
   ease(x) {
     return -((Num.pi * x).cos - 1) / 2
   }
-  draw() {
-      Canvas.cls(INK["mainBg"])
-      _book.draw((Canvas.width - _book.width) / 2, (Canvas.height - _book.height) / 2)
-      var v = Config["version"]
-      Canvas.print(v, Canvas.width - 8 - v.count * 8, Canvas.height - 16 , INK["title"])
-      var filter = (_t > 28 && _t < 30 ? INK["white"] : INK["bg"]) * 1
-      //var filter = INK["bg"] * 1
-      filter.a = 255 - 192 * ease(_a)
-      Canvas.rectfill(0, 0, Canvas.width, Canvas.height, filter)
 
-    if (_t > 30) {
+  draw() {
+    Canvas.cls(_t < 58 ? Color.black : INK["mainBg"])
+    _book.draw((Canvas.width - _book.width) / 2, (Canvas.height - _book.height) / 2)
+    var v = Config["version"]
+    Canvas.print(v, Canvas.width - 8 - v.count * 8, Canvas.height - 16 , INK["title"])
+    var filter = (_t > 58 && _t < 60 ? INK["white"] : INK["bg"]) * 1
+    if (_t < 58) {
+      filter = Color.black
+    }
+    //var filter = INK["bg"] * 1
+    filter.a = (255 - 192 * ease(_a)).round
+    Canvas.rectfill(0, 0, Canvas.width, Canvas.height, filter)
+
+    if (_t > 60) {
       var height = _area.reduce(0) {|acc, area| acc + area.y }
       var top = (Canvas.height - height) / 2
       var x0 = (Canvas.width - _area[0].x) / 2

@@ -8,6 +8,7 @@ class JukeboxMode {
   static FADE_TARGET { 3 }
 }
 
+
 var MAX_VOLUME = 1.0
 var VOL_STEP = 0.05
 
@@ -16,7 +17,7 @@ class Jukebox {
     __previousChannel = null
     __currentChannel = null
     __mode = JukeboxMode.NONE
-    __target = MAX_VOLUME * 0.5
+    __target = MAX_VOLUME * 0.3
   }
   static register(name, path) {
     AudioEngine.load(name, path)
@@ -48,7 +49,6 @@ class Jukebox {
     if (__currentChannel == null || __currentChannel.soundId != path) {
       __currentChannel = AudioEngine.play(path)
       __currentChannel.volume = 0
-      __target = MAX_VOLUME
       __currentChannel.loop = true
       __mode = JukeboxMode.FADE
     }
