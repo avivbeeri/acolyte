@@ -240,13 +240,15 @@ class RandomZoneGenerator {
       // place enemy
 
       var valid = false
-      while (!valid) {
+      var attempts = 0
+      while (!valid && attempts < 30) {
         pos.x = RNG.int(zone.map.xRange.from + 1, zone.map.xRange.to - 1)
         pos.y = RNG.int(zone.map.yRange.from + 1, zone.map.yRange.to - 1)
         valid = GeneratorUtils.isValidEntityLocation(zone, pos)
+        attempts = attempts + 1
       }
       var entity = GeneratorUtils.pickEnemy(level)
-      if (entity == null) {
+      if (!valid || entity == null) {
         continue
       }
       entity = entity.new()
@@ -407,10 +409,12 @@ class BasicZoneGenerator {
     var pos = Vec.new()
 
     var valid = false
-    while (!valid) {
+    var attempts = 0
+    while (!valid && attempts < 30) {
       pos.x = RNG.int(room.p0.x + 1, room.p1.x - 1)
       pos.y = RNG.int(room.p0.y + 1, room.p1.y - 1)
       valid = GeneratorUtils.isValidTileLocation(zone, pos) && zone.map.allNeighbours(pos).all {|tile| zone.map.isFloor(tile) }
+      attempts = attempts + 1
     }
     if (valid) {
       zone.map[pos]["solid"] = true
@@ -438,10 +442,12 @@ class BasicZoneGenerator {
   static placeStairs(zone, room) {
     var pos = Vec.new()
     var valid = false
-    while (!valid) {
+    var attempts = 0
+    while (!valid && attempts < 30) {
       pos.x = RNG.int(room.p0.x + 1, room.p1.x - 1)
       pos.y = RNG.int(room.p0.y + 1, room.p1.y - 1)
       valid = GeneratorUtils.isValidTileLocation(zone, pos)
+      attempts = attempts + 1
     }
     zone.map[pos]["stairs"] = "down"
   }

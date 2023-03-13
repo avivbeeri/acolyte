@@ -1,4 +1,4 @@
-idmport "parcel" for Stateful, GameSystem, Event, Line, ChangeZoneEvent, RNG
+import "parcel" for Stateful, GameSystem, Event, Line, ChangeZoneEvent, RNG
 import "events" for Events
 import "entities" for Player
 import "combat" for Modifier
