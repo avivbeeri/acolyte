@@ -729,7 +729,7 @@ class AsciiRenderer is Element {
             "armor": "[",
           }
           var kind = _world["items"][items[0].id].kind
-          Canvas.print(symbolMap[kind], x * 16 + 4, y * 16 + 4, color)
+          printSymbol(symbolMap[kind], x, y, color)
         }
       }
     }
@@ -766,7 +766,6 @@ class AsciiRenderer is Element {
         printEntity(symbol, space, color)
       }
     }
-
 
     Canvas.offset(offset.x, offset.y)
   }
@@ -812,6 +811,19 @@ class TileRenderer is AsciiRenderer {
     _sheet.bg = bg
     if (symbol == "@") {
       _sheet.draw(24, x * 16, y * 16)
+    } else if (symbol == "z") {
+      _sheet.draw((6 * 49) + 28, x * 16, y * 16)
+    } else if (symbol == ".") {
+      _floor = color * 0.33
+      _floor.a = 255
+      _sheet.draw((0 * 49) + 2, x * 16, y * 16, { "foreground": _floor})
+      if (color == INK["blood"]) {
+        _sheet.draw((2 * 49) + 5, x * 16, y * 16)
+      }
+    } else if (symbol == "r") {
+      _sheet.draw((8 * 49) + 31, x * 16, y * 16)
+    } else if (symbol == "\%") {
+      _sheet.draw((15 * 49) + 0, x * 16, y * 16)
     } else if (symbol == "#") {
       _sheet.draw((17 * 49) + 10, x * 16, y * 16)
     } else if (symbol == ">") {
@@ -819,7 +831,9 @@ class TileRenderer is AsciiRenderer {
     } else if (symbol == "<") {
       _sheet.draw((6 * 49) + 2, x * 16, y * 16)
     } else if (symbol == "^") {
-      _sheet.draw((8 * 49) + 0, x * 16, y * 16)
+      _sheet.draw((12 * 49) + 4, x * 16, y * 16,{ "background": Color.none })
+    } else if (symbol == "~") {
+      _sheet.draw((15 * 49) + 34, x * 16, y * 16)
     } else {
       return super.printSymbol(symbol, x, y, color, bg)
     }

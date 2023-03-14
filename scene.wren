@@ -20,7 +20,7 @@ import "./messages" for MessageLog, Pronoun
 import "./ui" for TextComplete, TextChanged, TargetEvent, TargetBeginEvent, TargetEndEvent, HoverEvent, SceneState
 import "./text" for TextSplitter
 import "./renderer" for
-  AsciiRenderer,
+  //AsciiRenderer as Renderer,
   TileRenderer as Renderer,
   HealthBar,
   PietyBar,
