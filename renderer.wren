@@ -499,15 +499,20 @@ class Gauge is Element {
       Scheduler.defer {
         var t = 0
         var start = _value
-        var diff = _targetValue - _value
+        var target = _targetValue
+        var diff = target - start
 
-        while ((_targetValue - _value).abs > 0.1) {
-          _value =  start + diff * Animation.ease(t / 15)
+        while ((target - _value).abs > 0.1) {
+          _value = start + diff * Animation.ease(t / 15)
           t = t + 1
           Scheduler.defer()
         }
-        _value = _targetValue
+        _value = target
         _changing = false
+        // If value changed during fiber defer, recurse
+        if (_value != _targetValue) {
+          animateValues(_targetValue, maxValue)
+        }
       }
     }
   }

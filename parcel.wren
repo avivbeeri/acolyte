@@ -41,13 +41,13 @@ class Scheduler {
 
   static runNext() {
     if (!__deferred.isEmpty && __deferred.peekPriority() <= __tick) {
-      return __deferred.remove().transfer()
+      return __deferred.remove().call()
     }
   }
 
   static runUntilEmpty() {
     while (!__deferred.isEmpty && __deferred.peekPriority() <= __tick) {
-      __deferred.remove().transfer()
+      __deferred.remove().call()
     }
   }
 
@@ -627,10 +627,13 @@ class World is Stateful {
   // Attempt to advance the world by one turn
   // returns true if something changed
   advance() {
+    /*
     if (!_fiber || _fiber.isDone) {
       _fiber = Fiber.new(_fn)
     }
     _fiber.call()
+    */
+    processTurn()
   }
   skipTo(entityType) {
     // TODO: check if player exists?
