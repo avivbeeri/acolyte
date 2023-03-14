@@ -1,4 +1,4 @@
-import "graphics" for Color, Canvas, SpriteSheet
+import "graphics" for Color, Canvas, SpriteSheet, ImageData
 import "math" for Vec
 import "input" for Mouse
 import "messages" for Pronoun
@@ -20,7 +20,7 @@ import "./ui" for
 import "events" for Events
 
 import "./inputs" for VI_SCHEME as INPUT
-import "./entities" for Player
+import "./entities" for Player, Demon
 import "./text" for TextSplitter
 
 var DEBUG = false
@@ -666,6 +666,7 @@ class AsciiRenderer is Element {
   }
 
   world { _world }
+  pos { _pos }
 
   draw() {
     var offset = Canvas.offset
@@ -805,6 +806,7 @@ class TileRenderer is AsciiRenderer {
   construct new(pos) {
     super(pos)
     _sheet = SpriteSheet.load("res/img/tiles-1bit.png", 16)
+    _crystal = ImageData.load("res/img/crystal.png")
     _bg = INK["bg"] * 1
     _bg.a = 128
     _sheet.bg = _bg
@@ -862,5 +864,30 @@ class TileRenderer is AsciiRenderer {
     } else {
       return super.printSymbol(symbol, x, y, color)
     }
+  }
+
+  draw() {
+    var sheetWidth = 49
+    super.draw()
+    var offset = Canvas.offset
+    Canvas.offset(pos.x, pos.y)
+    var demons = world.entities().where {|entity| entity is Demon }.toList
+    if (!demons.isEmpty) {
+      var color = INK["creature"]
+      for (demon in demons) {
+        var center = demon.pos + (demon.size) / 3
+        _sheet.fg = color
+        var sx = center.x * 16
+        var sy = center.y * 16
+        if (demon["conditions"].containsKey("invulnerable")) {
+          _crystal.draw(demon.pos.x * 16, demon.pos.y*16)
+          _sheet.fg = INK["deeppurple"]
+        } else {
+          printSymbolBg(demon["symbol"], center.x, center.y, INK["bg"])
+          _sheet.draw((6 * sheetWidth) + 31, sx, sy)
+        }
+      }
+    }
+    Canvas.offset(offset.x, offset.y)
   }
 }
