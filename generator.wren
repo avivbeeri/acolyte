@@ -127,7 +127,7 @@ class WorldGenerator {
     world.systems.add(DefeatSystem.new())
 
     world.addEntity("player", Player.new())
-    var level = 6
+    var level = 0
     var player = world.getEntityByTag("player")
     player.zone = level
 
@@ -653,8 +653,8 @@ class DiamondRoom {
     _center = center
     var inside = []
     var walls = []
-    for (y in (_center.y - (_radius + 1))...(_center.y + (_radius + 1))) {
-      for (x in (_center.x - (_radius + 1))...(_center.x + (_radius + 1))) {
+    for (y in (_center.y - (_radius + 1))..(_center.y + (_radius + 1))) {
+      for (x in (_center.x - (_radius + 1))..(_center.x + (_radius + 1))) {
         var pos = Vec.new(x, y)
         var dist = (_center - pos).manhattan
         if (dist < _radius) {
