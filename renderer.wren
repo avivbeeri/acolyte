@@ -1,4 +1,4 @@
-import "graphics" for Color, Canvas
+import "graphics" for Color, Canvas, SpriteSheet
 import "math" for Vec
 import "input" for Mouse
 import "messages" for Pronoun
@@ -608,6 +608,8 @@ class AsciiRenderer is Element {
   construct new(pos) {
     super()
     _pos = pos
+    _bg = INK["bg"] * 1
+    _bg.a = 128
   }
   process(event) {
     if (event is TargetBeginEvent) {
@@ -687,32 +689,29 @@ class AsciiRenderer is Element {
             color = Color.red
           }
           if (map[x, y]["cost"]) {
-            Canvas.rectfill(x * 16, y*16, 16, 16, INK["burgandy"])
-            Canvas.print(map[x, y]["cost"], x * 16 + 4, y * 16 + 4, color)
+            printSymbol(map[x, y]["cost"].toString, x, y, color, INK["burgandy"])
           }
         }
         if (map[x, y]["void"]) {
         } else if (map[x, y]["solid"]) {
           if (map[x, y]["altar"]) {
-            Canvas.rectfill(x * 16 + 2, y * 16 + 2, 12, 12, INK["altarBg"])
-            Canvas.print("^", x * 16 + 4, y * 16 + 4, INK["altar"])
+            printSymbol("^", x, y, INK["altar"], INK["altarBg"])
           } else if (map[x, y]["statue"]) {
             var bg = INK["lilac"] * 1
             bg.a = 128
-            Canvas.rectfill(x * 16 + 2, y * 16 + 2, 12, 12, bg)
-            Canvas.print("£", x * 16 + 4, y * 16 + 4, INK["gray"])
+            printSymbol("£", x, y, color, bg)
           } else {
-            Canvas.print("#", x * 16 + 4, y * 16 + 4, color)
+            printSymbol("#", x, y, color)
           }
         } else if (map[x, y]["stairs"]) {
           if (map[x, y]["stairs"] == "down") {
-            Canvas.print(">", x * 16 + 4, y * 16 + 4, INK["downstairs"])
+            printSymbol(">", x, y, INK["downstairs"])
           }
           if (map[x, y]["stairs"] == "up") {
-            Canvas.print("<", x * 16 + 4, y * 16 + 4, INK["upstairs"])
+            printSymbol("<", x, y, INK["upstairs"])
           }
         } else {
-          Canvas.print(".", x * 16 + 4, y * 16 + 4, color)
+          printSymbol(".", x, y, color)
         }
 
         var items = map[x, y]["items"]
@@ -764,7 +763,7 @@ class AsciiRenderer is Element {
           Canvas.rectfill(space.x * 16 + 2, space.y * 16 + 2, 12 * 1, 12 * 1, INK["lilac"])
         }
         //Canvas.print(symbol, space.x * 16 + 4, space.y * 16 + 4, Color.white)
-        printOne(symbol, space, color)
+        printEntity(symbol, space, color)
       }
     }
 
@@ -772,24 +771,57 @@ class AsciiRenderer is Element {
     Canvas.offset(offset.x, offset.y)
   }
 
-  printOne(symbol, pos, color) {
-    var bg = INK["bg"] * 1
-    bg.a = 128
-    Canvas.rectfill(pos.x * 16, pos.y * 16, 16, 16, bg)
-    Canvas.print(symbol, pos.x * 16 + 4, pos.y * 16 + 4, color)
+  printSymbol(symbol, x, y, color, bg) {
+    Canvas.rectfill(x * 16 + 2, y * 16 + 2, 12, 12, bg)
+    Canvas.print(symbol, x * 16 + 4, y * 16 + 4, color)
   }
-  printArea(symbol, start, size, color) {
+  printSymbol(symbol, x, y, color) {
+    printSymbol(symbol, x, y, color, _bg)
+  }
+  printEntity(symbol, pos, color, bg) {
+    printSymbol(symbol, pos.x, pos.y, color)
+  }
+
+  printEntity(symbol, pos, color) {
+    printEntity(symbol, pos, color, _bg)
+  }
+
+  // TODO: is this still needed?
+  printArea(symbol, start, size, color, bg) {
     var corner = start + size
     var maxX = corner.x - 1
     var maxY = corner.y - 1
-    // Canvas.rectfill(start.x * 16, start.y * 16, 16 * size.x, 16 * size.y, bg)
     for (y in start.y..maxY) {
       for (x in start.x..maxX) {
-        printOne(symbol, Vec.new(x, y), color)
-        // Canvas.print(symbol, x * 16 + 4, y * 16 + 4, color)
+        printEntity(symbol, Vec.new(x, y), color, bg)
       }
     }
+  }
+}
 
+class TileRenderer is AsciiRenderer {
+  construct new(pos) {
+    super(pos)
+    _sheet = SpriteSheet.load("res/img/tiles-1bit.png", 16)
+    _bg = INK["bg"] * 1
+    _bg.a = 128
   }
 
+  printSymbol(symbol, x, y, color, bg) {
+    _sheet.fg = color
+    _sheet.bg = bg
+    if (symbol == "@") {
+      _sheet.draw(24, x * 16, y * 16)
+    } else if (symbol == "#") {
+      _sheet.draw((17 * 49) + 10, x * 16, y * 16)
+    } else if (symbol == ">") {
+      _sheet.draw((6 * 49) + 3, x * 16, y * 16)
+    } else if (symbol == "<") {
+      _sheet.draw((6 * 49) + 2, x * 16, y * 16)
+    } else if (symbol == "^") {
+      _sheet.draw((8 * 49) + 0, x * 16, y * 16)
+    } else {
+      return super.printSymbol(symbol, x, y, color, bg)
+    }
+  }
 }
