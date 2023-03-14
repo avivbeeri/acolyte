@@ -163,6 +163,18 @@ class Entity is Stateful {
   }
   endTurn() {}
 
+  spaces {
+    var result = []
+    var d = Vec.new()
+    for (dy in 0...size.y) {
+      for (dx in 0...size.x) {
+        d.x = dx
+        d.y = dy
+        result.add(pos + d)
+      }
+    }
+    return result
+  }
   occupies(vec) { occupies(vec.x, vec.y) }
   occupies(x, y) {
     return pos != null &&

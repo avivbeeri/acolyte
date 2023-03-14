@@ -127,7 +127,7 @@ class WorldGenerator {
     world.systems.add(DefeatSystem.new())
 
     world.addEntity("player", Player.new())
-    var level = 0
+    var level = 6
     var player = world.getEntityByTag("player")
     player.zone = level
 
@@ -493,22 +493,36 @@ class BasicZoneGenerator {
   }
 }
 
+
+
 class StartRoomGenerator {
   static generate(args) {
     var map = TileMap8.new()
-    var center = Vec.new(15, 15)
-    var range = 5
     for (y in 0...32) {
       for (x in 0...32) {
-        var dist = (center - Vec.new(x, y)).manhattan
-        var clear = (dist < range)
-        //var clear = (x >= range && x < 32 - range && y >= range && y < 32 - range)
         map[x,y] = Tile.new({
-          "blocking": !clear,
-          "solid": !clear,
-          "visible": (dist < range + 2) ? "maybe" : false
+          "blocking": true,
+          "solid": true,
         })
       }
+    }
+
+    var center = Vec.new(15, 15)
+    var range = 5
+    var room = DiamondRoom.new(center, range)
+    for (pos in room.inner) {
+      map[pos] = Tile.new({
+        "blocking": false,
+        "solid": false,
+        "visible": "maybe"
+      })
+    }
+    for (pos in room.walls) {
+      map[pos] = Tile.new({
+        "blocking": true,
+        "solid": true,
+        "visible": "maybe"
+      })
     }
 
     var level = args[0]
@@ -528,36 +542,44 @@ class StartRoomGenerator {
 class BossRoomGenerator {
   static generate(args) {
     var map = TileMap8.new()
-    var center = Vec.new(15.50, 15.50)
+    var center = Vec.new(15, 15)
     var range = 9
-    for (y in 0...32) {
-      for (x in 0...32) {
-        var dist = (center - Vec.new(x, y)).length.round
-        var clear = (dist < range)
-        map[x,y] = Tile.new({
-          "blocking": !clear,
-          "solid": !clear,
-          "visible": (dist < range + 2) ? "maybe" : false
-        })
-      }
+    var room = CircleRoom.new(center, range)
+    for (pos in room.inner) {
+      map[pos] = Tile.new({
+        "blocking": false,
+        "solid": false,
+        "visible": "maybe"
+      })
+    }
+    for (pos in room.walls) {
+      map[pos] = Tile.new({
+        "blocking": true,
+        "solid": true,
+        "visible": "maybe"
+      })
     }
 
     var level = args[0]
     var zone = Zone.new(map)
     zone["level"] = level
     zone["entities"] = [ Creatures.demon.new() ]
-    zone["entities"][0].pos = Vec.new(15, 13)
+    zone["entities"][0].pos = Vec.new(14, 12)
 
     for (i in 0...4) {
-      var pos = (center + DIR_EIGHT[4 + i] * 3.5)
+      var pos = (center + DIR_EIGHT[4 + i] * 4)
       zone["entities"].add(Creatures.gargoyle.new())
-      pos.x = pos.x.floor
-      pos.y = pos.y.floor
+      pos.x = pos.x.round
+      pos.y = pos.y.round
       zone["entities"][-1].pos = pos
     }
-    zone.map[Vec.new(14, 20)]["statue"] = true
-    zone.map[Vec.new(14, 20)]["solid"] = true
-    zone.map[Vec.new(14, 20)]["blocking"] = false
+
+    var statues = [ Vec.new(11, 15), Vec.new(19, 15) ]
+    for (statue in statues) {
+      zone.map[statue]["statue"] = true
+      zone.map[statue]["solid"] = true
+      zone.map[statue]["blocking"] = false
+    }
 
     zone["start"] = Vec.new(15, 21)
     zone.map[zone["start"]]["stairs"] = "up"
@@ -599,6 +621,54 @@ class RectangularRoom {
             _p1.y >= other.p0.y
 
   }
+}
+
+class CircleRoom {
+  construct new(center, radius) {
+    _radius = radius
+    _center = center
+
+    var inside = []
+    var walls = []
+    for (y in (_center.y - (_radius + 1))..(_center.y + (_radius + 1))) {
+      for (x in (_center.x - (_radius + 1))..(_center.x + (_radius + 1))) {
+        var pos = Vec.new(x, y)
+        var dist = (_center - pos).length.round
+        if (dist < _radius) {
+          inside.add(pos)
+        } else if (dist < _radius + 1) {
+          walls.add(pos)
+        }
+      }
+    }
+    _inside = inside
+    _walls = walls
+  }
+  inner { _inside }
+  walls { _walls }
+}
+class DiamondRoom {
+  construct new(center, radius) {
+    _radius = radius
+    _center = center
+    var inside = []
+    var walls = []
+    for (y in (_center.y - (_radius + 1))...(_center.y + (_radius + 1))) {
+      for (x in (_center.x - (_radius + 1))...(_center.x + (_radius + 1))) {
+        var pos = Vec.new(x, y)
+        var dist = (_center - pos).manhattan
+        if (dist < _radius) {
+          inside.add(pos)
+        } else if (dist < _radius + 2) {
+          walls.add(pos)
+        }
+      }
+    }
+    _inside = inside
+    _walls = walls
+  }
+  walls { _walls }
+  inner { _inside }
 }
 
 import "./entities" for Player, Creatures

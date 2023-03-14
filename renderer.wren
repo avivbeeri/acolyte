@@ -749,41 +749,44 @@ class AsciiRenderer is Element {
       if (!entity.pos) {
         continue
       }
-      if (map[entity.pos]["visible"] != true) {
-        continue
-      }
 
-      var symbol = entity["symbol"] || entity.name && entity.name[0] || "?"
-      var color = INK["creature"]
-      if (entity["killed"]) {
-        color = (color * 1)
-        color.a = 192
-        symbol = "\%"
+      entity.spaces.where {|space| map[space]["visible"] == true }.each {|space|
+        var symbol = entity["symbol"] || entity.name && entity.name[0] || "?"
+        var color = INK["creature"]
+        if (entity["killed"]) {
+          color = (color * 1)
+          color.a = 192
+          symbol = "\%"
+        }
+        if (entity["frozen"]) {
+          symbol = "£"
+          color = INK["gray"]
+          Canvas.rectfill(space.x * 16 + 2, space.y * 16 + 2, 12 * 1, 12 * 1, INK["lilac"])
+        }
+        //Canvas.print(symbol, space.x * 16 + 4, space.y * 16 + 4, Color.white)
+        printOne(symbol, space, color)
       }
-      if (entity["frozen"]) {
-        symbol = "£"
-        color = INK["gray"]
-        Canvas.rectfill(entity.pos.x * 16 + 2, entity.pos.y * 16 + 2, 12 * entity.size.x, 12 * entity.size.y, INK["lilac"])
-      }
-      //Canvas.print(symbol, entity.pos.x * 16 + 4, entity.pos.y * 16 + 4, Color.white)
-      printArea(symbol, entity.pos, entity.size, color)
     }
 
 
     Canvas.offset(offset.x, offset.y)
   }
 
+  printOne(symbol, pos, color) {
+    var bg = INK["bg"] * 1
+    bg.a = 128
+    Canvas.rectfill(pos.x * 16, pos.y * 16, 16, 16, bg)
+    Canvas.print(symbol, pos.x * 16 + 4, pos.y * 16 + 4, color)
+  }
   printArea(symbol, start, size, color) {
-    color = color || INK["creature"]
     var corner = start + size
     var maxX = corner.x - 1
     var maxY = corner.y - 1
-    var bg = INK["bg"] * 1
-    bg.a = 128
-    Canvas.rectfill(start.x * 16, start.y * 16, 16 * size.x, 16 * size.y, bg)
+    // Canvas.rectfill(start.x * 16, start.y * 16, 16 * size.x, 16 * size.y, bg)
     for (y in start.y..maxY) {
       for (x in start.x..maxX) {
-        Canvas.print(symbol, x * 16 + 4, y * 16 + 4, color)
+        printOne(symbol, Vec.new(x, y), color)
+        // Canvas.print(symbol, x * 16 + 4, y * 16 + 4, color)
       }
     }
 
