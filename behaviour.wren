@@ -197,7 +197,7 @@ class LocalSeekBehaviour is SeekBehaviour {
   }
   update(ctx, actor) {
     var player = ctx.getEntityByTag("player")
-    if (!player) {
+    if (!player || player["map"] == null) {
       return false
     }
     var dpath = player["map"][0]

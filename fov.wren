@@ -122,7 +122,6 @@ class Row {
 
   static roundTiesUp(n) { (n+0.5).floor }
   static roundTiesDown(n) { (n - 0.5).ceil }
-
 }
 
 class Vision2 {
@@ -208,6 +207,20 @@ class Vision2 {
       return
     }
     _map[x.floor, y.floor]["visible"] = true
+    var pos = Vec.new(x.floor, y.floor)
+    var diag = [
+      Vec.new(-1, -1),
+      Vec.new(-1, 1),
+      Vec.new(1, 1),
+      Vec.new(1, -1)
+    ]
+
+    for (dir in diag) {
+      if (_map[pos + dir]["solid"] && _map[pos + dir]["visible"]) {
+        _map[pos.x + dir.x, pos.y]["visible"] = true
+        _map[pos.x, pos.y + dir.y]["visible"] = true
+      }
+    }
   }
 }
 

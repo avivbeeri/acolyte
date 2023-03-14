@@ -806,6 +806,7 @@ class TileRenderer is AsciiRenderer {
   construct new(pos) {
     super(pos)
     _sheet = SpriteSheet.load("res/img/tiles-1bit.png", 16)
+    _caves = SpriteSheet.load("res/img/caves.png", 16)
     _crystal = ImageData.load("res/img/crystal.png")
     _bg = INK["bg"] * 1
     _bg.a = 128
@@ -815,6 +816,7 @@ class TileRenderer is AsciiRenderer {
   printSymbolBg(symbol, x, y, color) {}
   printSymbol(symbol, x, y, color) {
     _sheet.fg = color
+    _caves.fg = color
     var sx = x * 16
     var sy = y * 16
     var sheetWidth = 49
@@ -860,6 +862,27 @@ class TileRenderer is AsciiRenderer {
         }
       } else if (symbol == "#") {
         _sheet.draw((17 * sheetWidth) + 10, sx, sy)
+      }
+    } else if (world.zoneIndex < 7) {
+      if (symbol == ".") {
+        _floor = color * 0.33
+        _floor.a = 255
+        _sheet.draw((0 * sheetWidth) + 2, sx, sy, { "foreground": _floor})
+        if (color == INK["blood"]) {
+          _sheet.draw((2 * sheetWidth) + 5, sx, sy)
+        }
+      } else if (symbol == "#") {
+        var tileX = 0 // starts at (0, 20)
+        var tileY = 0
+        var map = world.zone.map
+        var north = map[x, y - 1]["solid"] ? 0 : 1
+        var south = map[x, y + 1]["solid"] ? 0 : 1
+        var east = map[x + 1, y]["solid"] ? 0 : 1
+        var west = map[x - 1, y]["solid"] ? 0 : 1
+        var index = (west << 3) | (south << 2) | (east << 1) | north
+        //Canvas.print(index, sx, sy, color)
+        _caves.draw(index, sx, sy)
+        //_sheet.draw((17 * sheetWidth) + 10, sx, sy)
       }
     } else {
       return super.printSymbol(symbol, x, y, color)
