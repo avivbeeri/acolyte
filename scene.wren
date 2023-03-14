@@ -243,7 +243,7 @@ class ConfirmState is SceneState {
       Process.exit()
       return
     } else if (INPUT["reject"].firing) {
-      return previous//PlayerInputState.new()
+      return previous
     }
     return this
   }
@@ -277,7 +277,6 @@ class ModalWindowState is SceneState {
   update() {
     if (INPUT["reject"].firing || INPUT["confirm"].firing) {
       return previous
-//      return PlayerInputState.new()
     }
     return this
   }
@@ -305,7 +304,6 @@ class HelpState is ModalWindowState {
         "Drop from Inventory - 'r' then number"
       ]
 
-   // _pane = scene.addElement(Pane.new(Vec.new(0, 0), Vec.new(Canvas.width, Canvas.height)))
     window = Dialog.new(message)
     window.center = false
   }
@@ -343,11 +341,9 @@ class DialogueState is ModalWindowState {
     _index = 0
     super.onEnter()
     window = Dialog.new(_dialogue[_index] + ["", "Press 'confirm' to continue..."])
-    //_pane = scene.addElement(Pane.new(Vec.new(0, 0), Vec.new(Canvas.width, Canvas.height)))
   }
   onExit() {
     super.onExit()
-    //scene.removeElement(_pane)
   }
   update() {
     if (INPUT["reject"].firing || INPUT["confirm"].firing) {
@@ -668,8 +664,8 @@ class GameScene is Scene {
     if (_state) {
       _state.onExit()
     }
-    nextState.withScene(this).onEnter()
     _previousState = _state || nextState
+    nextState.withScene(this).onEnter()
     _state = nextState
   }
 
