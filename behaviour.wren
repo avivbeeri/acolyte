@@ -4,6 +4,7 @@ import "parcel" for
   BehaviourEntity,
   GameSystem,
   JPS,
+  AStar,
   Stateful,
   DIR_EIGHT,
   RNG,
@@ -16,8 +17,9 @@ class Behaviour is GameSystem {
   }
   pathTo(ctx, start, end) {
     var map = ctx.zone
-    var search = JPS.search(map, start, end)
-    var path = JPS.buildPath(map, start, end, search)
+    var path = AStar.search(map, start, end)
+    //var search = JPS.search(map, start, end)
+    //var path = JPS.buildPath(map, start, end, search)
     return path
   }
 

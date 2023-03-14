@@ -1212,7 +1212,13 @@ class AStar {
   static heuristic(a, b) {
     return (b - a).manhattan
   }
-  static search(map, start, goal) {
+  static search(zone, start, goal) {
+    var map
+    if (zone is TileMap) {
+      map = zone
+    } else if (zone is Zone) {
+      map = zone.map
+    }
     if (goal == null) {
       Fiber.abort("AStarSearch doesn't work without a goal")
     }

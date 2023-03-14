@@ -171,7 +171,7 @@ class Dialog is Pane {
       message = [ message ]
     }
     var width = TextSplitter.getWidth(message)
-    var maxWidth = (2 * (Canvas.width / 3)).ceil
+    var maxWidth = ((Canvas.width / 2)).ceil
     _message = TextSplitter.split(message, maxWidth)
     size = Vec.new(((width + 4) * 8).min(maxWidth), (2 + _message.count) * _height)
     pos = (Vec.new(Canvas.width, Canvas.height) - size) / 2
@@ -665,6 +665,8 @@ class AsciiRenderer is Element {
     }
   }
 
+  world { _world }
+
   draw() {
     var offset = Canvas.offset
     Canvas.offset(_pos.x,_pos.y)
@@ -689,17 +691,20 @@ class AsciiRenderer is Element {
             color = Color.red
           }
           if (map[x, y]["cost"]) {
-            printSymbol(map[x, y]["cost"].toString, x, y, color, INK["burgandy"])
+            printSymbolBg(map[x, y]["cost"].toString, x, y, INK["burgandy"])
+            printSymbol(map[x, y]["cost"].toString, x, y, color)
           }
         }
         if (map[x, y]["void"]) {
         } else if (map[x, y]["solid"]) {
           if (map[x, y]["altar"]) {
-            printSymbol("^", x, y, INK["altar"], INK["altarBg"])
+            printSymbolBg("^", x, y, INK["altarBg"])
+            printSymbol("^", x, y, INK["altar"])
           } else if (map[x, y]["statue"]) {
             var bg = INK["lilac"] * 1
             bg.a = 128
-            printSymbol("£", x, y, color, bg)
+            printSymbolBg("£", x, y, bg)
+            printSymbol("£", x, y, color)
           } else {
             printSymbol("#", x, y, color)
           }
@@ -758,9 +763,11 @@ class AsciiRenderer is Element {
           symbol = "\%"
         }
         if (entity["frozen"]) {
+          color = INK["wall"]
           symbol = "£"
-          color = INK["gray"]
-          Canvas.rectfill(space.x * 16 + 2, space.y * 16 + 2, 12 * 1, 12 * 1, INK["lilac"])
+          var bg = INK["bg"] * 1
+          bg.a = 128
+          printSymbolBg("£", space.x, space.y, bg)
         }
         //Canvas.print(symbol, space.x * 16 + 4, space.y * 16 + 4, Color.white)
         printEntity(symbol, space, color)
@@ -770,19 +777,15 @@ class AsciiRenderer is Element {
     Canvas.offset(offset.x, offset.y)
   }
 
-  printSymbol(symbol, x, y, color, bg) {
+  printSymbolBg(symbol, x, y, bg) {
     Canvas.rectfill(x * 16 + 2, y * 16 + 2, 12, 12, bg)
-    Canvas.print(symbol, x * 16 + 4, y * 16 + 4, color)
   }
   printSymbol(symbol, x, y, color) {
-    printSymbol(symbol, x, y, color, _bg)
-  }
-  printEntity(symbol, pos, color, bg) {
-    printSymbol(symbol, pos.x, pos.y, color)
+    Canvas.print(symbol, x * 16 + 4, y * 16 + 4, color)
   }
 
   printEntity(symbol, pos, color) {
-    printEntity(symbol, pos, color, _bg)
+    printSymbol(symbol, pos.x, pos.y, color)
   }
 
   // TODO: is this still needed?
@@ -804,38 +807,60 @@ class TileRenderer is AsciiRenderer {
     _sheet = SpriteSheet.load("res/img/tiles-1bit.png", 16)
     _bg = INK["bg"] * 1
     _bg.a = 128
+    _sheet.bg = _bg
   }
 
-  printSymbol(symbol, x, y, color, bg) {
+  printSymbolBg(symbol, x, y, color) {}
+  printSymbol(symbol, x, y, color) {
     _sheet.fg = color
-    _sheet.bg = bg
+    var sx = x * 16
+    var sy = y * 16
+    var sheetWidth = 49
     if (symbol == "@") {
-      _sheet.draw(24, x * 16, y * 16)
+      _sheet.draw(24, sx, sy)
     } else if (symbol == "z") {
-      _sheet.draw((6 * 49) + 28, x * 16, y * 16)
-    } else if (symbol == ".") {
-      _floor = color * 0.33
-      _floor.a = 255
-      _sheet.draw((0 * 49) + 2, x * 16, y * 16, { "foreground": _floor})
-      if (color == INK["blood"]) {
-        _sheet.draw((2 * 49) + 5, x * 16, y * 16)
-      }
+      _sheet.draw((6 * sheetWidth) + 28, sx, sy)
     } else if (symbol == "r") {
-      _sheet.draw((8 * 49) + 31, x * 16, y * 16)
+      _sheet.draw((8 * sheetWidth) + 31, sx, sy)
+    } else if (symbol == "d") {
+      _sheet.draw((7 * sheetWidth) + 31, sx, sy)
+    } else if (symbol == "G") {
+      _sheet.draw((3 * sheetWidth) + 27, sx, sy)
+    } else if (symbol == "D") {
+      _sheet.draw((6 * sheetWidth) + 31, sx, sy)
+    } else if (symbol == "£") {
+      _sheet.draw((3 * sheetWidth) + 26, sx, sy)
     } else if (symbol == "\%") {
-      _sheet.draw((15 * 49) + 0, x * 16, y * 16)
-    } else if (symbol == "#") {
-      _sheet.draw((17 * 49) + 10, x * 16, y * 16)
+      _sheet.draw((15 * sheetWidth) + 0, sx, sy)
     } else if (symbol == ">") {
-      _sheet.draw((6 * 49) + 3, x * 16, y * 16)
+      _sheet.draw((6 * sheetWidth) + 3, sx, sy)
     } else if (symbol == "<") {
-      _sheet.draw((6 * 49) + 2, x * 16, y * 16)
+      _sheet.draw((6 * sheetWidth) + 2, sx, sy)
     } else if (symbol == "^") {
-      _sheet.draw((12 * 49) + 4, x * 16, y * 16,{ "background": Color.none })
+      _sheet.draw((12 * sheetWidth) + 4, sx, sy,{ "background": Color.none })
     } else if (symbol == "~") {
-      _sheet.draw((15 * 49) + 34, x * 16, y * 16)
+      _sheet.draw((15 * sheetWidth) + 34, sx, sy)
+    } else if (symbol == "!") {
+      _sheet.draw((14 * sheetWidth) + 33, sx, sy)
+    } else if (symbol == "/") {
+      _sheet.draw((8 * sheetWidth) + 32, sx, sy)
+    } else if (symbol == "[") {
+      _sheet.draw((1 * sheetWidth) + 32, sx, sy)
+    } else if (symbol == "}") {
+      _sheet.draw((4 * sheetWidth) + 37, sx, sy)
+    } else if (world.zoneIndex < 3) {
+      if (symbol == ".") {
+        _floor = color * 0.33
+        _floor.a = 255
+        _sheet.draw((0 * sheetWidth) + 2, sx, sy, { "foreground": _floor})
+        if (color == INK["blood"]) {
+          _sheet.draw((2 * sheetWidth) + 5, sx, sy)
+        }
+      } else if (symbol == "#") {
+        _sheet.draw((17 * sheetWidth) + 10, sx, sy)
+      }
     } else {
-      return super.printSymbol(symbol, x, y, color, bg)
+      return super.printSymbol(symbol, x, y, color)
     }
   }
 }
