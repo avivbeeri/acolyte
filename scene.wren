@@ -477,9 +477,11 @@ class PlayerInputState is SceneState {
 }
 
 class GameScene is Scene {
+  data { _data }
   construct new(args) {
     super(args)
     _t = 0
+    _data = {}
     _messages = MessageLog.new()
 
     var world = _world = WorldGenerator.create()
@@ -655,6 +657,9 @@ class GameScene is Scene {
     _world.advance()
     for (event in _world.events) {
       process(event)
+    }
+    if (_world.complete) {
+      _world.events.clear()
     }
   }
 

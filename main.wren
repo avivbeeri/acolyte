@@ -1,14 +1,15 @@
 import "dome" for Window
 import "jukebox" for Jukebox
 import "graphics" for Canvas, Font, ImageData, Color
-import "parcel" for ParcelMain, Scene, Config, Scheduler
+import "parcel" for ParcelMain, Scene, Config
 import "inputs" for VI_SCHEME as INPUT
 import "palette" for INK
+import "ui" for Animation
 
 class StartScene is Scene {
   construct new(args) {
     super(args)
-    Window.color = INK["bg"]
+    Window.color = Color.black
     Jukebox.register("soundTrack", "res/audio/soundtrack.ogg")
     Font.load("nightmare", "res/fonts/nightmare.ttf", 128)
     _area = [
@@ -46,11 +47,9 @@ class StartScene is Scene {
       var max = (3 * 60)
       _a = ((_t - start) / max).clamp(0, 1)
     }
-  }
-
-
-  ease(x) {
-    return -((Num.pi * x).cos - 1) / 2
+    if (_t == 60) {
+      Window.color = INK["bg"]
+    }
   }
 
   draw() {
@@ -63,7 +62,7 @@ class StartScene is Scene {
       filter = Color.black
     }
     //var filter = INK["bg"] * 1
-    filter.a = (255 - 192 * ease(_a)).round
+    filter.a = (255 - 192 * Animation.ease(_a)).round
     Canvas.rectfill(0, 0, Canvas.width, Canvas.height, filter)
 
     if (_t > 60) {

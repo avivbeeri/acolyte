@@ -16,6 +16,7 @@ class Jukebox {
     __previousChannel = null
     __currentChannel = null
     __mode = JukeboxMode.NONE
+    __target = MAX_VOLUME * 0.5
   }
   static register(name, path) {
     AudioEngine.load(name, path)

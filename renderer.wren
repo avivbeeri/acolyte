@@ -3,6 +3,7 @@ import "math" for Vec
 import "input" for Mouse
 import "messages" for Pronoun
 import "./parcel" for
+  Scheduler,
   Element,
   Event,
   Entity,
@@ -11,16 +12,16 @@ import "./parcel" for
 import "./palette" for INK
 import "./items" for Item
 import "./ui" for
+  Animation,
   HoverEvent,
   TargetEvent,
   TargetBeginEvent,
   TargetEndEvent
+import "events" for Events
 
 import "./inputs" for VI_SCHEME as INPUT
 import "./entities" for Player
 import "./text" for TextSplitter
-//SCROLL_UP, SCROLL_DOWN, SCROLL_BEGIN, SCROLL_END
-
 
 var DEBUG = false
 
@@ -486,10 +487,36 @@ class Gauge is Element {
     _segments = segments
     _value = value
     _maxValue = maxValue
+    _targetValue = value
+    _changing = false
   }
 
-  value { _value }
-  value=(v) { _value = v }
+  animateValues(value, maxValue) {
+    _maxValue = maxValue
+    _targetValue = value
+    if (_targetValue != _value && !_changing) {
+      _changing = true
+      Scheduler.defer {
+        var t = 0
+        var start = _value
+        var diff = _targetValue - _value
+
+        while ((_targetValue - _value).abs > 0.1) {
+          _value =  start + diff * Animation.ease(t / 15)
+          t = t + 1
+          Scheduler.defer()
+        }
+        _value = _targetValue
+        _changing = false
+      }
+    }
+  }
+
+  value { _targetValue }
+  value=(v) {
+    _targetValue = v
+    _value = v
+  }
   maxValue { _maxValue }
   maxValue=(v) { _maxValue = v }
 
@@ -505,7 +532,7 @@ class Gauge is Element {
 
     Canvas.rectfill(0, 2, width * 16, 12, INK["barEmpty"])
     Canvas.rectfill(0, 2, current * 16, 12, INK["barFilled"])
-    Canvas.print("%(_label): %(_value) / %(_maxValue)", 4, 4, INK["barText"])
+    Canvas.print("%(_label): %(_targetValue) / %(_maxValue)", 4, 4, INK["barText"])
 
     Canvas.offset(offset.x, offset.y)
   }
@@ -540,14 +567,29 @@ class HealthBar is Element {
     _gauge = addElement(Gauge.new(_pos, "HP", 5, 5, 10))
   }
 
-  update() {
-    super.update()
-    _world = parent.world
+  process(event) {
+    if (event is Events.attack && event.target.id == _entity.id) {
+      updateValue()
+    }
+  }
+
+  updateValue() {
     var stats = _world.getEntityById(_entity)["stats"]
     var hp = stats.get("hp")
     var hpMax = stats.get("hpMax")
-    _gauge.value = hp
-    _gauge.maxValue = hpMax
+    _gauge.animateValues(hp, hpMax)
+  }
+
+  update() {
+    super.update()
+    if (!_world) {
+      _world = parent.world
+      var stats = _world.getEntityById(_entity)["stats"]
+      var hp = stats.get("hp")
+      var hpMax = stats.get("hpMax")
+      _gauge.maxValue = hpMax
+      _gauge.value = hp
+    }
   }
 
   draw() {

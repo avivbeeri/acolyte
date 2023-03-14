@@ -5,42 +5,57 @@ import "math" for Vec, Elegant, M
 import "json" for Json
 import "random" for Random
 import "jukebox" for Jukebox
-
 import "input" for Keyboard, Clipboard
 
 class Scheduler {
-  static init_() {
-    __waiting = Queue.new()
+  static init() {
+    __deferred = PriorityQueue.min()
+    __tick = 0
   }
-  static yield() {
+
+  static defer() {
     var current = Fiber.current
-    __waiting.add(current)
+    __deferred.add(current, __tick + 1)
     Fiber.yield()
   }
 
-  static runNext() {
-    if (!__waiting.isEmpty) {
-      var fiber = __waiting.remove()
-      return fiber.transfer()
-    }
-  }
-  static runUntilEmpty() {
-    while (!__waiting.isEmpty) {
-      var fiber = __waiting.get()
-      fiber.transfer()
-    }
-  }
-  static update(fn) {
-    Fiber.new(fn).call()
-  }
-  static schedule(fn) {
-    __waiting.add(Fiber.new {
-      fn
+  static defer(fn) {
+    __deferred.add(Fiber.new {
+      fn.call()
       runNext()
-    })
+    }, __tick + 1)
+  }
+
+  static deferBy(tick) {
+    var current = Fiber.current
+    __deferred.add(current, (__tick + tick).max(__tick + 1))
+    Fiber.yield()
+  }
+
+  static deferBy(tick, fn) {
+    __deferred.add(Fiber.new {
+      fn.call()
+      runNext()
+    }, (__tick + tick).max(__tick + 1))
+  }
+
+  static runNext() {
+    if (!__deferred.isEmpty && __deferred.peekPriority() <= __tick) {
+      return __deferred.remove().transfer()
+    }
+  }
+
+  static runUntilEmpty() {
+    while (!__deferred.isEmpty && __deferred.peekPriority() <= __tick) {
+      __deferred.remove().transfer()
+    }
+  }
+
+  static tick() {
+    __tick = __tick + 1
+    runNext()
   }
 }
-Scheduler.init_()
 
 var SCALE = 1
 var MAX_TURN_SIZE = 30
@@ -445,7 +460,7 @@ class World is Stateful {
         if (complete) {
           break
         }
-        Scheduler.yield()
+        Fiber.yield()
       }
     }
     _fiber = null
@@ -600,18 +615,10 @@ class World is Stateful {
   // Attempt to advance the world by one turn
   // returns true if something changed
   advance() {
-    Scheduler.update {
-      while (!complete) {
-        processTurn()
-        Scheduler.yield()
-      }
-    }
-    /*
     if (!_fiber || _fiber.isDone) {
       _fiber = Fiber.new(_fn)
     }
     _fiber.call()
-    */
   }
   skipTo(entityType) {
     // TODO: check if player exists?
@@ -812,14 +819,13 @@ class ParcelMain {
 
   init() {
     Window.resize(Canvas.width * SCALE, Canvas.height * SCALE)
-    Scheduler.update {
-      push(_initial, _args)
-    }
+
+    Scheduler.init()
+    push(_initial, _args)
     Scheduler.runUntilEmpty()
   }
 
   update() {
-    Jukebox.update()
     if (Keyboard["F12"].justPressed) {
       Process.exit()
       return
@@ -832,14 +838,12 @@ class ParcelMain {
       Process.exit()
       return
     }
-    Scheduler.update {
-      return _scene.update()
-    }
-    Scheduler.runNext()
+    Jukebox.update()
+    Scheduler.tick()
+    _scene.update()
   }
   draw(dt) {
-    if (_scene == null) {
-    } else {
+    if (_scene != null) {
       _scene.draw()
     }
   }

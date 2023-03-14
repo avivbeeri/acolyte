@@ -4,6 +4,12 @@ import "parcel" for
   Event
 import "inputs" for VI_SCHEME as INPUT
 
+class Animation {
+  static ease(x) {
+    return -((Num.pi * x).cos - 1) / 2
+  }
+}
+
 class SceneState is State {
   construct new() {
     super()
