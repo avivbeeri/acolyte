@@ -11,7 +11,7 @@ import "./parcel" for
   ChangeZoneEvent,
   Palette
 import "./palette" for INK
-import "./items" for Item
+import "./items" for Item, EquipmentSlot
 import "./ui" for
   Animation,
   HoverEvent,
@@ -847,9 +847,51 @@ class TileRenderer is AsciiRenderer {
     _sheet = SpriteSheet.load("res/img/tiles-1bit.png", 16)
     _caves = SpriteSheet.load("res/img/caves.png", 16)
     _crystal = ImageData.load("res/img/crystal.png")
+    _protag = SpriteSheet.load("res/img/protagonist.png", 16)
     _bg = INK["bg"] * 1
     _bg.a = 128
     _sheet.bg = _bg
+  }
+
+  drawPlayer(x, y, color) {
+    var player = world.getEntityByTag("player")
+    if (!player) {
+      return
+    }
+    var sx = x * 16
+    var sy = y * 16
+    _protag.fg = color
+    var armor = player["equipment"][EquipmentSlot.armor]
+    var weapon = player["equipment"][EquipmentSlot.weapon]
+    var shield = player["equipment"][EquipmentSlot.offhand]
+
+    // Head (armor)
+    if (!armor) {
+      _protag.draw(12, sx, sy)
+    } else if (armor == "leather armor") {
+      _protag.draw(15, sx, sy)
+    } else if (armor == "chainmail") {
+      _protag.draw(13, sx, sy)
+    } else if (armor == "platemail") {
+      _protag.draw(14, sx, sy)
+    }
+
+    // right arm
+    if (!weapon) {
+      _protag.draw(5, sx, sy)
+    } else if (weapon == "dagger") {
+      _protag.draw(4, sx, sy)
+    } else if (weapon == "shortsword") {
+      _protag.draw(8, sx, sy)
+    } else if (weapon == "longsword") {
+      _protag.draw(9, sx, sy)
+    }
+    // Left arm
+    if (!shield) {
+      _protag.draw(0, sx, sy)
+    } else {
+      _protag.draw(2, sx, sy)
+    }
   }
 
   printSymbolBg(symbol, x, y, color) {}
@@ -860,7 +902,8 @@ class TileRenderer is AsciiRenderer {
     var sy = y * 16
     var sheetWidth = 49
     if (symbol == "@") {
-      _sheet.drawFrom(24, 0, sx, sy)
+      drawPlayer(x, y, color)
+      //_sheet.drawFrom(24, 0, sx, sy)
     } else if (symbol == "z") {
       _sheet.drawFrom(28, 6, sx, sy)
     } else if (symbol == "r") {
