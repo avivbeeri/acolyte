@@ -609,6 +609,35 @@ class HealthBar is Element {
   }
 }
 
+class Renderer is Element {
+  construct new(pos) {
+    super()
+    _renderers = [
+      AsciiRenderer.new(pos),
+      TileRenderer.new(pos)
+    ]
+    _index = 0
+  }
+  parent=(v) {
+    for (renderer in _renderers) {
+      renderer.parent = v
+    }
+  }
+  next() {
+    _index = (_index + 1) % _renderers.count
+  }
+  update() {
+    _renderers[_index].update()
+  }
+  process(event) {
+    _renderers[_index].process(event)
+  }
+  draw() {
+    _renderers[_index].draw()
+  }
+
+
+}
 class AsciiRenderer is Element {
   construct new(pos) {
     super()
