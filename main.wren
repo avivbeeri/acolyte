@@ -1,7 +1,7 @@
 import "dome" for Window
 import "jukebox" for Jukebox
 import "graphics" for Canvas, Font, ImageData, Color
-import "parcel" for ParcelMain, Scene, Config
+import "parcel" for ParcelMain, Scene, Config, Scheduler
 import "inputs" for VI_SCHEME as INPUT
 import "palette" for INK
 import "ui" for Animation
@@ -19,13 +19,21 @@ class StartScene is Scene {
     _book = ImageData.load("res/img/book.png")
     _t = 0
     _a = 0
+
+    Scheduler.deferBy(60) {
+      Jukebox.playMusic("soundTrack")
+      Window.color = INK["bg"]
+    }
+
+    var start = 3 * 60
+    Scheduler.deferBy(start) {
+      var max = (3 * 60) // different from start
+      _a = ((_t - start) / max).clamp(0, 1)
+    }
   }
 
   update() {
     _t = _t + 1
-    if (_t == 60) {
-      Jukebox.playMusic("soundTrack")
-    }
     if (INPUT["confirm"].firing) {
       game.push(GameScene)
     }
@@ -41,14 +49,6 @@ class StartScene is Scene {
       } else {
         Jukebox.playMusic("soundTrack")
       }
-    }
-    var start = 3 * 60
-    if (_t > start) {
-      var max = (3 * 60)
-      _a = ((_t - start) / max).clamp(0, 1)
-    }
-    if (_t == 60) {
-      Window.color = INK["bg"]
     }
   }
 

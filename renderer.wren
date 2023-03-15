@@ -3,6 +3,7 @@ import "math" for Vec
 import "input" for Mouse
 import "messages" for Pronoun
 import "./parcel" for
+  Config,
   Scheduler,
   Element,
   Event,
@@ -505,7 +506,7 @@ class Gauge is Element {
         while ((target - _value).abs > 0.1) {
           _value = start + diff * Animation.ease(t / 15)
           t = t + 1
-          Scheduler.defer()
+          Fiber.yield()
         }
         _value = target
         _changing = false
@@ -616,7 +617,7 @@ class Renderer is Element {
       AsciiRenderer.new(pos),
       TileRenderer.new(pos)
     ]
-    _index = 0
+    _index = Config["tiles"] ? 1 : 0
   }
   parent=(v) {
     for (renderer in _renderers) {

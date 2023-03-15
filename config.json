@@ -2,6 +2,7 @@
   "title": "Acolyte's Pledge",
   "logLevel": "INFO",
   "version": "0.0.8",
-  "scale": 2.5,
-  "integer": false
+  "scale": 2,
+  "integer": false,
+  "tiles": true
 }

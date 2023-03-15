@@ -13,11 +13,12 @@ class Scheduler {
     __tick = 0
   }
 
+  /*
   static defer() {
-    var current = Fiber.current
-    __deferred.add(current, __tick + 1)
+    __deferred.add(Fiber.current, __tick + 1)
     Fiber.yield()
   }
+  */
 
   static defer(fn) {
     __deferred.add(Fiber.new {
@@ -26,11 +27,12 @@ class Scheduler {
     }, __tick + 1)
   }
 
+  /*
   static deferBy(tick) {
-    var current = Fiber.current
-    __deferred.add(current, (__tick + tick).max(__tick + 1))
+    __deferred.add(Fiber.current, (__tick + tick).max(__tick + 1))
     Fiber.yield()
   }
+  */
 
   static deferBy(tick, fn) {
     __deferred.add(Fiber.new {
@@ -41,13 +43,21 @@ class Scheduler {
 
   static runNext() {
     if (!__deferred.isEmpty && __deferred.peekPriority() <= __tick) {
-      return __deferred.remove().call()
+      var fiber = __deferred.remove()
+      if (!fiber.isDone) {
+        fiber.call()
+        __deferred.add(fiber, __tick + 1)
+      }
     }
   }
 
   static runUntilEmpty() {
     while (!__deferred.isEmpty && __deferred.peekPriority() <= __tick) {
-      __deferred.remove().call()
+      var fiber = __deferred.remove()
+      if (!fiber.isDone) {
+        fiber.call()
+        __deferred.add(fiber, __tick + 1)
+      }
     }
   }
 
