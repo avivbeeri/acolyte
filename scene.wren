@@ -33,7 +33,7 @@ import "./renderer" for
   HintText,
   Dialog
 
-import "./actions" for BumpAction, PrayAction, RestAction, DescendAction, StrikeAttackAction
+import "./actions" for BumpAction, PrayAction, RestAction, DescendAction, StrikeAttackAction, InteractAction
 import "./events" for Events,RestEvent, PickupEvent, UseItemEvent, LightningEvent
 import "./generator" for WorldGenerator
 import "./combat" for AttackEvent, DefeatEvent, HealEvent, AttackResult
@@ -462,6 +462,9 @@ class PlayerInputState is SceneState {
     }
     if (INPUT["drop"].firing) {
       return InventoryWindowState.new().with("drop")
+    }
+    if (INPUT["interact"].firing) {
+      player.pushAction(InteractAction.new())
     }
     if (INPUT["rest"].firing) {
       player.pushAction(RestAction.new())

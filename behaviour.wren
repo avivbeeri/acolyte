@@ -201,7 +201,7 @@ class LocalSeekBehaviour is SeekBehaviour {
       return false
     }
     var dpath = player["map"][0]
-    if (dpath[actor.pos] > _range) {
+    if (!dpath[actor.pos] || dpath[actor.pos] > _range) {
       return false
     }
     return super.update(ctx, actor)

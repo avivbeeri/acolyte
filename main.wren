@@ -4,6 +4,7 @@ import "jukebox" for Jukebox
 import "graphics" for Canvas, Font, ImageData, Color
 import "parcel" for ParcelMain, Scene, Config, Scheduler
 import "inputs" for VI_SCHEME as INPUT
+import "input" for Mouse
 import "palette" for INK
 import "ui" for Animation
 import "renderer" for HintText
@@ -36,7 +37,7 @@ class StartScene is Scene {
 
   update() {
     _t = _t + 1
-    if (INPUT["confirm"].firing) {
+    if (INPUT["confirm"].firing || Mouse["left"].justPressed) {
       game.push(GameScene)
     }
     if (INPUT["volUp"].firing) {

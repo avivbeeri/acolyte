@@ -341,6 +341,26 @@ class BumpAction is Action {
     return ActionResult.alternate(SimpleMoveAction.new(_dir))
   }
 }
+class InteractAction is Action {
+  construct new() {
+    super()
+  }
+  evaluate() {
+    var tile = ctx.zone.map[src.pos]
+    if (ctx.entities().any{|other| other.occupies(src.pos) && other["conditions"]["unconscious"] }) {
+      return ActionResult.alternate(StrikeAttackAction.new())
+    }
+    if (tile["items"] && !tile["items"].isEmpty) {
+      return ActionResult.alternate(PickupAction.new())
+    }
+    if (tile["stairs"] == "down") {
+      return ActionResult.alternate(DescendAction.new())
+    }
+
+    return ActionResult.invalid
+  }
+}
 
 import "./behaviour" for ConfusedBehaviour
 import "./entities" for Player
+import "./items" for PickupAction

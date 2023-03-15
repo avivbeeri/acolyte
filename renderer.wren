@@ -581,6 +581,9 @@ class HealthBar is Element {
     if (event is Events.attack && event.target.id == _entity.id) {
       updateValue()
     }
+    if (event is Events.heal && event.target.id == _entity.id) {
+      updateValue()
+    }
   }
 
   updateValue() {
@@ -854,6 +857,7 @@ class TileRenderer is AsciiRenderer {
   }
 
   drawPlayer(x, y, color) {
+    Canvas.rectfill(x * 16, y * 16, 16, 16, _bg)
     var player = world.getEntityByTag("player")
     if (!player) {
       return
@@ -903,7 +907,6 @@ class TileRenderer is AsciiRenderer {
     var sheetWidth = 49
     if (symbol == "@") {
       drawPlayer(x, y, color)
-      //_sheet.drawFrom(24, 0, sx, sy)
     } else if (symbol == "z") {
       _sheet.drawFrom(28, 6, sx, sy)
     } else if (symbol == "r") {
