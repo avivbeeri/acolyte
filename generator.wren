@@ -676,8 +676,8 @@ var Distribution = [
   {
     "items": [
       ["shortsword", 0.1],
+      ["potion", 0.1],
       ["wand", 0.2],
-      ["potion", 0.3],
       ["scroll", 0.3]
     ],
     "enemies": [
