@@ -127,7 +127,7 @@ class WorldGenerator {
     world.systems.add(DefeatSystem.new())
 
     world.addEntity("player", Player.new())
-    var level = 6
+    var level = 0
     var player = world.getEntityByTag("player")
     player.zone = level
 

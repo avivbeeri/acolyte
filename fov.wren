@@ -215,12 +215,14 @@ class Vision2 {
       Vec.new(1, -1)
     ]
 
+/*
     for (dir in diag) {
       if (_map[pos + dir]["solid"] && _map[pos + dir]["visible"]) {
         _map[pos.x + dir.x, pos.y]["visible"] = true
         _map[pos.x, pos.y + dir.y]["visible"] = true
       }
     }
+    */
   }
 }
 

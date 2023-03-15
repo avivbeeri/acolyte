@@ -826,68 +826,68 @@ class TileRenderer is AsciiRenderer {
     var sy = y * 16
     var sheetWidth = 49
     if (symbol == "@") {
-      _sheet.draw(24, sx, sy)
+      _sheet.drawFrom(24, 0, sx, sy)
     } else if (symbol == "z") {
-      _sheet.draw((6 * sheetWidth) + 28, sx, sy)
+      _sheet.drawFrom(28, 6, sx, sy)
     } else if (symbol == "r") {
-      _sheet.draw((8 * sheetWidth) + 31, sx, sy)
+      _sheet.drawFrom(31, 8, sx, sy)
     } else if (symbol == "d") {
-      _sheet.draw((7 * sheetWidth) + 31, sx, sy)
+      _sheet.drawFrom(31, 7, sx, sy)
     } else if (symbol == "G") {
-      _sheet.draw((3 * sheetWidth) + 27, sx, sy)
+      _sheet.drawFrom(27, 3, sx, sy)
     } else if (symbol == "D") {
-      _sheet.draw((6 * sheetWidth) + 31, sx, sy)
+      _sheet.drawFrom(31, 6, sx, sy)
     } else if (symbol == "£") {
-      _sheet.draw((3 * sheetWidth) + 26, sx, sy)
+      _sheet.drawFrom(26, 3, sx, sy)
     } else if (symbol == "\%") {
-      _sheet.draw((15 * sheetWidth) + 0, sx, sy)
+      _sheet.drawFrom(0, 15, sx, sy)
     } else if (symbol == ">") {
-      _sheet.draw((6 * sheetWidth) + 3, sx, sy)
+      _sheet.drawFrom(3, 6, sx, sy)
     } else if (symbol == "<") {
-      _sheet.draw((6 * sheetWidth) + 2, sx, sy)
+      _sheet.drawFrom(2, 6, sx, sy)
     } else if (symbol == "^") {
-      _sheet.draw((12 * sheetWidth) + 4, sx, sy,{ "background": Color.none })
+      _sheet.drawFrom(4, 12, sx, sy,{ "background": Color.none })
     } else if (symbol == "~") {
-      _sheet.draw((15 * sheetWidth) + 34, sx, sy)
+      _sheet.drawFrom(34, 15, sx, sy)
     } else if (symbol == "!") {
-      _sheet.draw((14 * sheetWidth) + 33, sx, sy)
+      _sheet.drawFrom(33, 14, sx, sy)
     } else if (symbol == "/") {
-      _sheet.draw((8 * sheetWidth) + 32, sx, sy)
+      _sheet.drawFrom(32, 8, sx, sy)
     } else if (symbol == "[") {
-      _sheet.draw((1 * sheetWidth) + 32, sx, sy)
+      _sheet.drawFrom(32, 1, sx, sy)
     } else if (symbol == "}") {
-      _sheet.draw((4 * sheetWidth) + 37, sx, sy)
+      _sheet.drawFrom(37, 4, sx, sy)
     } else if (world.zoneIndex < 3) {
       if (symbol == ".") {
         _floor = color * 0.33
         _floor.a = 255
-        _sheet.draw((0 * sheetWidth) + 2, sx, sy, { "foreground": _floor})
+        _sheet.drawFrom(16, 0, sx, sy, { "foreground": _floor})
         if (color == INK["blood"]) {
-          _sheet.draw((2 * sheetWidth) + 5, sx, sy)
+          _sheet.drawFrom(5, 2, sx, sy)
         }
       } else if (symbol == "#") {
-        _sheet.draw((17 * sheetWidth) + 10, sx, sy)
+        _sheet.drawFrom(10, 17, sx, sy)
       }
     } else if (world.zoneIndex < 7) {
       if (symbol == ".") {
         _floor = color * 0.33
         _floor.a = 255
-        _sheet.draw((0 * sheetWidth) + 2, sx, sy, { "foreground": _floor})
+        _sheet.drawFrom(2, 0, sx, sy, { "foreground": _floor})
         if (color == INK["blood"]) {
-          _sheet.draw((2 * sheetWidth) + 5, sx, sy)
+          _sheet.drawFrom(5, 2, sx, sy)
         }
       } else if (symbol == "#") {
         var tileX = 0 // starts at (0, 20)
         var tileY = 0
         var map = world.zone.map
-        var north = map[x, y - 1]["solid"] ? 0 : 1
-        var south = map[x, y + 1]["solid"] ? 0 : 1
-        var east = map[x + 1, y]["solid"] ? 0 : 1
-        var west = map[x - 1, y]["solid"] ? 0 : 1
+        var north = map[x, y - 1]["solid"] || map[x, y - 1]["void"] ? 0 : 1
+        var south = map[x, y + 1]["solid"] || map[x, y + 1]["void"] ? 0 : 1
+        var east = map[x + 1, y]["solid"] || map[x + 1, y]["void"] ? 0 : 1
+        var west = map[x - 1, y]["solid"] || map[x - 1, y]["void"] ? 0 : 1
         var index = (west << 3) | (south << 2) | (east << 1) | north
         //Canvas.print(index, sx, sy, color)
         _caves.draw(index, sx, sy)
-        //_sheet.draw((17 * sheetWidth) + 10, sx, sy)
+        //_sheet.drawFrom((17 * sheetWidth) + 10, sx, sy)
       }
     } else {
       return super.printSymbol(symbol, x, y, color)
@@ -912,7 +912,7 @@ class TileRenderer is AsciiRenderer {
           _sheet.fg = INK["deeppurple"]
         } else {
           printSymbolBg(demon["symbol"], center.x, center.y, INK["bg"])
-          _sheet.draw((6 * sheetWidth) + 31, sx, sy)
+          _sheet.drawFrom(31, 6, sx, sy)
         }
       }
     }
