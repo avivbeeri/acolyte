@@ -1,10 +1,12 @@
 import "dome" for Window
+import "math" for Vec
 import "jukebox" for Jukebox
 import "graphics" for Canvas, Font, ImageData, Color
 import "parcel" for ParcelMain, Scene, Config, Scheduler
 import "inputs" for VI_SCHEME as INPUT
 import "palette" for INK
 import "ui" for Animation
+import "renderer" for HintText
 
 class StartScene is Scene {
   construct new(args) {
@@ -50,6 +52,7 @@ class StartScene is Scene {
         Jukebox.playMusic("soundTrack")
       }
     }
+    super.update()
   }
 
   draw() {
@@ -83,6 +86,7 @@ class StartScene is Scene {
       var x = (Canvas.width - 30 * 8)/ 2
       Canvas.print("Press SPACE or ENTER to begin", x, Canvas.height * 0.90, INK["title"])
     }
+    super.draw()
   }
 }
 

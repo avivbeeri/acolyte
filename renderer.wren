@@ -33,9 +33,13 @@ class HintText is Element {
     _text = "press '/' for help"
     _t = 0
   }
+  construct new(pos, message) {
+    _pos = pos
+    _text = message
+    _t = 0
+  }
 
   update() {
-    _world = parent.world
     _t = _t + 1
     if (_t > 10 * 60) {
       removeSelf()
