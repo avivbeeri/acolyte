@@ -1,20 +1,22 @@
 #!/bin/bash
+# Check if working directory clean
 if [ -z "$(git status --porcelain)" ]; then 
-  # Working directory clean
+  # Update config with new version
+  jq -M ".version=\"$1\"" config.json > config.swap.json
+  cat config.swap.json > config.json
+  rm -f config.swap.json
 
-jq -M ".version=\"$1\"" config.json > config.swap.json
-cat config.swap.json > config.json
-rm -f config.swap.json
+  # Commit version change
+  git add config.json
+  git commit -m "$1"
+  git tag -afm "$1" "$1"
 
-git add config.json
-git commit -m "$1"
-git tag -afm "$1"
-
-dome nest -c res *.wren
-mv game.egg ../dome-builds/acolytes-pledge
-cp config.json ../dome-builds/acolytes-pledge
-cd ../dome-builds/acolytes-pledge
-./upload-all.sh $1 $2
+  # build and deploy
+  dome nest -c res *.wren
+  mv game.egg ../dome-builds/acolytes-pledge
+  cp config.json ../dome-builds/acolytes-pledge
+  cd ../dome-builds/acolytes-pledge
+  ./upload-all.sh $1 $2
 else 
   echo "There are uncommitted changes, please commit first."
   # Uncommitted changes
