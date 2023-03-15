@@ -815,7 +815,6 @@ class Scene is Element {
 
 class ParcelMain {
   construct new(scene) {
-    Window.lockstep = true
     Window.integerScale = Config["integer"]
     Window.title = Config["title"]
     Canvas.resize(Config["width"], Config["height"])
@@ -824,7 +823,6 @@ class ParcelMain {
   }
 
   construct new(scene, args) {
-    Window.lockstep = true
     Window.integerScale = Config["integer"]
     Canvas.resize(Config["width"], Config["height"])
     Window.title = Config && Config["title"] || "Parcel"
@@ -833,6 +831,7 @@ class ParcelMain {
   }
 
   init() {
+    Window.lockstep = true
     Window.resize(Canvas.width * SCALE, Canvas.height * SCALE)
 
     Scheduler.init()
