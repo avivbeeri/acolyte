@@ -1,3 +1,4 @@
+import "json" for Json
 import "math" for Vec
 import "parcel" for TileMap8, Tile, Zone, Line, RNG, Entity, DIR_FOUR, Dijkstra, World, DIR_EIGHT, DataFile
 import "factory" for CreatureFactory
@@ -746,8 +747,7 @@ import "./items" for InventoryEntry, EquipmentSlot
 import "./systems" for VisionSystem, DefeatSystem, InventorySystem, ConditionSystem, ExperienceSystem, StorySystem
 import "./items" for Items
 import "./oath" for OathSystem
-import "json" for Json
-Json.save("data.json", { "distribution": Distribution, "tiers": TierMap })
-var GeneratorData = DataFile.load("distribution", "data.json")
-System.print(GeneratorData)
+//Json.save("data.json", { "distribution": Distribution, "tiers": TierMap })
+//var GeneratorData = DataFile.load("distribution", "data.json")
+//System.print(GeneratorData)
 
