@@ -2,7 +2,7 @@ import "math" for M, Vec
 import "collections" for PriorityQueue, HashMap,Set
 import "parcel" for TileMap, Zone, Line, TileMap8
 
-class JPS2 {
+class JPS {
   construct new(zone, self) {
     _zone = zone
     _map = zone
@@ -15,11 +15,17 @@ class JPS2 {
     } else if (zone is Zone) {
       _map = zone.map
     }
+    // Build an occupation map
     _zoneEntities = zone.ctx.entities()
     _occupation = HashMap.new()
     for (entity in _zoneEntities) {
       if (entity != self && entity["solid"]) {
-        _occupation[entity.pos] = true
+        for (dy in 0...entity.size.y) {
+          for (dx in 0...entity.size.x) {
+            var v = Vec.new(dx, dy)
+            _occupation[entity.pos + v] = true
+          }
+        }
       }
     }
   }
@@ -27,9 +33,8 @@ class JPS2 {
   zone { _zone }
   self { _self }
   isFloor(x, y) {
-    // _zoneEntities.where{|other| other.id != self.id && other.occupies(x, y) && other["solid"] }
     var occupied = _occupation[Vec.new(x, y)]
-    return (_map.isFloor(x, y) && occupied)
+    return (_map.isFloor(x, y) && !occupied)
   }
   isFloor(v) { isFloor(v.x, v.y) }
 
@@ -75,11 +80,10 @@ class JPS2 {
       closed.add(node)
       if (goals.contains(node)) {
         parentMap[goal] = node
-        return backtrace(node, parentMap)
+        return backtrace(start, goal, parentMap)
       }
       identifySuccessors(node, goal, goals, open, closed, parentMap, fMap, gMap, hMap)
     }
-    System.print("failed")
     return null
   }
 
@@ -92,20 +96,20 @@ class JPS2 {
       var dx = M.mid(-1, x - parent.x, 1)
       var dy = M.mid(-1, y - parent.y, 1)
       if (dx != 0 && dy != 0) {
-        if (map.isFloor(x, y + dy)) {
+        if (isFloor(x, y + dy)) {
           neighbours.add(Vec.new(x, y + dy))
         }
-        if (map.isFloor(x + dx, y)) {
+        if (isFloor(x + dx, y)) {
           neighbours.add(Vec.new(x + dx, y))
         }
-        if ((map.isFloor(x, y + dy) && map.isFloor(x + dx, y))) {
+        if ((isFloor(x, y + dy) && isFloor(x + dx, y))) {
           neighbours.add(Vec.new(x + dx, y + dy))
         }
       } else {
         if (dx != 0) {
-          var nextWalkable = map.isFloor(x + dx, y)
-          var topWalkable = map.isFloor(x, y + 1)
-          var bottomWalkable = map.isFloor(x, y - 1)
+          var nextWalkable = isFloor(x + dx, y)
+          var topWalkable = isFloor(x, y + 1)
+          var bottomWalkable = isFloor(x, y - 1)
           if (nextWalkable) {
             neighbours.add(Vec.new(x + dx, y))
             if (topWalkable) {
@@ -122,9 +126,9 @@ class JPS2 {
             neighbours.add(Vec.new(x, y - 1))
           }
         } else if (dy != 0) {
-          var nextWalkable = map.isFloor(x, y + dy)
-          var rightWalkable = map.isFloor(x + 1, y)
-          var leftWalkable = map.isFloor(x - 1, y)
+          var nextWalkable = isFloor(x, y + dy)
+          var rightWalkable = isFloor(x + 1, y)
+          var leftWalkable = isFloor(x - 1, y)
           if (nextWalkable) {
             neighbours.add(Vec.new(x, y + dy))
             if (rightWalkable) {
@@ -178,7 +182,7 @@ class JPS2 {
   }
 
   jump(neighbour, current, goals) {
-    if (neighbour == null || !map.isFloor(neighbour)) {
+    if (neighbour == null || !isFloor(neighbour)) {
       return null
     }
     if (goals.contains(neighbour)) {
@@ -195,27 +199,27 @@ class JPS2 {
       }
     } else {
       if (dx != 0) {
-        if ((map.isFloor(neighbour.x, neighbour.y - 1) && !map.isFloor(neighbour.x - dx, neighbour.y - 1)) ||
-           (map.isFloor(neighbour.x, neighbour.y + 1) && !map.isFloor(neighbour.x - dx, neighbour.y + 1))) {
+        if ((isFloor(neighbour.x, neighbour.y - 1) && !isFloor(neighbour.x - dx, neighbour.y - 1)) ||
+           (isFloor(neighbour.x, neighbour.y + 1) && !isFloor(neighbour.x - dx, neighbour.y + 1))) {
           return neighbour
         }
       } else if (dy != 0) {
-        if ((map.isFloor(neighbour.x - 1, neighbour.y) && !map.isFloor(neighbour.x - 1, neighbour.y - dy)) ||
-           (map.isFloor(neighbour.x + 1, neighbour.y) && !map.isFloor(neighbour.x + 1, neighbour.y - dy))) {
+        if ((isFloor(neighbour.x - 1, neighbour.y) && !isFloor(neighbour.x - 1, neighbour.y - dy)) ||
+           (isFloor(neighbour.x + 1, neighbour.y) && !isFloor(neighbour.x + 1, neighbour.y - dy))) {
           return neighbour
         }
 
       }
     }
 
-    if (map.isFloor(neighbour.x + dx, neighbour.y) && map.isFloor(neighbour.x, neighbour.y + dy)) {
+    if (isFloor(neighbour.x + dx, neighbour.y) && isFloor(neighbour.x, neighbour.y + dy)) {
       return jump(Vec.new(neighbour.x + dx, neighbour.y + dy), neighbour, goals)
     } else {
       return null
     }
   }
 
-  backtrace(goal, parentMap) {
+  backtrace(start, goal, parentMap) {
     var current = goal
     if (!parentMap) {
       Fiber.abort("There is no valid path")
@@ -227,7 +231,7 @@ class JPS2 {
 
     var path = []
     var next = null
-    while (current != null) {
+    while (start != current) {
       path.add(current)
       next = parentMap[current]
       if (next == null) {
@@ -238,7 +242,7 @@ class JPS2 {
       var unit = Vec.new(dx, dy)
 
       var intermediate = current
-      while (intermediate != next) {
+      while (intermediate != next && intermediate != start) {
         path.insert(0, intermediate)
         intermediate = intermediate + unit
       }

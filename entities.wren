@@ -1,4 +1,4 @@
-import "parcel" for Entity, BehaviourEntity, GameSystem, JPS, Stateful, DIR_EIGHT, RNG, Action, Set, Dijkstra
+import "parcel" for Entity, BehaviourEntity, GameSystem, Stateful, DIR_EIGHT, RNG, Action, Set, Dijkstra
 import "math" for Vec, M
 
 class Creature is BehaviourEntity {

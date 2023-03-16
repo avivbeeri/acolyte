@@ -1,5 +1,5 @@
 import "collections" for HashMap
-import "parcel" for Action, ActionResult, MAX_TURN_SIZE, JPS, Line, RNG
+import "parcel" for Action, ActionResult, MAX_TURN_SIZE, Line, RNG
 import "math" for Vec
 import "./combat" for Damage, Condition, CombatProcessor
 import "./events" for Events, RestEvent, LightningEvent

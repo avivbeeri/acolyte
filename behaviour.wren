@@ -1,9 +1,8 @@
-import "math" for Vec, M
+import "jps" for JPS import "math" for Vec, M
 import "parcel" for
   Entity,
   BehaviourEntity,
   GameSystem,
-  JPS,
   AStar,
   Stateful,
   DIR_EIGHT,
@@ -15,11 +14,10 @@ class Behaviour is GameSystem {
   construct new() {
     super()
   }
-  pathTo(ctx, start, end) {
+  pathTo(ctx, actor, start, end) {
     var map = ctx.zone
-    var path = AStar.search(map, start, end)
-    //var search = JPS.search(map, start, end)
-    //var path = JPS.buildPath(map, start, end, search)
+    //var path = AStar.search(map, start, end)
+    var path = JPS.new(map, actor).search(start, end)
     return path
   }
 
@@ -148,7 +146,7 @@ class SeekBehaviour is Behaviour {
     if (!player) {
       return false
     }
-    var path = pathTo(ctx, actor.pos, player.pos)
+    var path = pathTo(ctx, actor, actor.pos, player.pos)
     if (path == null || path.count < 2) {
       return false
     }

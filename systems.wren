@@ -1,6 +1,6 @@
 import "math" for Vec
 import "fov" for Vision2 as Vision
-import "parcel" for GameSystem, JPS, GameEndEvent, ChangeZoneEvent, Dijkstra
+import "parcel" for GameSystem, GameEndEvent, ChangeZoneEvent, Dijkstra
 import "./entities" for Player, Creatures
 import "items" for Equipment
 import "combat" for Condition

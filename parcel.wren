@@ -13,12 +13,6 @@ class Scheduler {
     __tick = 0
   }
 
-  /*
-  static defer() {
-    __deferred.add(Fiber.current, __tick + 1)
-    Fiber.yield()
-  }
-  */
 
   static defer(fn) {
     __deferred.add(Fiber.new {
@@ -27,19 +21,26 @@ class Scheduler {
     }, __tick + 1)
   }
 
-  /*
-  static deferBy(tick) {
-    __deferred.add(Fiber.current, (__tick + tick).max(__tick + 1))
-    Fiber.yield()
-  }
-  */
-
   static deferBy(tick, fn) {
     __deferred.add(Fiber.new {
       fn.call()
       runNext()
     }, (__tick + tick).max(__tick + 1))
   }
+
+  /*
+  static defer() {
+    __deferred.add(Fiber.current, __tick + 1)
+    Fiber.yield()
+  }
+  */
+
+  /*
+  static deferBy(tick) {
+    __deferred.add(Fiber.current, (__tick + tick).max(__tick + 1))
+    Fiber.yield()
+  }
+  */
 
   static runNext() {
     if (!__deferred.isEmpty && __deferred.peekPriority() <= __tick) {
@@ -457,6 +458,7 @@ class Zone is Stateful {
     }
     return 100
   }
+
 }
 
 class World is Stateful {
@@ -1007,8 +1009,8 @@ class TileMap4 is TileMap {
 class TileMap8 is TileMap {
   construct new() {
     super()
-    _cardinal = 1
-    _diagonal = 1
+    _cardinal = 2
+    _diagonal = 3
   }
   neighbours(pos) {
     return DIR_EIGHT.map {|dir| pos + dir }.where{|next|
@@ -1272,108 +1274,6 @@ class AStar {
     while (!start.contains(current)) {
       path.insert(0, current)
       current = cameFrom[current]
-    }
-    path.insert(0, current)
-    for (pos in path) {
-      map[pos]["seen"] = true
-    }
-    return path
-  }
-}
-class JPS {
-  static heuristic(a, b, cardinal, diagonal) {
-    var dMinus = diagonal - cardinal
-    var dx = (a.x - b.x).abs
-    var dy = (a.y - b.y).abs
-    if (dx > dy) {
-      return cardinal * dx + dMinus * dy
-    }
-    return cardinal * dy + dMinus * dx
-  }
-
-  static search(zone, start, goal) {
-    var map
-    if (zone is TileMap) {
-      map = zone
-    } else if (zone is Zone) {
-      map = zone.map
-    }
-
-    if (goal == null) {
-      Fiber.abort("JPS doesn't work without a goal")
-    }
-    var frontier = PriorityQueue.min()
-    var cameFrom = HashMap.new()
-    var costSoFar = HashMap.new()
-    if (start is Sequence) {
-      Fiber.abort("JPS doesn't support multiple goals")
-    }
-    frontier.add(start, 0)
-    cameFrom[start] = null
-    costSoFar[start] = 0
-
-    while (!frontier.isEmpty) {
-      var current = frontier.remove()
-      if (current == goal) {
-        continue
-      }
-      var currentCost = costSoFar[current]
-      var list = []
-      for (next in map.allNeighbours(current)) {
-        var jump = map.successor(next, current, start, goal)
-        if (jump == null) {
-          continue
-        }
-
-        // Add the distance too as current and next aren't always
-        // adjacent
-        var newCost = currentCost + zone.cost(current, jump) + Line.chebychev(current, jump)
-        if (!costSoFar.containsKey(jump) || newCost < costSoFar[jump]) {
-          map[jump]["cost"] = newCost
-          var priority = newCost + JPS.heuristic(jump, goal, 1, 1)
-          costSoFar[jump] = newCost
-          frontier.add(jump, priority)
-          cameFrom[jump] = current
-        }
-      }
-    }
-    return cameFrom
-  }
-
-  static buildPath(zone, start, goal, cameFrom) {
-    var map
-    if (zone is TileMap) {
-      map = zone
-    } else if (zone is Zone) {
-      map = zone.map
-    }
-    if (!(map is TileMap8) && !(map is Zone && map.map is TileMap8)) {
-      Fiber.abort("JPS only works with TileMap8")
-    }
-    var current = goal
-    if (!cameFrom) {
-      Fiber.abort("There is no valid path")
-      return
-    }
-    if (cameFrom[goal] == null) {
-      return null // There is no valid path
-    }
-
-    var path = []
-    var next = null
-    while (start != current) {
-      path.add(current)
-      next = cameFrom[current]
-      var dx = M.mid(-1, next.x - current.x, 1)
-      var dy = M.mid(-1, next.y - current.y, 1)
-      var unit = Vec.new(dx, dy)
-
-      var intermediate = current
-      while (intermediate != next && intermediate != start) {
-        path.insert(0, intermediate)
-        intermediate = intermediate + unit
-      }
-      current = next
     }
     path.insert(0, current)
     for (pos in path) {
