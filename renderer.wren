@@ -24,7 +24,7 @@ import "./inputs" for VI_SCHEME as INPUT
 import "./entities" for Player, Demon
 import "./text" for TextSplitter
 
-var DEBUG = true
+var DEBUG = false
 
 class HintText is Element {
   construct new(pos) {
