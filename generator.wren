@@ -129,10 +129,11 @@ class WorldGenerator {
     world.systems.add(DefeatSystem.new())
 
     world.addEntity("player", Player.new())
-    var level = 4
+    var level = 0
     var player = world.getEntityByTag("player")
     player.zone = level
 
+     /*
      //Debug power armor
     player["equipment"] = {
       EquipmentSlot.weapon: "longsword",
@@ -142,6 +143,7 @@ class WorldGenerator {
       InventoryEntry.new("longsword", 1),
       InventoryEntry.new("platemail", 1),
     ]
+    */
 
     var zone = world.loadZone(level)
 
