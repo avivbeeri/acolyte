@@ -676,9 +676,9 @@ var Distribution = [
   {
     "items": [
       ["shortsword", 0.1],
-      ["potion", 0.1],
-      ["wand", 0.2],
-      ["scroll", 0.3]
+      ["potion", 0.2],
+      ["wand", 0.3],
+      ["scroll", 0.4]
     ],
     "enemies": [
       [Creatures.rat, 0.4],
@@ -688,11 +688,11 @@ var Distribution = [
   },
   {
     "items": [
-      ["fireball", 0.05],
+      ["fireball", 0.1],
       ["chainmail", 0.2],
       ["longsword", 0.2],
-      ["scroll", 0.2],
-      ["potion", 0.3]
+      ["scroll", 0.3],
+      ["potion", 0.2]
     ],
     "enemies": [
       [Creatures.rat, 0.2],
@@ -703,11 +703,11 @@ var Distribution = [
   {
     "items": [
       ["longsword", 0.05],
-      ["potion", 0.05],
+      ["potion", 0.1],
       ["platemail", 0.1],
       ["fireball", 0.1],
-      ["wand", 0.15],
-      ["scroll", 0.15]
+      ["wand", 0.2],
+      ["scroll", 0.2]
     ],
     "enemies": [
       [Creatures.rat, 0.1],
