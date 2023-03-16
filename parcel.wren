@@ -13,7 +13,6 @@ class Scheduler {
     __tick = 0
   }
 
-
   static defer(fn) {
     __deferred.add(Fiber.new {
       fn.call()
@@ -832,6 +831,11 @@ class ParcelMain {
     Canvas.resize(Config["width"], Config["height"])
     _initial = scene
     _args = []
+    _scenes = {}
+  }
+
+  registerScene(name, scene) {
+    _scenes[name] = scene
   }
 
   construct new(scene, args) {
@@ -876,7 +880,7 @@ class ParcelMain {
 
   push(scene) { push(scene, []) }
   push(scene, args) {
-    _nextScene = scene.new(args)
+    _nextScene = _scenes[scene].new(args)
     _nextScene.game = this
   }
 }
@@ -1409,9 +1413,41 @@ class TextUtils {
 
 // ==================================
 var RNG
-class Config {
-  static init() {
-    __config = {
+class DataFile {
+  construct load(name, path) {
+    init_(name, path, {})
+  }
+
+  construct load(name, path, default) {
+    init_(name, path, default)
+  }
+
+  toString { _data.toString }
+  init_(name, path, default) {
+    if (!__cache) {
+      __cache = {}
+    }
+    var fiber = Fiber.new {
+      _data = default
+      __cache[name] = this
+      var file = Json.load(path)
+      for (entry in file) {
+        _data[entry.key] = entry.value
+      }
+    }
+    var error = fiber.try()
+    if (fiber.error) {
+      Log.e("Error loading data file %(path): %(fiber.error)")
+    }
+  }
+  [key] { _data[key] }
+
+  static [name] { __cache[name] }
+}
+
+class ConfigData is DataFile {
+  construct load() {
+    super("config", "config.json", {
       "logLevel": "DEBUG",
       "seed": Platform.time,
       "title": "Parcel",
@@ -1419,27 +1455,15 @@ class Config {
       "width": 768,
       "height": 576,
       "integer": false
-    }
-    var fiber = Fiber.new {
-      var data = Json.load("config.json")
-      for (entry in data) {
-        __config[entry.key] = entry.value
-      }
-    }
-    var error = fiber.try()
-    if (fiber.error) {
-      Log.w(fiber.error)
-    }
-    Log.level = __config["logLevel"]
-    var Seed = __config["seed"]
+    })
+    Log.level = this["logLevel"]
+    var Seed = this["seed"]
     Log.d("RNG Seed: %(Seed)")
     RNG = Random.new(Seed)
-    SCALE = __config["scale"]
+    SCALE = this["scale"]
   }
-
-  static [key] { __config[key]  }
 }
-Config.init()
+var Config = ConfigData.load()
 // ==================================
 class Palette {
 

@@ -1,5 +1,6 @@
 import "math" for Vec
-import "parcel" for TileMap8, Tile, Zone, Line, RNG, Entity, DIR_FOUR, Dijkstra, World, DIR_EIGHT
+import "parcel" for TileMap8, Tile, Zone, Line, RNG, Entity, DIR_FOUR, Dijkstra, World, DIR_EIGHT, DataFile
+import "factory" for CreatureFactory
 
 // Which tier am I in? (beginner, middle, endgame)
 // Items
@@ -127,12 +128,11 @@ class WorldGenerator {
     world.systems.add(DefeatSystem.new())
 
     world.addEntity("player", Player.new())
-    var level = 0
+    var level = 4
     var player = world.getEntityByTag("player")
     player.zone = level
 
-    /*
-     Debug power armor
+     //Debug power armor
     player["equipment"] = {
       EquipmentSlot.weapon: "longsword",
       EquipmentSlot.armor: "platemail"
@@ -141,7 +141,6 @@ class WorldGenerator {
       InventoryEntry.new("longsword", 1),
       InventoryEntry.new("platemail", 1),
     ]
-    */
 
     var zone = world.loadZone(level)
 
@@ -251,8 +250,9 @@ class RandomZoneGenerator {
       if (!valid || entity == null) {
         continue
       }
-      entity = entity.new()
-      entity.pos = pos
+      entity = CreatureFactory.spawn(entity, level, pos)
+      //entity = entity.new()
+      //entity.pos = pos
       zone["entities"].add(entity)
     }
 
@@ -351,15 +351,16 @@ class BasicZoneGenerator {
     for (i in 0...maxRooms) {
       var w = RNG.int(minSize, maxSize + 1)
       var h = RNG.int(minSize, maxSize + 1)
-      var x = RNG.int(0, 32 - w - 1)
-      var y = RNG.int(0, 32 - h - 1)
+      var x = RNG.int(1, 32 - w - 1)
+      var y = RNG.int(1, 32 - h - 1)
       if (rooms.count == 0 && startPos) {
         // ensure start position is contained in first room
         x = (startPos.x - RNG.int(1, w - 1)).max(0)
         y = (startPos.y - RNG.int(1, h - 1)).max(0)
       }
 
-      var room = RectangularRoom.new(x, y, w, h)
+      //var room = RNG.float() < 0.5 ? RectangularRoom.new(x, y, w, h) : DiamondRoom.new(Vec.new(x, y), (w.min(h) / 2).ceil)
+      var room =  RectangularRoom.new(x, y, w, h)
       if (!rooms.isEmpty && rooms.any{|existing| room.intersects(existing) }) {
         continue
       }
@@ -470,8 +471,7 @@ class BasicZoneGenerator {
         if (entity == null) {
           continue
         }
-        entity = entity.new()
-        entity.pos = pos
+        entity = CreatureFactory.spawn(entity, level, pos)
         entities.add(entity)
       }
     }
@@ -563,15 +563,18 @@ class BossRoomGenerator {
     var level = args[0]
     var zone = Zone.new(map)
     zone["level"] = level
-    zone["entities"] = [ Creatures.demon.new() ]
-    zone["entities"][0].pos = Vec.new(14, 12)
+    //zone["entities"] = [ Creatures.demon.new() ]
+    //zone["entities"][0].pos = Vec.new(14, 12)
+    zone["entities"] = []
+    zone["entities"].add(CreatureFactory.spawn("demon", level, Vec.new(14, 12)))
 
     for (i in 0...4) {
       var pos = (center + DIR_EIGHT[4 + i] * 4)
-      zone["entities"].add(Creatures.gargoyle.new())
       pos.x = pos.x.round
       pos.y = pos.y.round
-      zone["entities"][-1].pos = pos
+      zone["entities"].add(CreatureFactory.spawn("gargoyle", level, pos))
+      //zone["entities"].add(Creatures.gargoyle.new())
+      //zone["entities"][-1].pos = pos
     }
 
     var statues = [ Vec.new(11, 15), Vec.new(19, 15) ]
@@ -591,7 +594,7 @@ class RectangularRoom {
   construct new(x, y, w, h) {
     _p0 = Vec.new(x, y)
     _size = Vec.new(w, h)
-    _p1 = _p0 + _size
+    _p1 = _p0 + _size - Vec.new(1,1)
   }
 
   center {
@@ -627,6 +630,8 @@ class CircleRoom {
   construct new(center, radius) {
     _radius = radius
     _center = center
+    _p0 = _center - Vec.new(_radius - 1, _radius - 1)
+    _p1 = _center + Vec.new(_radius - 1, _radius - 1)
 
     var inside = []
     var walls = []
@@ -646,11 +651,23 @@ class CircleRoom {
   }
   inner { _inside }
   walls { _walls }
+  center { _center }
+  p0 { _p0 }
+  p1 { _p1 }
+  intersects(other) {
+     return _p0.x <= other.p1.x &&
+            _p1.x >= other.p0.x &&
+            _p0.y <= other.p1.y &&
+            _p1.y >= other.p0.y
+
+  }
 }
 class DiamondRoom {
   construct new(center, radius) {
     _radius = radius
     _center = center
+    _p0 = _center - Vec.new(_radius - 1, _radius - 1)
+    _p1 = _center + Vec.new(_radius - 1, _radius - 1)
     var inside = []
     var walls = []
     for (y in (_center.y - (_radius + 1))..(_center.y + (_radius + 1))) {
@@ -667,11 +684,21 @@ class DiamondRoom {
     _inside = inside
     _walls = walls
   }
+  p0 { _p0 }
+  p1 { _p1 }
   walls { _walls }
+  center { _center }
   inner { _inside }
+  intersects(other) {
+     return _p0.x <= other.p1.x &&
+            _p1.x >= other.p0.x &&
+            _p0.y <= other.p1.y &&
+            _p1.y >= other.p0.y
+
+  }
 }
 
-import "./entities" for Player, Creatures
+import "./entities" for Player
 var Distribution = [
   {
     "items": [
@@ -681,9 +708,9 @@ var Distribution = [
       ["scroll", 0.4]
     ],
     "enemies": [
-      [Creatures.rat, 0.4],
-      [Creatures.zombie, 0.3],
-      [Creatures.hound, 0.1]
+      ["rat", 0.4],
+      ["zombie", 0.3],
+      ["hound", 0.1]
     ]
   },
   {
@@ -695,9 +722,9 @@ var Distribution = [
       ["potion", 0.2]
     ],
     "enemies": [
-      [Creatures.rat, 0.2],
-      [Creatures.zombie, 0.5],
-      [Creatures.hound, 0.2]
+      ["rat", 0.2],
+      ["zombie", 0.5],
+      ["hound", 0.2]
     ]
   },
   {
@@ -710,8 +737,8 @@ var Distribution = [
       ["scroll", 0.2]
     ],
     "enemies": [
-      [Creatures.rat, 0.1],
-      [Creatures.hound, 0.8]
+      ["rat", 0.1],
+      ["hound", 0.8]
     ]
   }
 ]
@@ -719,3 +746,8 @@ import "./items" for InventoryEntry, EquipmentSlot
 import "./systems" for VisionSystem, DefeatSystem, InventorySystem, ConditionSystem, ExperienceSystem, StorySystem
 import "./items" for Items
 import "./oath" for OathSystem
+import "json" for Json
+Json.save("data.json", { "distribution": Distribution, "tiers": TierMap })
+var GeneratorData = DataFile.load("distribution", "data.json")
+System.print(GeneratorData)
+

@@ -408,7 +408,7 @@ class GameEndState is ModalWindowState {
       changeState(HelpState.new())
     }
     if (INPUT["reject"].firing || INPUT["confirm"].firing) {
-      scene.game.push(_restart ? GameScene : StartScene)
+      scene.game.push(_restart ? "game" : "start")
     }
     return this
   }
@@ -694,4 +694,3 @@ class GameScene is Scene {
   }
 }
 import "./entities" for Player
-import "./main" for StartScene

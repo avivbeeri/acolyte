@@ -21,7 +21,7 @@ import "./ui" for
 import "events" for Events
 
 import "./inputs" for VI_SCHEME as INPUT
-import "./entities" for Player, Demon
+import "./entities" for Player, Creature
 import "./text" for TextSplitter
 
 var DEBUG = false
@@ -916,7 +916,6 @@ class TileRenderer is AsciiRenderer {
     } else if (symbol == "G") {
       _sheet.drawFrom(27, 3, sx, sy)
     } else if (symbol == "D") {
-      _sheet.drawFrom(31, 6, sx, sy)
     } else if (symbol == "£") {
       _sheet.drawFrom(26, 3, sx, sy)
     } else if (symbol == "\%") {
@@ -930,7 +929,7 @@ class TileRenderer is AsciiRenderer {
     } else if (symbol == "~") {
       _sheet.drawFrom(34, 15, sx, sy)
     } else if (symbol == "!") {
-      _sheet.drawFrom(33, 14, sx, sy)
+      _sheet.drawFrom(33, 13, sx, sy)
     } else if (symbol == "/") {
       _sheet.drawFrom(32, 8, sx, sy)
     } else if (symbol == "[") {
@@ -979,7 +978,7 @@ class TileRenderer is AsciiRenderer {
     super.draw()
     var offset = Canvas.offset
     Canvas.offset(pos.x, pos.y)
-    var demons = world.entities().where {|entity| entity is Demon }.toList
+    var demons = world.entities().where {|entity| entity["kind"] == "demon" }.toList
     if (!demons.isEmpty) {
       var color = INK["creature"]
       for (demon in demons) {
@@ -992,7 +991,7 @@ class TileRenderer is AsciiRenderer {
           _sheet.fg = INK["deeppurple"]
         } else {
           printSymbolBg(demon["symbol"], center.x, center.y, INK["bg"])
-          _sheet.drawFrom(31, 6, sx, sy)
+          _sheet.drawFrom(31, 6, demon.pos.x * 16, demon.pos.y * 16)
         }
       }
     }

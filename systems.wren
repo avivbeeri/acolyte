@@ -1,7 +1,7 @@
 import "math" for Vec
 import "fov" for Vision2 as Vision
 import "parcel" for GameSystem, GameEndEvent, ChangeZoneEvent, Dijkstra
-import "./entities" for Player, Creatures
+import "./entities" for Player
 import "items" for Equipment
 import "combat" for Condition
 import "behaviour" for UnconsciousBehaviour, SeekBehaviour
@@ -13,20 +13,20 @@ class StorySystem is GameSystem {
       ctx["fightBegan"] = true
       ctx.addEvent(Events.story.new("dialogue:beforeBoss"))
     }
-    if (ctx["fightBegan"] && event is Events.kill && event.target is Creatures.gargoyle) {
-      var stillGargoyles = ctx.entities().any {|entity| entity is Creatures.gargoyle }
+    if (ctx["fightBegan"] && event is Events.kill && event.target["kind"] == "gargoyle") {
+      var stillGargoyles = ctx.entities().any {|entity| entity["kind"] == "gargoyle" }
 
       if (!event.target["frozen"] && stillGargoyles) {
         ctx.addEvent(Events.story.new("bossWeaken"))
       }
       if (!stillGargoyles) {
-        var demon = ctx.entities().where {|entity| entity is Creatures.demon }.toList[0]
+        var demon = ctx.entities().where {|entity| entity["kind"] == "demon" }.toList[0]
         demon["conditions"].remove("invulnerable")
         demon["name"] = "Demon?"
         demon["symbol"] = "D"
         demon["size"] = Vec.new(1, 1)
         demon["pos"] = demon["pos"] + Vec.new(1, 1)
-        demon.behaviours.add(SeekBehaviour.new())
+        demon.behaviours.add(SeekBehaviour.new(null))
         ctx.addEvent(Events.story.new("bossVulnerable"))
       }
     }
@@ -89,13 +89,15 @@ class ConditionSystem is GameSystem {
 class DefeatSystem is GameSystem {
   construct new() { super() }
   process(ctx, event) {
-    if (event is Events.defeat) {
+    if (event is Events.defeat || event is Events.kill) {
       if (event.target["boss"]) {
         ctx.addEvent(GameEndEvent.new(true))
       }
+    }
+    if (event is Events.defeat) {
       event.target["killed"] = true
       event.target["solid"] = false
-      event.target.behaviours.add(UnconsciousBehaviour.new())
+      event.target.behaviours.add(UnconsciousBehaviour.new(null))
       event.target["conditions"]["unconscious"] = Condition.new("unconscious", 10, true)
     }
     if (event is GameEndEvent) {

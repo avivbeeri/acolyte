@@ -24,6 +24,13 @@ class Pronoun {
 // Try not to use these?
   static male { Pronoun.new("he", "him", "his") }
   static female { Pronoun.new("she", "her", "her") }
+  static [key] {
+    return {
+      "you": Pronoun.you,
+      "they": Pronoun.they,
+      "it": Pronoun.it,
+    }[key]
+  }
 }
 
 

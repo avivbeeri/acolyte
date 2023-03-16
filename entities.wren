@@ -32,9 +32,9 @@ class Creature is BehaviourEntity {
     for (entry in stats) {
       this["stats"].set(entry.key, entry.value)
     }
+    this["pronoun"] = Pronoun.it
   }
-  name { "Creature" }
-  pronoun { Pronoun.it }
+  pronoun { this["pronoun"] }
 }
 
 class Player is Creature {
@@ -75,93 +75,7 @@ class Player is Creature {
   }
 }
 
-
-class Zombie is Creature {
- construct new() {
-    super({
-      "hpMax": 2,
-      "hp": 2,
-      "spd": 2,
-      "dex": 1,
-      "atk": 3
-    })
-    this["symbol"] = "z"
-
-    behaviours.add(Behaviours.localSeek.new(7))
-  }
-  name { "Zombie" }
-  pronoun { Pronoun.it }
-}
-class Hound is Creature {
- construct new() {
-    super({
-      "hpMax": 4,
-      "hp": 4,
-      "dex": 2,
-      "atk": 2
-    })
-    this["symbol"] = "d"
-
-    behaviours.add(Behaviours.seek.new())
-  }
-  name { "Hound" }
-  pronoun { Pronoun.it }
-}
-class Rat is Creature {
- construct new() {
-    super({
-      "hpMax": 1,
-      "hp": 1
-    })
-    this["symbol"] = "r"
-
-    behaviours.add(Behaviours.wander.new())
-  }
-  name { "Rat" }
-  pronoun { Pronoun.it }
-}
-
-class Gargoyle is Creature {
- construct new() {
-    super({
-      "hpMax": 5,
-      "hp": 5,
-      "dex": 4,
-      "str": 3
-    })
-    this["symbol"] = "G"
-    this["frozen"] = true
-    this["frozenTimer"] = 0
-    this["butter"] = true
-
-    behaviours.add(Behaviours.statue.new())
-  }
-  name { this["frozen"] ? "Statue" : "Gargoyle" }
-  pronoun { Pronoun.it }
-}
-
-class Demon is Creature {
- construct new() {
-    super({
-      "hpMax": 5,
-      "hp": 5,
-      "dex": 3,
-      "str": 3
-    })
-    this["size"] = Vec.new(3, 3)
-    this["symbol"] = "?"
-    this["boss"] = true // allow multiple boss types
-    this["conditions"] = {
-      "invulnerable": Condition.new("invulnerable", null, null)
-    }
-
-    behaviours.add(Behaviours.boss.new())
-  }
-  name { "????" }
-  pronoun { Pronoun.they }
-}
-
-
+/*
 class Creatures {
   // Non-boss
   static standard { [ Rat, Hound, Zombie ]}
@@ -178,6 +92,7 @@ class Creatures {
   static vampire { Vampire }
   */
 }
+*/
 
 import "behaviour" for Behaviours
 import "items" for InventoryEntry, EquipmentSlot

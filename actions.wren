@@ -66,11 +66,11 @@ class InflictConfusionAction is Action {
   perform() {
     ctx.getEntitiesAtPosition(_targetPos).each {|target|
       if (target["conditions"].containsKey("confusion")) {
-        target["conditions"]["confusion"].extend(3)
+        target["conditions"]["confusion"].extend(4)
         ctx.addEvent(Events.extendCondition.new(target, "confusion"))
       } else {
-        target["conditions"]["confusion"] = Condition.new("confusion", 3, true)
-        target.behaviours.add(ConfusedBehaviour.new())
+        target["conditions"]["confusion"] = Condition.new("confusion", 4, true)
+        target.behaviours.add(ConfusedBehaviour.new(null))
         ctx.addEvent(Events.inflictCondition.new(target, "confusion"))
       }
     }
@@ -308,7 +308,7 @@ class SimpleMoveAction is Action {
   }
 
   cost() {
-    return super.cost() * src["stats"]["spd"]
+    return super.cost() * 1 / src["stats"]["spd"]
   }
 }
 

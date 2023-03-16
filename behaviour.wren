@@ -1,3 +1,4 @@
+import "meta" for Meta
 import "jps" for JPS
 import "math" for Vec, M
 import "parcel" for
@@ -12,7 +13,7 @@ import "parcel" for
   Set
 
 class Behaviour is GameSystem {
-  construct new() {
+  construct new(args) {
     super()
   }
   pathTo(ctx, actor, start, end) {
@@ -29,7 +30,7 @@ class Behaviour is GameSystem {
 }
 
 class ConfusedBehaviour is Behaviour {
-  construct new() {
+  construct new(args) {
     super()
   }
   update(ctx, actor) {
@@ -44,7 +45,7 @@ class ConfusedBehaviour is Behaviour {
 }
 
 class UnconsciousBehaviour is Behaviour {
-  construct new() {
+  construct new(args) {
     super()
   }
   update(ctx, actor) {
@@ -67,7 +68,7 @@ class UnconsciousBehaviour is Behaviour {
   }
 }
 class BossBehaviour is Behaviour {
-  construct new() {
+  construct new(args) {
     super()
   }
   update(ctx, actor) {
@@ -81,7 +82,7 @@ class BossBehaviour is Behaviour {
   }
 }
 class RandomWalkBehaviour is Behaviour {
-  construct new() {
+  construct new(args) {
     super()
   }
   update(ctx, actor) {
@@ -98,7 +99,7 @@ class RandomWalkBehaviour is Behaviour {
   }
 }
 class WanderBehaviour is RandomWalkBehaviour {
-  construct new() {
+  construct new(args) {
     super()
   }
   update(ctx, actor) {
@@ -139,7 +140,7 @@ class WanderBehaviour is RandomWalkBehaviour {
 }
 
 class SeekBehaviour is Behaviour {
-  construct new() {
+  construct new(args) {
     super()
   }
   update(ctx, actor) {
@@ -166,7 +167,7 @@ class SeekBehaviour is Behaviour {
 }
 
 class StatueBehaviour is SeekBehaviour {
-  construct new() {
+  construct new(args) {
     super()
   }
 
@@ -183,6 +184,8 @@ class StatueBehaviour is SeekBehaviour {
     if (actor["frozen"]) {
       return false
     } else if (frozenBefore) {
+      actor["name"] = "Gargoyle"
+      actor["symbol"] = "G"
       ctx.addEvent(Events.statueAwaken.new(actor))
     }
     return super.update(ctx, actor)
@@ -190,9 +193,9 @@ class StatueBehaviour is SeekBehaviour {
 }
 
 class LocalSeekBehaviour is SeekBehaviour {
-  construct new(range) {
+  construct new(args) {
     super()
-    _range = range
+    _range = args[0]
   }
   update(ctx, actor) {
     var player = ctx.getEntityByTag("player")
@@ -216,6 +219,9 @@ class Behaviours {
   static wander { WanderBehaviour }
   static statue { StatueBehaviour }
   static localSeek { LocalSeekBehaviour }
+  static get(id) {
+    return Meta.compile("return Behaviours.%(id)").call()
+  }
 }
 
 import "events" for Events

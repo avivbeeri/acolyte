@@ -38,7 +38,7 @@ class StartScene is Scene {
   update() {
     _t = _t + 1
     if (INPUT["confirm"].firing || Mouse["left"].justPressed) {
-      game.push(GameScene)
+      game.push("game")
     }
     if (INPUT["volUp"].firing) {
       Jukebox.volumeUp()
@@ -91,5 +91,7 @@ class StartScene is Scene {
   }
 }
 
+var Game = ParcelMain.new("start")
 import "./scene" for GameScene
-var Game = ParcelMain.new(StartScene)
+Game.registerScene("start", StartScene)
+Game.registerScene("game", GameScene)
