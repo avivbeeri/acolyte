@@ -45,8 +45,8 @@ class Scheduler {
   static runNext() {
     if (!__deferred.isEmpty && __deferred.peekPriority() <= __tick) {
       var fiber = __deferred.remove()
+      fiber.call()
       if (!fiber.isDone) {
-        fiber.call()
         __deferred.add(fiber, __tick + 1)
       }
     }
@@ -55,8 +55,8 @@ class Scheduler {
   static runUntilEmpty() {
     while (!__deferred.isEmpty && __deferred.peekPriority() <= __tick) {
       var fiber = __deferred.remove()
+      fiber.call()
       if (!fiber.isDone) {
-        fiber.call()
         __deferred.add(fiber, __tick + 1)
       }
     }
