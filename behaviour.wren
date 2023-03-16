@@ -1,4 +1,5 @@
-import "jps" for JPS import "math" for Vec, M
+import "jps" for JPS
+import "math" for Vec, M
 import "parcel" for
   Entity,
   BehaviourEntity,
