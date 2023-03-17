@@ -3,19 +3,12 @@ import "math" for Vec
 import "parcel" for TileMap8, Tile, Zone, Line, RNG, Entity, DIR_FOUR, Dijkstra, World, DIR_EIGHT, DataFile
 import "factory" for CreatureFactory
 
-// Which tier am I in? (beginner, middle, endgame)
-// Items
-//
-
-var TierMap = {
-  0 :1,
-  1: 1,
-  2: 1,
-  3: 2,
-  4: 2,
-  5: 3,
-  6:3
+var GeneratorData = DataFile.load("distribution", "data/tiers.json")
+var TierMap = {}
+for (entry in GeneratorData["tiers"]) {
+  TierMap[Num.fromString(entry.key)] = entry.value
 }
+var Distribution = GeneratorData["distribution"]
 
 class GeneratorUtils {
   static pickEnemy(level) {
@@ -702,54 +695,7 @@ class DiamondRoom {
 }
 
 import "./entities" for Player
-var Distribution = [
-  {
-    "items": [
-      ["shortsword", 0.1],
-      ["potion", 0.2],
-      ["wand", 0.3],
-      ["scroll", 0.4]
-    ],
-    "enemies": [
-      ["rat", 0.4],
-      ["zombie", 0.3],
-      ["hound", 0.1]
-    ]
-  },
-  {
-    "items": [
-      ["fireball", 0.1],
-      ["chainmail", 0.2],
-      ["longsword", 0.2],
-      ["scroll", 0.3],
-      ["potion", 0.2]
-    ],
-    "enemies": [
-      ["rat", 0.2],
-      ["zombie", 0.5],
-      ["hound", 0.2]
-    ]
-  },
-  {
-    "items": [
-      ["longsword", 0.05],
-      ["potion", 0.1],
-      ["platemail", 0.1],
-      ["fireball", 0.1],
-      ["wand", 0.2],
-      ["scroll", 0.2]
-    ],
-    "enemies": [
-      ["rat", 0.1],
-      ["hound", 0.8]
-    ]
-  }
-]
 import "./items" for InventoryEntry, EquipmentSlot
 import "./systems" for VisionSystem, DefeatSystem, InventorySystem, ConditionSystem, ExperienceSystem, StorySystem
 import "./items" for Items
 import "./oath" for OathSystem
-//Json.save("data.json", { "distribution": Distribution, "tiers": TierMap })
-//var GeneratorData = DataFile.load("distribution", "data.json")
-//System.print(GeneratorData)
-
