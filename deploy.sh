@@ -12,7 +12,7 @@ if [ -z "$(git status --porcelain)" ]; then
   git tag -afm "$1" "$1"
 
   # build and deploy
-  dome nest -c res *.wren
+  dome nest -c res data *.wren
   mv game.egg ../dome-builds/acolytes-pledge
   cp config.json ../dome-builds/acolytes-pledge
   cd ../dome-builds/acolytes-pledge
