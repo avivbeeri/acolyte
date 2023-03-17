@@ -12,7 +12,7 @@ class CreatureFactory {
   static spawn(kindId, zoneIndex, position) {
     var data = CreatureData[kindId]
     var creature = Creature.new(data["stats"])
-    creature["pronoun"] = Pronoun[data["pronoun"]]
+    creature["pronoun"] = Pronoun.get(data["pronoun"])
     creature["name"] = data["name"]
     creature["kind"] = data["kind"]
     creature["symbol"] = data["symbol"]

@@ -1,3 +1,4 @@
+import "meta" for Meta
 import "dome" for Log
 
 class Pronoun {
@@ -24,12 +25,8 @@ class Pronoun {
 // Try not to use these?
   static male { Pronoun.new("he", "him", "his") }
   static female { Pronoun.new("she", "her", "her") }
-  static [key] {
-    return {
-      "you": Pronoun.you,
-      "they": Pronoun.they,
-      "it": Pronoun.it,
-    }[key]
+  static get(id) {
+    return Meta.compile("return Pronoun.%(id)").call()
   }
 }
 
