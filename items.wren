@@ -337,6 +337,7 @@ class LightningScroll is Item {
 
   use(args) { LightningAttackAction.new(8, 2) }
 }
+
 class ConfusionScroll is Item {
   construct new() {
     super("wand", "scroll")

@@ -75,26 +75,6 @@ class Player is Creature {
   }
 }
 
-/*
-class Creatures {
-  // Non-boss
-  static standard { [ Rat, Hound, Zombie ]}
-  // With bosses
-  static all { standard + [ Demon, Gargoyle ]}
-
-  static rat { Rat }
-  static hound { Hound }
-  static demon { Demon }
-  static gargoyle { Gargoyle }
-  static zombie { Zombie }
-
-  /*
-  static vampire { Vampire }
-  */
-}
-*/
-
-import "behaviour" for Behaviours
 import "items" for InventoryEntry, EquipmentSlot
 import "combat" for StatGroup, Condition
 import "messages" for Pronoun

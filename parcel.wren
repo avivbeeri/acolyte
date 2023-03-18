@@ -1,3 +1,4 @@
+import "meta" for Meta
 import "dome" for Window, Process, Platform, Log
 import "graphics" for Canvas, Color, Font
 import "collections" for PriorityQueue, Queue, Set, HashMap, Stack
@@ -1558,5 +1559,14 @@ class TextInputReader {
     if ((Keyboard["left ctrl"].down || Keyboard["right ctrl"].down) && Keyboard["v"].justPressed) {
       _text = _text + Clipboard.content
     }
+  }
+}
+
+
+var RE = null
+class Reflect {
+  static get(receiver, name) {
+    RE = receiver
+    return Meta.compileExpression("RE.%(name)").call()
   }
 }

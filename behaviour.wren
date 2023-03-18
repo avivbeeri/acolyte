@@ -219,9 +219,6 @@ class Behaviours {
   static wander { WanderBehaviour }
   static statue { StatueBehaviour }
   static localSeek { LocalSeekBehaviour }
-  static get(id) {
-    return Meta.compile("return Behaviours.%(id)").call()
-  }
 }
 
 import "events" for Events

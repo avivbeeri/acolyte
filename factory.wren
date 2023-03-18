@@ -4,7 +4,7 @@ import "math" for Vec
 import "messages" for Pronoun
 import "combat" for Condition
 import "behaviour" for Behaviours
-import "parcel" for DataFile
+import "parcel" for DataFile, Reflect
 
 var CreatureData = DataFile.load("creatures", "data/creatures.json")
 
@@ -12,7 +12,7 @@ class CreatureFactory {
   static spawn(kindId, zoneIndex, position) {
     var data = CreatureData[kindId]
     var creature = Creature.new(data["stats"])
-    creature["pronoun"] = Pronoun.get(data["pronoun"])
+    creature["pronoun"] = Reflect.get(Pronoun, data["pronoun"])
     creature["name"] = data["name"]
     creature["kind"] = data["kind"]
     creature["symbol"] = data["symbol"]
@@ -37,7 +37,7 @@ class CreatureFactory {
     for (behaviour in behaviours) {
       var id = behaviour[0]
       var args = behaviour.count > 1 ? behaviour[1..-1] : []
-      creature.behaviours.add(Behaviours.get(id).new(args))
+      creature.behaviours.add(Reflect.get(Behaviours, id).new(args))
     }
 
 
