@@ -8,7 +8,6 @@ class EquipmentSlot {
   static trinket { "TRINKET" }
 }
 
-
 class InventoryEntry is Stateful {
   construct new(id, count) {
     super()
@@ -224,6 +223,42 @@ class ItemAction is Action {
   }
 }
 
+class GenericItem is Stateful {
+  construct new(id, kind) {
+    super()
+    data["id"] = id
+    data["kind"] = kind
+  }
+
+  static inflate(data) {
+    var item = GenericItem.new(data["id"], data["kind"])
+    for (entry in data) {
+      item[entry.key] = entry.value
+    }
+    return item
+  }
+
+  id { data["id"] }
+  kind { data["kind"] }
+
+  slot { data["slot"] }
+  consumable { data["consumable"] }
+
+  name { data["name"] || kind || this.type.name }
+  toString { name }
+
+  query(action) { data["actions"][action] || {} }
+
+  default(actor, args) { use(args) }
+  use(args) { Fiber.abort("%(name) doesn't support action 'use'") }
+  equip(args) { Fiber.abort("%(name) doesn't support action 'equip'") }
+  unequip(args) { Fiber.abort("%(name) doesn't support action 'equip'") }
+  attack(args) { Fiber.abort("%(name) doesn't support action 'attack'") }
+  defend(args) { Fiber.abort("%(name) doesn't support action 'defend'") }
+  drink(args) { Fiber.abort("%(name) doesn't support action 'drink'") }
+  throw(args) { Fiber.abort("%(name) doesn't support action 'throw'")}
+}
+
 class Item is Stateful {
   construct new(id, kind) {
     super()
@@ -233,7 +268,10 @@ class Item is Stateful {
 
   id { data["id"] }
   kind { data["kind"] }
-  consumable { true }
+
+  slot { data["slot"] }
+  consumable { data["consumable"] }
+
   name { data["name"] || this.type.name }
 //  toString { name }
   query(action) { {} }

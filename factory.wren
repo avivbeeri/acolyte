@@ -7,6 +7,7 @@ import "behaviour" for Behaviours
 import "parcel" for DataFile, Reflect
 
 var CreatureData = DataFile.load("creatures", "data/creatures.json")
+var ItemData = DataFile.load("items", "data/items.json")
 
 class CreatureFactory {
   static spawn(kindId, zoneIndex, position) {
@@ -42,5 +43,29 @@ class CreatureFactory {
 
 
     return creature
+  }
+}
+
+
+class ItemFactory {
+  static inflate(id) {
+    var data = ItemData[id]
+
+    var item = GenericItem.new(data["id"], data["kind"])
+
+    item["consumable"] = data["consumable"]
+    item["kind"] = data["kind"]
+    item["name"] = data["name"]
+    item["default"] = data["default"]
+    item["actions"] = data["actions"] || {}
+    for (entry in data["actions"]) {
+      item["actions"][entry.key] = Stateful.copyValue(entry.value)
+    }
+    for (action in item["actions"].values) {
+      action["action"] = Actions.get(action["action"])
+    }
+
+    return item
+
   }
 }

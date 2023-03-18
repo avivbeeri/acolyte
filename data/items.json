@@ -1,0 +1,16 @@
+{
+  "potion": {
+    "id": "potion",
+    "kind": "potion",
+    "slot": null,
+    "consumable": true,
+    "name": "Health Potion",
+    "default": "drink",
+    "actions": {
+      "drink": {
+        "action": "heal", 
+        "value": 3
+      }
+    }   
+  }
+}
