@@ -283,16 +283,56 @@ class MeleeAttackAction is Action {
   }
 }
 
+#!component(id="blink", group="action")
+class BlinkAction is Action {
+  construct new() {
+    super()
+  }
+
+  evaluate() {
+    var options = []
+    var map = ctx.zone.map
+    for (y in map.yRange) {
+      for (x in map.xRange) {
+        var pos = Vec.new(x, y)
+        if (!map.isFloor(pos) || src.pos == pos || !ctx.getEntitiesAtPosition(pos).isEmpty) {
+          continue
+        }
+        options.add(Vec.new(x, y))
+      }
+    }
+    if (options.isEmpty) {
+      ActionResult.invalid
+    }
+    return ActionResult.valid
+  }
+
+  perform() {
+    var options = []
+    var map = ctx.zone.map
+    for (y in map.yRange) {
+      for (x in map.xRange) {
+        var pos = Vec.new(x, y)
+        if (!map.isFloor(pos) || src.pos == pos || !ctx.getEntitiesAtPosition(pos).isEmpty) {
+          continue
+        }
+        options.add(Vec.new(x, y))
+      }
+    }
+    var origin = src.pos
+    src.pos = RNG.sample(options)
+    ctx.addEvent(Events.move.new(src, origin))
+    return ActionResult.success
+  }
+}
 #!component(id="simpleMove", group="action")
 class SimpleMoveAction is Action {
   construct new(dir) {
     super()
-    _dir = dir
+    data["dir"] = dir
   }
-  withArgs(args) {
-    _dir = args["dir"] || _dir
-    return this
-  }
+
+  dir { data["dir"] }
 
   getArea(start, size) {
     var corner = start + size
@@ -308,7 +348,7 @@ class SimpleMoveAction is Action {
   }
 
   evaluate() {
-    var area = getArea(src.pos + _dir, src.size)
+    var area = getArea(src.pos + dir, src.size)
     for (spot in area) {
       if (!ctx.zone.map.neighbours(src.pos).contains(spot)) {
         return ActionResult.invalid
@@ -323,7 +363,7 @@ class SimpleMoveAction is Action {
 
   perform() {
     var origin = src.pos
-    src.pos = src.pos + _dir
+    src.pos = src.pos + dir
     ctx.addEvent(Events.move.new(src, origin))
     return ActionResult.success
   }

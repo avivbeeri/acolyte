@@ -1,4 +1,17 @@
 {
+  "blink": {
+    "id": "blink",
+    "kind": "scroll",
+    "slot": null,
+    "consumable": true,
+    "name": "Blink Scroll",
+    "default": "use",
+    "actions": {
+      "use": {
+        "action": "blink"
+      }
+    }   
+  },
   "potion": {
     "id": "potion",
     "kind": "potion",
