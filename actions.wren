@@ -59,6 +59,10 @@ class InflictConfusionAction is Action {
     super()
     _targetPos = target
   }
+  withArgs(args) {
+    _targetPos = args["target"]
+    return this
+  }
 
   evaluate() {
     if (ctx.getEntitiesAtPosition(_targetPos).isEmpty) {
@@ -90,6 +94,11 @@ class HealAction is Action {
     _target = target
     _amount = amount
   }
+  withArgs(args) {
+    _target = args["target"]
+    _amount = args["amount"]
+    return this
+  }
   target { _target || src }
   evaluate() {
     // Check if it's sensible to heal?
@@ -118,6 +127,11 @@ class LightningAttackAction is Action {
     _range = range
     // Do we deal direct damage or should we treat this as an ATK value?
     _damage = damage
+  }
+  withArgs(args) {
+    _range = args["range"]
+    _damage = args["damage"]
+    return this
   }
   evaluate() {
     _nearby = ctx.entities().where {|entity|
@@ -172,6 +186,12 @@ class AreaAttackAction is Action {
     _origin = origin
     _range = range
     _damage = damage
+  }
+  withArgs(args) {
+    _origin = args["origin"] || _origin
+    _range = args["range"] || _range
+    _damage = args["damage"] || _damage
+    return this
   }
   evaluate() {
     // TODO: check if origin is solid and visible
@@ -247,6 +267,10 @@ class MeleeAttackAction is Action {
     super()
     _dir = dir
   }
+  withArgs(args) {
+    _dir = args["dir"] || _dir
+    return this
+  }
   evaluate() {
     if (!ctx.zone.map.neighbours(src.pos).contains(src.pos + _dir)) {
       return ActionResult.invalid
@@ -281,6 +305,10 @@ class SimpleMoveAction is Action {
   construct new(dir) {
     super()
     _dir = dir
+  }
+  withArgs(args) {
+    _dir = args["dir"] || _dir
+    return this
   }
 
   getArea(start, size) {
@@ -344,6 +372,10 @@ class BumpAction is Action {
   construct new(dir) {
     super()
     _dir = dir
+  }
+  withArgs(args) {
+    _dir = args["dir"] || _dir
+    return this
   }
   evaluate() {
     if (ctx.entities().any{|other| other.occupies(src.pos  + _dir) && other["solid"] }) {

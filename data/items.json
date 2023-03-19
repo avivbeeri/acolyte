@@ -12,5 +12,110 @@
         "value": 3
       }
     }   
+  },
+  "scroll": {
+    "id": "scroll",
+    "kind": "scroll",
+    "slot": null,
+    "consumable": true,
+    "name": "Lightning Scroll",
+    "default": "use",
+    "actions": {
+      "use": {
+        "action": "lightningAttack", 
+        "target": "random",
+        "range": 8,
+        "damage": 3
+      }
+    }   
+  },
+  "wand": {
+    "id": "wand",
+    "kind": "scroll",
+    "slot": null,
+    "consumable": true,
+    "name": "Confusion Scroll",
+    "default": "use",
+    "actions": {
+      "use": {
+        "action": "inflictConfusion", 
+        "target": "one",
+        "needEntity": true,
+        "range": 8,
+        "area": 1
+      }
+    }   
+  },
+  "fireball": {
+    "id": "fireball",
+    "kind": "scroll",
+    "slot": null,
+    "consumable": true,
+    "name": "Fireball Scroll",
+    "default": "use",
+    "actions": {
+      "use": {
+        "action": "areaAttack", 
+        "target": "area",
+        "needEntity": false,
+        "range": 8,
+        "area": 2,
+        "damage": 5
+      }
+    }   
+  },
+  "dagger": {
+    "id": "dagger",
+    "kind": "sword",
+    "slot": "WEAPON",
+    "consumable": false,
+    "name": "Dagger",
+    "default": "equip",
+    "actions": {
+      "equip": {
+        "action": "equipItem", 
+        "stats": {
+          "add": {
+            "atk": 1
+          }
+        }
+      }
+    }   
+  },
+  "leather armor": {
+    "id": "leather armor",
+    "kind": "armor",
+    "slot": "ARMOR",
+    "consumable": false,
+    "name": "Leather Armor",
+    "default": "equip",
+    "actions": {
+      "equip": {
+        "action": "equipItem", 
+        "stats": {
+          "add": {
+            "def": 1
+          }
+        }
+      }
+    }   
+  },
+  "buckler": {
+    "id": "buckler",
+    "kind": "shield",
+    "slot": "OFF_HAND",
+    "consumable": false,
+    "name": "Buckler",
+    "default": "equip",
+    "actions": {
+      "equip": {
+        "action": "equipItem", 
+        "stats": {
+          "add": {
+            "def": 1
+          }
+        }
+      }
+    }   
   }
 }

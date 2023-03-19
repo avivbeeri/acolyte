@@ -329,6 +329,7 @@ class Action is Stateful {
   construct new() {
     super()
   }
+  withArgs(args) { this }
   bind(entity) {
     _source = entity
     return this
@@ -1441,6 +1442,8 @@ class DataFile {
       Log.e("Error loading data file %(path): %(fiber.error)")
     }
   }
+  keys { _data.keys }
+  values { _data.values }
   [key] { _data[key] }
 
   static [name] { __cache[name] }
@@ -1564,10 +1567,20 @@ class TextInputReader {
 
 
 var RE = null
+var RE_args = null
 class Reflect {
   static get(receiver, name) {
     RE = receiver
     return Meta.compileExpression("RE.%(name)").call()
+  }
+  static call(receiver, name) {
+    RE = receiver
+    return Meta.compileExpression("RE.%(name)()").call()
+  }
+  static call(receiver, name, args) {
+    RE = receiver
+    RE_args = args
+    return Meta.compileExpression("RE.%(name)(RE_args)").call()
   }
   static isType(derived, base) {
     if ((derived is Class) && (base is Class)) {

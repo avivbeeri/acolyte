@@ -4,7 +4,7 @@ import "entities" for Creature
 import "math" for Vec
 import "messages" for Pronoun
 import "combat" for Condition
-import "groups" for Behaviours
+import "groups" for Behaviours, Actions
 import "items" for GenericItem
 import "parcel" for DataFile, Reflect, Stateful
 
@@ -55,17 +55,28 @@ class ItemFactory {
 
     var item = GenericItem.new(data["id"], data["kind"])
 
-    item["consumable"] = data["consumable"]
     item["kind"] = data["kind"]
     item["name"] = data["name"]
+    item["slot"] = data["slot"]
+    item["consumable"] = data["consumable"]
+
     item["default"] = data["default"]
     item["actions"] = data["actions"] || {}
     for (entry in data["actions"]) {
       item["actions"][entry.key] = Stateful.copyValue(entry.value)
     }
-    for (action in item["actions"].values) {
-      // action["action"] = Actions.get(action["action"])
+    for (action in data["actions"]) {
+      var actionName = action.value["action"]
+      action.value["action"] = Reflect.get(Actions, actionName)
     }
     return item
+  }
+
+  static getAll() {
+    var out = {}
+    for (id in ItemData.keys) {
+      out[id] = ItemFactory.inflate(id)
+    }
+    return out
   }
 }

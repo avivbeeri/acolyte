@@ -60,7 +60,7 @@ class InventoryWindowState is SceneState {
       i = i + 1
       var label = ""
       var letter = getKey(i)
-      if (worldItems[entry.id] is Equipment) {
+      if (worldItems[entry.id].slot) {
         var item = worldItems[entry.id]
         if (player["equipment"][item.slot] == entry.id) {
           label = "(equipped)"
@@ -117,9 +117,10 @@ class InventoryWindowState is SceneState {
           player.pushAction(DropAction.new(entry.id))
           return previous
         } else if (_action == "use") {
-          var query = item.query("use")
+          var query = item.query(item["default"])
           if (!query["target"]) {
-              player.pushAction(ItemAction.new(entry.id))
+            System.print("using item")
+            player.pushAction(ItemAction.new(entry.id))
             return PlayerInputState.new()
           } else {
             query["item"] = entry.id

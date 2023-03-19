@@ -1,4 +1,4 @@
-import "parcel" for Action, ActionResult, Stateful, Log
+import "parcel" for Action, ActionResult, Stateful, Log, Reflect
 import "text" for TextSplitter
 
 class EquipmentSlot {
@@ -32,6 +32,10 @@ class DropAction is Action {
   construct new(id) {
     super()
     _itemId = id
+  }
+  withArgs(args) {
+    _itemId = args["itemId"] || _itemId
+    return this
   }
   evaluate() {
     if (src["inventory"].isEmpty || !src["inventory"].any {|entry| entry.id == _itemId } ) {
@@ -104,10 +108,15 @@ class UnequipItemAction is Action {
     _slot = slot
   }
 
+  withArgs(args) {
+    _slot = args["slot"] || _slot
+    return this
+  }
+
   evaluate() {
     _itemId = src["equipment"][_slot]
     var item = ctx["items"][_itemId]
-    if (!(item is Equipment)) {
+    if (!item.slot) {
       return ActionResult.invalid
     }
 
@@ -130,6 +139,10 @@ class EquipItemAction is Action {
     super()
     _itemId = id
   }
+  withArgs(args) {
+    _itemId = args["id"] || _itemId
+    return this
+  }
 
   evaluate() {
     var entries = src["inventory"].where {|entry| entry.id == _itemId }
@@ -142,8 +155,11 @@ class EquipItemAction is Action {
       return ActionResult.invalid
     }
     var item = ctx["items"][_itemId]
-    if (!(item is Equipment)) {
+    if (!item.slot) {
       return ActionResult.invalid
+    }
+    if (src["equipment"][item.slot] == item.id) {
+      return ActionResult.alternate(UnequipItemAction.new(item.slot))
     }
 
     return ActionResult.valid
@@ -178,6 +194,11 @@ class ItemAction is Action {
     _itemId = id
     _itemAction = null
     _args = args
+  }
+  withArgs(args) {
+    _itemId = args["id"] || _itemId
+    _args = args["args"] || _args
+    return this
   }
 
   evaluate() {
@@ -255,14 +276,39 @@ class GenericItem is Stateful {
 
   query(action) { data["actions"][action] || {} }
 
-  default(actor, args) { use(args) }
-  use(args) { Fiber.abort("%(name) doesn't support action 'use'") }
-  equip(args) { Fiber.abort("%(name) doesn't support action 'equip'") }
-  unequip(args) { Fiber.abort("%(name) doesn't support action 'equip'") }
-  attack(args) { Fiber.abort("%(name) doesn't support action 'attack'") }
-  defend(args) { Fiber.abort("%(name) doesn't support action 'defend'") }
-  drink(args) { Fiber.abort("%(name) doesn't support action 'drink'") }
-  throw(args) { Fiber.abort("%(name) doesn't support action 'throw'")}
+  default(actor, args) {
+    var action = data["default"]
+    System.print("default action is %(action)")
+    return Reflect.call(this, action, args)
+  }
+  use(args) { data["actions"]["use"]["action"].new(args) }
+  drink(args) { data["actions"]["drink"]["action"].new(args) }
+  throw(args) { data["actions"]["throw"]["action"].new(args) }
+  attack(args) { data["actions"]["attack"]["action"].new(args) }
+  defend(args) { data["actions"]["defend"]["action"].new(args) }
+
+  equip(args) {
+    return EquipItemAction.new(id)
+  }
+  unequip(args) {
+    return UnequipItemAction.new(slot)
+  }
+
+  onEquip(actor) {
+    var action = data["actions"]["equip"]
+    var stats = action["stats"]
+    System.print(stats)
+    actor["stats"].addModifier(Modifier.new(
+      slot,
+      stats["add"],
+      stats["mult"],
+      null,
+      true
+    ))
+  }
+  onUnequip(actor) {
+    actor["stats"].removeModifier(slot)
+  }
 }
 
 class Item is Stateful {

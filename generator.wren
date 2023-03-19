@@ -1,7 +1,7 @@
 import "json" for Json
 import "math" for Vec
 import "parcel" for TileMap8, Tile, Zone, Line, RNG, Entity, DIR_FOUR, Dijkstra, World, DIR_EIGHT, DataFile
-import "factory" for CreatureFactory
+import "factory" for CreatureFactory, ItemFactory
 
 var GeneratorData = DataFile.load("distribution", "data/tiers.json")
 var TierMap = {}
@@ -141,9 +141,11 @@ class WorldGenerator {
     var zone = world.loadZone(level)
 
     player.pos = zone["start"]
-    world["items"] = {}
-    Items.all.each {|item| world["items"][item.id] = item }
+    world["items"] = ItemFactory.getAll()
+    System.print(world["items"])
+    // Items.all.each {|item| world["items"][item.id] = item }
     for (id in player["equipment"].values) {
+      System.print("equipping %(id)")
       world["items"][id].onEquip(player)
     }
     world.skipTo(Player)
