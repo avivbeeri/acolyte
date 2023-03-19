@@ -55,24 +55,20 @@ class RestAction is Action {
 
 #!component(id="inflictConfusion", group="action")
 class InflictConfusionAction is Action {
-  construct new(target) {
+  construct new() {
     super()
-    _targetPos = target
   }
-  withArgs(args) {
-    _targetPos = args["target"]
-    return this
-  }
+  targetPos { data["origin"] }
 
   evaluate() {
-    if (ctx.getEntitiesAtPosition(_targetPos).isEmpty) {
+    if (ctx.getEntitiesAtPosition(targetPos).isEmpty) {
       return ActionResult.invalid
     }
     return ActionResult.valid
   }
 
   perform() {
-    ctx.getEntitiesAtPosition(_targetPos).each {|target|
+    ctx.getEntitiesAtPosition(targetPos).each {|target|
       if (target["conditions"].containsKey("confusion")) {
         target["conditions"]["confusion"].extend(4)
         ctx.addEvent(Events.extendCondition.new(target, "confusion"))
@@ -89,17 +85,13 @@ class InflictConfusionAction is Action {
 
 #!component(id="heal", group="action")
 class HealAction is Action {
-  construct new(target, amount) {
+  construct new() {
     super()
-    _target = target
-    _amount = amount
   }
-  withArgs(args) {
-    _target = args["target"]
-    _amount = args["amount"]
-    return this
-  }
-  target { _target || src }
+
+  target { data["target"] || src }
+  amount { data["amount"] }
+
   evaluate() {
     // Check if it's sensible to heal?
     var hpMax = target["stats"].get("hpMax")
@@ -113,7 +105,7 @@ class HealAction is Action {
 
   perform() {
     var hpMax = target["stats"].get("hpMax")
-    var total = (_amount * hpMax).ceil
+    var total = (amount * hpMax).ceil
     var amount = target["stats"].increase("hp", total, "hpMax")
     ctx.addEvent(Events.heal.new(target, amount))
 
@@ -122,22 +114,17 @@ class HealAction is Action {
 }
 #!component(id="lightningAttack", group="action")
 class LightningAttackAction is Action {
-  construct new(range, damage) {
+  construct new() {
     super()
-    _range = range
-    // Do we deal direct damage or should we treat this as an ATK value?
-    _damage = damage
   }
-  withArgs(args) {
-    _range = args["range"]
-    _damage = args["damage"]
-    return this
-  }
+
+  range { data["range"] }
+  damage { data["damage"] }
   evaluate() {
     _nearby = ctx.entities().where {|entity|
       return entity != src &&
              entity.has("stats") &&
-             distance(entity) <= _range &&
+             distance(entity) <= range &&
              ctx.zone.map[entity.pos]["visible"] == true
     }.toList
 
@@ -166,7 +153,7 @@ class LightningAttackAction is Action {
       return acc
     }
 
-    var result = CombatProcessor.calculate(src, target, _damage)
+    var result = CombatProcessor.calculate(src, target, damage)
     ctx.addEvent(LightningEvent.new(target))
     if (result[0]) {
       ctx.addEvent(Events.defeat.new(src, target))
@@ -181,33 +168,29 @@ class LightningAttackAction is Action {
 
 #!component(id="areaAttack", group="action")
 class AreaAttackAction is Action {
-  construct new(origin, range, damage) {
+  construct new() {
     super()
-    _origin = origin
-    _range = range
-    _damage = damage
   }
-  withArgs(args) {
-    _origin = args["origin"] || _origin
-    _range = args["range"] || _range
-    _damage = args["damage"] || _damage
-    return this
-  }
+
+  origin { data["origin"] }
+  range { data["range"] }
+  damage { data["damage"] }
+
   evaluate() {
     // TODO: check if origin is solid and visible
     return ActionResult.valid
   }
 
   perform() {
-    var targetPos = _origin
+    var targetPos = origin
     var defeats = []
     var kills = []
-    var dist = _range - 1
+    var dist = range - 1
     var targets = HashMap.new()
     for (dy in (-dist)..(dist)) {
       for (dx in (-dist)..(dist)) {
-        var x = (_origin.x + dx)
-        var y = (_origin.y + dy)
+        var x = (origin.x + dx)
+        var y = (origin.y + dy)
         var tileEntities = ctx.getEntitiesAtPosition(x, y)
         for (target in tileEntities) {
           targets[target.id] = target
@@ -216,7 +199,7 @@ class AreaAttackAction is Action {
     }
 
     for (target in targets.values) {
-      var result = CombatProcessor.calculate(src, target, _damage)
+      var result = CombatProcessor.calculate(src, target, damage)
       if (result[0]) {
         defeats.add(Events.defeat.new(src, target))
       }

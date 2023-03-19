@@ -9,7 +9,7 @@
     "actions": {
       "drink": {
         "action": "heal", 
-        "value": 3
+        "amount": 0.3
       }
     }   
   },
@@ -82,6 +82,42 @@
       }
     }   
   },
+  "shortsword": {
+    "id": "shortsword",
+    "kind": "sword",
+    "slot": "WEAPON",
+    "consumable": false,
+    "name": "Shortsword",
+    "default": "equip",
+    "actions": {
+      "equip": {
+        "action": "equipItem", 
+        "stats": {
+          "add": {
+            "atk": 2
+          }
+        }
+      }
+    }   
+  },
+  "longsword": {
+    "id": "longsword",
+    "kind": "sword",
+    "slot": "WEAPON",
+    "consumable": false,
+    "name": "Longsword",
+    "default": "equip",
+    "actions": {
+      "equip": {
+        "action": "equipItem", 
+        "stats": {
+          "add": {
+            "atk": 3
+          }
+        }
+      }
+    }   
+  },
   "leather armor": {
     "id": "leather armor",
     "kind": "armor",
@@ -95,6 +131,42 @@
         "stats": {
           "add": {
             "def": 1
+          }
+        }
+      }
+    }   
+  },
+  "chainmail": {
+    "id": "chainmail",
+    "kind": "armor",
+    "slot": "ARMOR",
+    "consumable": false,
+    "name": "Chainmail",
+    "default": "equip",
+    "actions": {
+      "equip": {
+        "action": "equipItem", 
+        "stats": {
+          "add": {
+            "def": 2
+          }
+        }
+      }
+    }   
+  },
+  "platemail": {
+    "id": "platemail",
+    "kind": "armor",
+    "slot": "ARMOR",
+    "consumable": false,
+    "name": "Platemail",
+    "default": "equip",
+    "actions": {
+      "equip": {
+        "action": "equipItem", 
+        "stats": {
+          "add": {
+            "def": 3
           }
         }
       }

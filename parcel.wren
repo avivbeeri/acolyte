@@ -86,12 +86,12 @@ class Stateful {
     if (value is Map) {
       var copy = {}
       for (key in value.keys) {
-        copy[key] = copyValue(value[key])
+        copy[key] = Stateful.copyValue(value[key])
       }
       return copy
     }
     if (value is List) {
-      return value.map {|entry| copyValue(entry) }.toList
+      return value.map {|entry| Stateful.copyValue(entry) }.toList
     }
     return value
   }
@@ -329,7 +329,15 @@ class Action is Stateful {
   construct new() {
     super()
   }
-  withArgs(args) { this }
+  withArgs(args) {
+    for (entry in args) {
+      if (!data.containsKey(entry.key)) {
+        data[entry.key] = entry.value
+      }
+    }
+    return this
+  }
+
   bind(entity) {
     _source = entity
     return this

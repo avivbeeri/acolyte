@@ -473,9 +473,11 @@ class Cursor is Element {
         var y = (_cursor.y + dy) * 16
         if (dx == dy && dx == 0) {
           Canvas.rectfill(x, y, 16, 16, INK["targetCursor"])
+          Canvas.rect(x, y, 16, 16, INK["targetBorder"])
           continue
         }
         Canvas.rectfill(x, y, 16, 16, INK["targetArea"])
+        Canvas.rect(x, y, 16, 16, INK["targetBorder"])
       }
     }
 

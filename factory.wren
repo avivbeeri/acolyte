@@ -61,13 +61,15 @@ class ItemFactory {
     item["consumable"] = data["consumable"]
 
     item["default"] = data["default"]
-    item["actions"] = data["actions"] || {}
+    item["actions"] = Stateful.copyValue(data["actions"]) || {}
     for (entry in data["actions"]) {
-      item["actions"][entry.key] = Stateful.copyValue(entry.value)
+      //item["actions"][entry.key] = Stateful.copyValue(entry.value)
+      System.print(entry.value)
     }
-    for (action in data["actions"]) {
-      var actionName = action.value["action"]
-      action.value["action"] = Reflect.get(Actions, actionName)
+    for (entry in item["actions"]) {
+      var actionName = entry.value["action"]
+      var action = Reflect.get(Actions, actionName)
+      item["actions"][entry.key]["action"] = action
     }
     return item
   }

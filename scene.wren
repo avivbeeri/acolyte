@@ -37,7 +37,7 @@ import "./actions" for BumpAction, PrayAction, RestAction, DescendAction, Strike
 import "./events" for Events,RestEvent, PickupEvent, UseItemEvent, LightningEvent
 import "./generator" for WorldGenerator
 import "./combat" for AttackEvent, DefeatEvent, HealEvent, AttackResult
-import "./items" for ItemAction, PickupAction, Items, Equipment, DropAction
+import "./items" for ItemAction, PickupAction, Equipment, DropAction
 import "./oath" for OathBroken, OathTaken, OathStrike
 
 class InventoryWindowState is SceneState {
@@ -118,9 +118,9 @@ class InventoryWindowState is SceneState {
           return previous
         } else if (_action == "use") {
           var query = item.query(item["default"])
-          if (!query["target"]) {
+          if (!query["target"] || query["target"] == "random") {
             System.print("using item")
-            player.pushAction(ItemAction.new(entry.id))
+            player.pushAction(ItemAction.new(entry.id, query))
             return PlayerInputState.new()
           } else {
             query["item"] = entry.id
@@ -131,7 +131,7 @@ class InventoryWindowState is SceneState {
       i = i + 1
     }
     if (INPUT["reject"].firing || INPUT["confirm"].firing) {
-      return previous
+      return scene.world.complete ? previous : PlayerInputState.new()
     }
     return this
   }
@@ -208,7 +208,7 @@ class TargetQueryState is SceneState {
     }
     if ((INPUT["confirm"].firing || Mouse["left"].justPressed) && targetValid(_origin, _cursorPos)) {
       var player = scene.world.getEntityByTag("player")
-      player.pushAction(ItemAction.new(_query["item"], [ _cursorPos, _area ]))
+      player.pushAction(ItemAction.new(_query["item"], { "origin": _cursorPos, "range": _area }))
       return PlayerInputState.new()
     }
 
@@ -437,11 +437,6 @@ class PlayerInputState is SceneState {
     if (INPUT["help"].firing) {
       return HelpState.new()
     }
-    /*
-    if (INPUT["exit"].firing) {
-      return ConfirmState.new()
-    }
-    */
 
     if (_world.complete) {
       if (INPUT["confirm"].firing) {

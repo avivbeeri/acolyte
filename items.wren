@@ -33,12 +33,11 @@ class DropAction is Action {
     super()
     _itemId = id
   }
-  withArgs(args) {
-    _itemId = args["itemId"] || _itemId
-    return this
-  }
+
+  itemId { data["id"] }
+
   evaluate() {
-    if (src["inventory"].isEmpty || !src["inventory"].any {|entry| entry.id == _itemId } ) {
+    if (src["inventory"].isEmpty || !src["inventory"].any {|entry| entry.id == itemId } ) {
       return ActionResult.invalid
     }
     return ActionResult.valid
@@ -47,13 +46,13 @@ class DropAction is Action {
   perform() {
     var tile = ctx.zone.map[src.pos]
     var inventory = src["inventory"]
-    var existing = inventory.where {|entry| entry.id == _itemId }.toList
+    var existing = inventory.where {|entry| entry.id == itemId }.toList
 
     existing[0].subtract(1)
 
     var found = false
     for (entry in (tile["items"] || [])) {
-      if (entry.id == _itemId) {
+      if (entry.id == itemId) {
         entry.add(1)
         found = true
         break
@@ -61,10 +60,10 @@ class DropAction is Action {
     }
     if (!found) {
       tile["items"] = tile["items"] || []
-      tile["items"].add(InventoryEntry.new(_itemId, 1))
+      tile["items"].add(InventoryEntry.new(itemId, 1))
     }
 
-    ctx.addEvent(Events.drop.new(src, _itemId, 1, src.pos))
+    ctx.addEvent(Events.drop.new(src, itemId, 1, src.pos))
     return ActionResult.success
   }
 }
@@ -106,11 +105,6 @@ class UnequipItemAction is Action {
   construct new(slot) {
     super()
     _slot = slot
-  }
-
-  withArgs(args) {
-    _slot = args["slot"] || _slot
-    return this
   }
 
   evaluate() {
@@ -195,11 +189,6 @@ class ItemAction is Action {
     _itemAction = null
     _args = args
   }
-  withArgs(args) {
-    _itemId = args["id"] || _itemId
-    _args = args["args"] || _args
-    return this
-  }
 
   evaluate() {
     var entries = src["inventory"].where {|entry| entry.id == _itemId }
@@ -281,11 +270,11 @@ class GenericItem is Stateful {
     System.print("default action is %(action)")
     return Reflect.call(this, action, args)
   }
-  use(args) { data["actions"]["use"]["action"].new(args) }
-  drink(args) { data["actions"]["drink"]["action"].new(args) }
-  throw(args) { data["actions"]["throw"]["action"].new(args) }
-  attack(args) { data["actions"]["attack"]["action"].new(args) }
-  defend(args) { data["actions"]["defend"]["action"].new(args) }
+  use(args) { data["actions"]["use"]["action"].new().withArgs(args) }
+  drink(args) { data["actions"]["drink"]["action"].new().withArgs(args) }
+  throw(args) { data["actions"]["throw"]["action"].new().withArgs(args) }
+  attack(args) { data["actions"]["attack"]["action"].new().withArgs(args) }
+  defend(args) { data["actions"]["defend"]["action"].new().withArgs(args) }
 
   equip(args) {
     return EquipItemAction.new(id)
@@ -469,6 +458,7 @@ class FireballScroll is Item {
   }
 }
 
+/*
 class Items {
   static findable {
     return [
@@ -502,6 +492,7 @@ class Items {
   static platemail { Armor.new("platemail", 3) }
   static buckler { Shield.new("buckler", 1) }
 }
+*/
 
 import "./actions" for HealAction, LightningAttackAction, InflictConfusionAction, AreaAttackAction
 import "./events" for Events

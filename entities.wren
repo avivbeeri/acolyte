@@ -53,6 +53,9 @@ class Player is Creature {
     this["inventory"] = [
       InventoryEntry.new("dagger", 1),
       InventoryEntry.new("leather armor", 1),
+      InventoryEntry.new("wand", 1),
+      InventoryEntry.new("scroll", 1),
+      InventoryEntry.new("fireball", 1),
     ]
   }
   name { data["name"] || "Player" }
