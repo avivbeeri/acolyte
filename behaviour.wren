@@ -1,7 +1,7 @@
-import "meta" for Meta
 import "jps" for JPS
 import "math" for Vec, M
 import "parcel" for
+  Reflect,
   Entity,
   BehaviourEntity,
   GameSystem,
@@ -11,7 +11,6 @@ import "parcel" for
   RNG,
   Action,
   Set
-
 class Behaviour is GameSystem {
   construct new(args) {
     super()
@@ -29,6 +28,7 @@ class Behaviour is GameSystem {
   }
 }
 
+#!component(id="confused", group="behaviour")
 class ConfusedBehaviour is Behaviour {
   construct new(args) {
     super()
@@ -44,6 +44,7 @@ class ConfusedBehaviour is Behaviour {
   }
 }
 
+#!component(id="unconscious", group="behaviour")
 class UnconsciousBehaviour is Behaviour {
   construct new(args) {
     super()
@@ -67,6 +68,8 @@ class UnconsciousBehaviour is Behaviour {
     return true
   }
 }
+
+#!component(id="boss", group="behaviour")
 class BossBehaviour is Behaviour {
   construct new(args) {
     super()
@@ -81,6 +84,8 @@ class BossBehaviour is Behaviour {
     // if in range, charge and target with a spell
   }
 }
+
+#!component(id="randomWalk", group="behaviour")
 class RandomWalkBehaviour is Behaviour {
   construct new(args) {
     super()
@@ -98,6 +103,8 @@ class RandomWalkBehaviour is Behaviour {
     return true
   }
 }
+
+#!component(id="wander", group="behaviour")
 class WanderBehaviour is RandomWalkBehaviour {
   construct new(args) {
     super()
@@ -139,6 +146,7 @@ class WanderBehaviour is RandomWalkBehaviour {
   }
 }
 
+#!component(id="seek", group="behaviour")
 class SeekBehaviour is Behaviour {
   construct new(args) {
     super()
@@ -166,6 +174,7 @@ class SeekBehaviour is Behaviour {
   }
 }
 
+#!component(id="statue", group="behaviour")
 class StatueBehaviour is SeekBehaviour {
   construct new(args) {
     super()
@@ -192,6 +201,7 @@ class StatueBehaviour is SeekBehaviour {
   }
 }
 
+#!component(id="localSeek", group="behaviour")
 class LocalSeekBehaviour is SeekBehaviour {
   construct new(args) {
     super()
@@ -210,18 +220,6 @@ class LocalSeekBehaviour is SeekBehaviour {
   }
 }
 
-class Behaviours {
-  static seek { SeekBehaviour }
-  static randomWalk { RandomWalkBehaviour }
-  static boss { BossBehaviour }
-  static confused { ConfusedBehaviour }
-  static unconscious { UnconsciousBehaviour }
-  static wander { WanderBehaviour }
-  static statue { StatueBehaviour }
-  static localSeek { LocalSeekBehaviour }
-}
-
 import "events" for Events
 import "actions" for BumpAction, SimpleMoveAction
 import "entities" for Player, Creature
-

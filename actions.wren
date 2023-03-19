@@ -4,6 +4,7 @@ import "math" for Vec
 import "./combat" for Damage, Condition, CombatProcessor
 import "./events" for Events, RestEvent, LightningEvent
 
+#!component(id="pray", group="action")
 class PrayAction is Action {
   construct new() {
     super()
@@ -36,6 +37,8 @@ class PrayAction is Action {
     return ActionResult.success
   }
 }
+
+#!component(id="rest", group="action")
 class RestAction is Action {
   construct new() {
     super()
@@ -50,6 +53,7 @@ class RestAction is Action {
   }
 }
 
+#!component(id="inflictConfusion", group="action")
 class InflictConfusionAction is Action {
   construct new(target) {
     super()
@@ -79,6 +83,7 @@ class InflictConfusionAction is Action {
   }
 }
 
+#!component(id="heal", group="action")
 class HealAction is Action {
   construct new(target, amount) {
     super()
@@ -106,6 +111,7 @@ class HealAction is Action {
     return ActionResult.success
   }
 }
+#!component(id="lightningAttack", group="action")
 class LightningAttackAction is Action {
   construct new(range, damage) {
     super()
@@ -159,6 +165,7 @@ class LightningAttackAction is Action {
   }
 }
 
+#!component(id="areaAttack", group="action")
 class AreaAttackAction is Action {
   construct new(origin, range, damage) {
     super()
@@ -205,6 +212,7 @@ class AreaAttackAction is Action {
     return ActionResult.success
   }
 }
+#!component(id="strikeAttack", group="action")
 class StrikeAttackAction is Action {
   construct new() {
     super()
@@ -233,6 +241,7 @@ class StrikeAttackAction is Action {
     return ActionResult.success
   }
 }
+#!component(id="meleeAttack", group="action")
 class MeleeAttackAction is Action {
   construct new(dir) {
     super()
@@ -267,6 +276,7 @@ class MeleeAttackAction is Action {
   }
 }
 
+#!component(id="simpleMove", group="action")
 class SimpleMoveAction is Action {
   construct new(dir) {
     super()
@@ -312,6 +322,7 @@ class SimpleMoveAction is Action {
   }
 }
 
+#!component(id="descend", group="action")
 class DescendAction is Action {
   construct new() {
   }
@@ -328,6 +339,7 @@ class DescendAction is Action {
   }
 }
 
+#!component(id="bump", group="action")
 class BumpAction is Action {
   construct new(dir) {
     super()
@@ -341,6 +353,8 @@ class BumpAction is Action {
     return ActionResult.alternate(SimpleMoveAction.new(_dir))
   }
 }
+
+#!component(id="interact", group="action")
 class InteractAction is Action {
   construct new() {
     super()

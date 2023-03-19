@@ -27,6 +27,7 @@ class InventoryEntry is Stateful {
   qty=(v) { data["qty"] = v }
 }
 
+#!component(id="drop", group="action")
 class DropAction is Action {
   construct new(id) {
     super()
@@ -63,6 +64,7 @@ class DropAction is Action {
     return ActionResult.success
   }
 }
+#!component(id="pickup", group="action")
 class PickupAction is Action {
   construct new() {
     super()
@@ -95,6 +97,7 @@ class PickupAction is Action {
   }
 }
 
+#!component(id="unequipItem", group="action")
 class UnequipItemAction is Action {
   construct new(slot) {
     super()
@@ -121,6 +124,7 @@ class UnequipItemAction is Action {
   }
 }
 
+#!component(id="equipItem", group="action")
 class EquipItemAction is Action {
   construct new(id) {
     super()
@@ -160,6 +164,8 @@ class EquipItemAction is Action {
     return ActionResult.success
   }
 }
+
+#!component(id="item", group="action")
 class ItemAction is Action {
   construct new(id) {
     super()

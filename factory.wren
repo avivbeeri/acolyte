@@ -1,10 +1,12 @@
+import "meta" for Meta
 import "json" for Json
 import "entities" for Creature
 import "math" for Vec
 import "messages" for Pronoun
 import "combat" for Condition
-import "behaviour" for Behaviours
-import "parcel" for DataFile, Reflect
+import "groups" for Behaviours
+import "items" for GenericItem
+import "parcel" for DataFile, Reflect, Stateful
 
 var CreatureData = DataFile.load("creatures", "data/creatures.json")
 var ItemData = DataFile.load("items", "data/items.json")
@@ -62,10 +64,8 @@ class ItemFactory {
       item["actions"][entry.key] = Stateful.copyValue(entry.value)
     }
     for (action in item["actions"].values) {
-      action["action"] = Actions.get(action["action"])
+      // action["action"] = Actions.get(action["action"])
     }
-
     return item
-
   }
 }

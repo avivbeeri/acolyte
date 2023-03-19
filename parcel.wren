@@ -1569,4 +1569,14 @@ class Reflect {
     RE = receiver
     return Meta.compileExpression("RE.%(name)").call()
   }
+  static isType(derived, base) {
+    if ((derived is Class) && (base is Class)) {
+      var current = derived
+      while (current != Object && current != base) {
+        current = current.supertype
+      }
+      return current == base
+    }
+    return false
+  }
 }
