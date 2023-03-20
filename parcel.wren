@@ -10,12 +10,15 @@ import "input" for Keyboard, Clipboard
 
 class Scheduler {
   static init() {
+    if (__deferred) {
+      return
+    }
     __deferred = PriorityQueue.min()
     __tick = 0
   }
 
   static defer(fn) {
-    if (!__tick) {
+    if (__tick == null) {
       Scheduler.init()
     }
     __deferred.add(Fiber.new {
@@ -25,7 +28,7 @@ class Scheduler {
   }
 
   static deferBy(tick, fn) {
-    if (!__tick) {
+    if (__tick == null) {
       Scheduler.init()
     }
     __deferred.add(Fiber.new {
@@ -162,7 +165,7 @@ class Event is Stateful {
       members = []
     }
     var originalName = name
-    name = name +  "Event_"
+    name = TextSplitter.capitalize(name +  "Event")
     var args = members.join(", ")
     var s = ""
     s = s + "#!component(id=\"%(originalName)\", group=\"event\")\n"
@@ -1662,3 +1665,4 @@ class Reflect {
     return false
   }
 }
+import "text" for TextSplitter

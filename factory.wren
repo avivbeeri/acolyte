@@ -70,6 +70,7 @@ class ItemFactory {
     }
     for (entry in item["actions"]) {
       var actionName = entry.value["action"]
+      System.print(Components.actions)
       var action = Reflect.get(Components.actions, actionName)
       item["actions"][entry.key]["action"] = action
     }

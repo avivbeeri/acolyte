@@ -98,12 +98,11 @@ class Components {
   static actions { __actions }
   static actions=(v) { __actions = v }
 
-  static behaviour { __behaviour }
-  static behaviour=(v) { __behaviour = v }
+  static behaviours { __behaviours }
+  static behaviours=(v) { __behaviours = v }
 }
 
 Scheduler.defer {
-
   ClassGroup.scanModule("parcel")
   ClassGroup.scanModule("behaviour")
   ClassGroup.scanModule("actions")
@@ -112,4 +111,5 @@ Scheduler.defer {
   Components.events = ClassGroup.create("Events", "event")
   Components.behaviours = ClassGroup.create("Behaviours", "behaviour")
   Components.actions = ClassGroup.create("Actions", "action")
+  System.print("set up")
 }
