@@ -10,6 +10,9 @@ class OathSystem is GameSystem {
 
   start(ctx) {
     var player = ctx.getEntityByTag("player")
+    if (!player) {
+      return null
+    }
     var oaths = [
       Pacifism,
       SelfDefense,

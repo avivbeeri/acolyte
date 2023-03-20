@@ -10,7 +10,7 @@ class PrayAction is Action {
     super()
   }
 
-  cost() { MAX_TURN_SIZE * 3 }
+  cost() { super.cost() * 3 }
 
   evaluate() {
     return ActionResult.valid
@@ -88,8 +88,6 @@ class ApplyModifierAction is Action {
       var stats = target["stats"]
       var mod = Modifier.new(modifier["id"], modifier["add"], modifier["mult"], modifier["duration"], modifier["positive"])
       stats.addModifier(mod)
-      target.pushAction(Action.none)
-      System.print(stats)
       // TODO emit event
     }
 

@@ -793,7 +793,10 @@ class AsciiRenderer is Element {
         return false
       }
       return a["killed"]
-    } + [ player ]
+    }
+    if (player) {
+      tileEntities = tileEntities + [ player ]
+    }
 
     for (entity in tileEntities) {
       if (!entity.pos) {

@@ -2,7 +2,6 @@ import "math" for Vec
 import "fov" for Vision2 as Vision
 import "parcel" for GameSystem, GameEndEvent, ChangeZoneEvent, Dijkstra
 import "./entities" for Player
-import "items" for Equipment
 import "combat" for Condition
 import "behaviour" for UnconsciousBehaviour, SeekBehaviour
 
@@ -50,8 +49,8 @@ class InventorySystem is GameSystem {
       actor["inventory"] = actor["inventory"].where {|entry| entry.qty > 0 }.toList.sort{|a, b|
         var itemA = ctx["items"][a.id]
         var itemB = ctx["items"][b.id]
-        var itemEquipmentA = (itemA is Equipment)
-        var itemEquipmentB = (itemB is Equipment)
+        var itemEquipmentA = (itemA.slot)
+        var itemEquipmentB = (itemB.slot)
         var itemEquippedA = (itemEquipmentA && actor["equipment"][itemA.slot] == itemA.id)
         var itemEquippedB = (itemEquipmentB && actor["equipment"][itemB.slot] == itemB.id)
         if (itemEquippedA && !itemEquippedB) {
@@ -73,15 +72,17 @@ class InventorySystem is GameSystem {
 class ConditionSystem is GameSystem {
   construct new() { super() }
   postUpdate(ctx, actor) {
-    if (!actor.has("conditions")) {
-      return
+    if (actor["stats"]) {
+      actor["stats"].tick()
     }
-    for (entry in actor["conditions"]) {
-      var condition = entry.value
-      condition.tick()
-      if (condition.done) {
-        actor["conditions"].remove(condition.id)
-        ctx.addEvent(Components.events.clearCondition.new(actor, condition.id))
+    if (actor.has("conditions")) {
+      for (entry in actor["conditions"]) {
+        var condition = entry.value
+        condition.tick()
+        if (condition.done) {
+          actor["conditions"].remove(condition.id)
+          ctx.addEvent(Components.events.clearCondition.new(actor, condition.id))
+        }
       }
     }
   }
@@ -115,12 +116,18 @@ class VisionSystem is GameSystem {
   construct new() { super() }
   start(ctx) {
     var player = ctx.getEntityByTag("player")
+    if (!player) {
+      return
+    }
     postUpdate(ctx, player)
   }
 
   process(ctx, event) {
     if (event is ChangeZoneEvent) {
       var player = ctx.getEntityByTag("player")
+      if (!player) {
+        return
+      }
       ctx["map"] = Dijkstra.map(ctx.zone.map, player.pos)
     }
   }

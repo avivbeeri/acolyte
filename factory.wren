@@ -33,7 +33,6 @@ class CreatureFactory {
 
     creature["conditions"] = {}
     for (condition in (data["conditions"] || [])) {
-      System.print(condition)
       creature["conditions"][condition[0]] = Condition.new(condition[0], condition[1], condition[2])
     }
     var behaviours = data["behaviours"] || []
@@ -62,15 +61,8 @@ class ItemFactory {
 
     item["default"] = data["default"]
     item["actions"] = Stateful.copyValue(data["actions"]) || {}
-    if (data["actions"]) {
-      for (entry in item["actions"]) {
-        //item["actions"][entry.key] = Stateful.copyValue(entry.value)
-        System.print(entry.value)
-      }
-    }
     for (entry in item["actions"]) {
       var actionName = entry.value["action"]
-      System.print(Components.actions)
       var action = Reflect.get(Components.actions, actionName)
       item["actions"][entry.key]["action"] = action
     }

@@ -39,7 +39,7 @@ import "./events" for RestEvent, PickupEvent, UseItemEvent, LightningEvent
 import "./groups" for Components
 import "./generator" for WorldGenerator
 import "./combat" for AttackResult
-import "./items" for ItemAction, PickupAction, Equipment, DropAction
+import "./items" for ItemAction, PickupAction, DropAction
 import "./oath" for OathBroken, OathTaken, OathStrike
 
 class InventoryWindowState is SceneState {
@@ -503,7 +503,9 @@ class GameScene is Scene {
     var player = world.getEntityByTag("player")
     changeState(PlayerInputState.new())
     _renderer = addElement(Renderer.new(Vec.new((Canvas.width - (32 * 16))/2, 16)))
-    addElement(HealthBar.new(Vec.new(4, 0), player.ref))
+    if (player) {
+      addElement(HealthBar.new(Vec.new(4, 0), player.ref))
+    }
     //addElement(PietyBar.new(Vec.new(4, 16), player.ref))
     addElement(HoverText.new(Vec.new(Canvas.width - 8, 8)))
     addElement(LogViewer.new(Vec.new(4, Canvas.height - 5 * 10), _messages))

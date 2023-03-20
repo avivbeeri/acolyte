@@ -200,8 +200,10 @@ class Entity is Stateful {
     _actions = Queue.new()
     _events = Queue.new()
     _lastTurn = 0
+    _lastCost = 0
   }
 
+  nextTime { _lastTurn + _lastCost * speed }
   pushAction(action) { _actions.add(action) }
 
   bind(ctx, id) {
@@ -225,6 +227,8 @@ class Entity is Stateful {
   speed { 1 }
   lastTurn { _lastTurn }
   lastTurn=(v) { _lastTurn = v }
+  lastCost { _lastCost }
+  lastCost=(v) { _lastCost = v }
 
   // Entities don't update themselves
   // They supply the next action they want to perform
@@ -410,7 +414,7 @@ class Action is Stateful {
   perform() {
     return ActionResult.success
   }
-  cost() { MAX_TURN_SIZE * src.speed }
+  cost() { MAX_TURN_SIZE }
 
   ctx { _source.ctx }
   src { _source }
@@ -424,6 +428,7 @@ class Turn is Entity {
     super()
     pos = null
     _turn = 1
+    lastTurn = 0
   }
   name { "Turn Marker" }
   getAction() {
@@ -446,33 +451,6 @@ class DeclareTurnAction is Action {
   }
   cost() { MAX_TURN_SIZE }
 }
-
-class FastAction is Action {
-  construct new() { super() }
-  evaluate() {
-    return ActionResult.success
-  }
-  perform() {
-    return ActionResult.success
-  }
-  cost() {
-    if (src.name == "Player") {
-      return MAX_TURN_SIZE / 3
-    }
-    return MAX_TURN_SIZE
-  }
-}
-class FakeAction is Action {
-  construct new() { super() }
-  evaluate() {
-    return ActionResult.success
-  }
-  perform() {
-    src.zone = src.zone + 1
-    return ActionResult.success
-  }
-}
-
 
 // Weak reference
 class EntityRef {
@@ -543,22 +521,13 @@ class World is Stateful {
     _zones = []
     _zoneIndex = 0
     _step = 1
-    _turn = -1
     _events = Queue.new()
     _queue = PriorityQueue.min()
     _systems = []
+    _turn = 0
     addEntity("turnMarker", Turn.new())
-    _fn = Fn.new {
-      while (!complete) {
-        processTurn()
-        if (complete) {
-          break
-        }
-        Fiber.yield()
-      }
-    }
-    _fiber = null
   }
+
   start() {
     _started = true
     systems.each{|system| system.start(this) }
@@ -566,6 +535,15 @@ class World is Stateful {
     for (event in _events) {
       process(event)
     }
+  }
+
+  printQueue() {
+    System.print("Queue contains:")
+    for (id in _queue) {
+      System.write(getEntityById(id).name + ", ")
+    }
+
+    System.print("")
   }
 
   systems { _systems }
@@ -590,7 +568,7 @@ class World is Stateful {
     _queue.clear()
     _zoneIndex = newZone
     for (entity in entities()) {
-      _queue.add(entity.id, _turn)
+      _queue.add(entity.id, entity.lastTurn)
     }
     addEvent(ChangeZoneEvent.new(_zoneIndex))
   }
@@ -616,7 +594,11 @@ class World is Stateful {
       }
       zone = addZone(_generator.generate(this, [ i, start ]))
     }
-    changeZone(i)
+    if (_started) {
+      changeZone(i)
+    } else {
+      _zoneIndex = i
+    }
     return _zones[i]
   }
 
@@ -658,14 +640,22 @@ class World is Stateful {
     _entities[id] = entity.bind(this, id)
     var t = _turn
     if (_started && _queue.count > 0) {
+      t = _queue.peekPriority()
+      t = t + MAX_TURN_SIZE * entity.speed
+    }
+    /*
+    if (_started && _queue.count > 0) {
       var remaining = MAX_TURN_SIZE - (_queue.peekPriority() % MAX_TURN_SIZE)
       Log.d("Remaining %(remaining / MAX_TURN_SIZE)")
       t = _queue.peekPriority()
       t = (t + remaining)
     }
+    */
     Log.d("Adding %(entity) at time %(t)")
 
     _queue.add(id, t)
+    entity.lastTurn = t
+    entity.lastCost = 0
     addEvent(EntityAddedEvent.new(id))
     return EntityRef.new(this, entity.id)
   }
@@ -709,16 +699,10 @@ class World is Stateful {
   // Attempt to advance the world by one turn
   // returns true if something changed
   advance() {
-    /*
-    if (!_fiber || _fiber.isDone) {
-      _fiber = Fiber.new(_fn)
-    }
-    _fiber.call()
-    */
     processTurn()
   }
+
   skipTo(entityType) {
-    // TODO: check if player exists?
     var actor = null
     var actorId
     var turn
@@ -732,6 +716,18 @@ class World is Stateful {
       _queue.add(_queue.remove(), turn)
     }
   }
+
+  recalculateQueue() {
+    var newQueue = PriorityQueue.new()
+    while (!_queue.isEmpty) {
+      var actorId = _queue.get()
+      var actor = getEntityById(actorId)
+      var turn = actor.nextTime
+      newQueue.add(_queue.remove(), turn)
+    }
+    _queue = newQueue
+  }
+
   processTurn() {
     if (!_started) {
       Fiber.abort("Attempting to advance the world before start() has been called")
@@ -757,6 +753,17 @@ class World is Stateful {
         _queue.remove()
         continue
       }
+      if (actor.nextTime > turn) {
+        // If this entity needs to recalculate
+        //Log.i("%(actor) %(actor.id) last acted %(actor.lastTurn), recalculating next turn from %(turn) to %(actor.nextTime + 1)")
+        Log.i("%(actor) %(actor.id) last acted %(actor.lastTurn), recalculating...")
+        // actor.pushAction(Action.none)
+        // We add 1 here so that the turn order is maintained, otherwise
+        // there can be a slippage.
+        recalculateQueue()
+        actor = null
+        continue
+      }
       events.clear()
       // Check systems first to clear conditions
       systems.each{|system| system.preUpdate(this, actor) }
@@ -772,7 +779,7 @@ class World is Stateful {
       return false
     }
 
-    Log.d("Begin %(actor) turn %(turn)")
+    Log.d("%(actor) (%(actor.id)) begins turn %(turn)")
     var result
     while (true) {
       Log.d("%(actor) evaluate: %(action)")
@@ -802,8 +809,10 @@ class World is Stateful {
     actor.lastTurn = turn
     //if (actor.state == EntityState.active || actor.pos == null || actor.zone == originalZone) {
     if (actor.pos == null || actor.zone == originalZone && actor.state == EntityState.active) {
-      Log.d("%(actor): next turn is  %(turn + action.cost())")
-      _queue.add(actorId, turn + action.cost())
+      Log.d("%(actor): Action cost was %(action.cost() * actor.speed)")
+      Log.d("%(actor): next turn is %(turn + action.cost() * actor.speed)")
+      actor.lastCost = action.cost()
+      _queue.add(actorId, turn + action.cost() * actor.speed)
     }
 
     var outcome = result.succeeded
@@ -1531,13 +1540,14 @@ class ConfigData is DataFile {
       "integer": false,
       "mute": false
     })
+    var override = DataFile.load("overrides", "config-override.json")
+    Stateful.assign(data, override.data)
+
     Log.level = this["logLevel"]
     var Seed = this["seed"]
     Log.d("RNG Seed: %(Seed)")
     RNG = Random.new(Seed)
     SCALE = this["scale"]
-    var override = DataFile.load("overrides", "config-override.json")
-    Stateful.assign(data, override.data)
   }
 }
 var Config = ConfigData.load()

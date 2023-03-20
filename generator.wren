@@ -124,7 +124,6 @@ class WorldGenerator {
     world.addEntity("player", Player.new())
     var level = Config["level"] || 0
     var player = world.getEntityByTag("player")
-    player.zone = level
 
      /*
      //Debug power armor
@@ -138,17 +137,17 @@ class WorldGenerator {
     ]
     */
 
+    player.zone = level
     var zone = world.loadZone(level)
 
     player.pos = zone["start"]
     world["items"] = ItemFactory.getAll()
-    System.print(world["items"])
-    // Items.all.each {|item| world["items"][item.id] = item }
+
     for (id in player["equipment"].values) {
       System.print("equipping %(id)")
       world["items"][id].onEquip(player)
     }
-    world.skipTo(Player)
+    //world.skipTo(Player)
     world.start()
 
     return world
@@ -566,7 +565,7 @@ class BossRoomGenerator {
     zone["entities"] = []
     zone["entities"].add(CreatureFactory.spawn("demon", level, Vec.new(14, 12)))
 
-    for (i in 0...4) {
+    for (i in 0...1) {
       var pos = (center + DIR_EIGHT[4 + i] * 4)
       pos.x = pos.x.round
       pos.y = pos.y.round

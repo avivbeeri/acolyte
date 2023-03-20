@@ -1,54 +1,6 @@
 import "math" for M
 import "parcel" for Action, ActionResult, Event, Stateful, RNG
 
-/*
-class HealEvent is Event {
-  construct new(entity, amount) {
-    super()
-    _src = entity
-    _amount = amount
-  }
-  target { _src }
-  amount { _amount }
-}
-
-class KillEvent is Event {
-  construct new(src, target) {
-    super()
-    _src = src
-    _target = target
-  }
-  src { _src }
-  target { _target }
-}
-
-class DefeatEvent is Event {
-  construct new(src, target) {
-    super()
-    _src = src
-    _target = target
-  }
-  src { _src }
-  target { _target }
-}
-class AttackEvent is Event {
-  construct new(src, target, attack, result, damage) {
-    super()
-    data["src"] = src
-    data["target"] = target
-    data["attack"] = attack
-    data["result"] = result
-    data["damage"] = damage
-  }
-
-  src { data["src"] }
-  target { data["target"] }
-  attack { data["attack"] }
-  result { data["result"] }
-  damage { data["damage"] }
-}
-*/
-
 class Damage {
   static calculateLow(atk, def) {
     var o1 = atk * 2 - def
@@ -200,6 +152,7 @@ class StatGroup {
 
   tick() {
     for (modifier in _mods.values) {
+      modifier.tick()
       if (modifier.done) {
         removeModifier(modifier.id)
       }
