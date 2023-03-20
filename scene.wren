@@ -4,6 +4,7 @@ import "graphics" for Canvas, Color
 import "input" for Keyboard, Mouse
 import "math" for Vec
 import "parcel" for
+  Stateful,
   DIR_EIGHT,
   Scene,
   State,
@@ -115,9 +116,12 @@ class InventoryWindowState is SceneState {
       if (Keyboard[letter].justPressed) {
         if (_action == "drop") {
           player.pushAction(DropAction.new(entry.id))
-          return previous
+          return PlayerInputState.new()
         } else if (_action == "use") {
           var query = item.query(item["default"])
+          if (query == null) {
+            return this
+          }
           if (!query["target"] || query["target"] == "random") {
             System.print("using item")
             player.pushAction(ItemAction.new(entry.id, query))
@@ -149,7 +153,7 @@ class TargetQueryState is SceneState {
     _cursorPos = player.pos
     _hoverPos = null
 
-    _query = query
+    _query = Stateful.copyValue(query)
     _range = query["range"]
     _area = query["area"] || 1
     _allowSolid = query.containsKey("allowSolid") ? query["allowSolid"] : false
@@ -208,7 +212,10 @@ class TargetQueryState is SceneState {
     }
     if ((INPUT["confirm"].firing || Mouse["left"].justPressed) && targetValid(_origin, _cursorPos)) {
       var player = scene.world.getEntityByTag("player")
-      player.pushAction(ItemAction.new(_query["item"], { "origin": _cursorPos, "range": _area }))
+      var query = _query
+      query["origin"] = _cursorPos
+      System.print(query)
+      player.pushAction(ItemAction.new(_query["item"], query))
       return PlayerInputState.new()
     }
 

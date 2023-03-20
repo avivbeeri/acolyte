@@ -1,7 +1,7 @@
 import "collections" for HashMap
 import "parcel" for Action, ActionResult, MAX_TURN_SIZE, Line, RNG
 import "math" for Vec
-import "./combat" for Damage, Condition, CombatProcessor
+import "./combat" for Damage, Condition, CombatProcessor, Modifier
 import "./events" for Events, RestEvent, LightningEvent
 
 #!component(id="pray", group="action")
@@ -51,6 +51,50 @@ class RestAction is Action {
     ctx.addEvent(RestEvent.new(src))
     return ActionResult.success
   }
+}
+
+#!component(id="applyModifier", group="action")
+class ApplyModifierAction is Action {
+  construct new() {
+    super()
+  }
+  modifier { data["modifier"] }
+  origin { data["origin"] }
+  range { data["range"] || 1 }
+  area { data["area"] || 1 }
+
+  evaluate() {
+    if (Line.chebychev(src.pos, origin) > range) {
+      return ActionResult.invalid
+    }
+    return ActionResult.valid
+  }
+
+  perform() {
+    var hits = []
+    var dist = area - 1
+    var targets = HashMap.new()
+    for (dy in (-dist)..(dist)) {
+      for (dx in (-dist)..(dist)) {
+        var x = (origin.x + dx)
+        var y = (origin.y + dy)
+        var tileEntities = ctx.getEntitiesAtPosition(x, y)
+        for (target in tileEntities) {
+          targets[target.id] = target
+        }
+      }
+    }
+    for (target in targets.values) {
+      var stats = target["stats"]
+      var mod = Modifier.new(modifier["id"], modifier["add"], modifier["mult"], modifier["duration"], modifier["positive"])
+      stats.addModifier(mod)
+      System.print(stats)
+      // TODO emit event
+    }
+
+    return ActionResult.success
+  }
+
 }
 
 #!component(id="inflictConfusion", group="action")
@@ -369,7 +413,7 @@ class SimpleMoveAction is Action {
   }
 
   cost() {
-    return super.cost() * 1 / src["stats"]["spd"]
+    return super.cost() * (1 / src["stats"]["spd"])
   }
 }
 

@@ -202,6 +202,9 @@ class ItemAction is Action {
     }
 
     var result = null
+    if (!ctx["items"][_itemId]["default"]) {
+      return ActionResult.invalid
+    }
     var action = ctx["items"][_itemId].default(src, _args)
     while (true) {
       result = action.bind(src).evaluate()
@@ -263,7 +266,7 @@ class GenericItem is Stateful {
   name { data["name"] || kind || this.type.name }
   toString { name }
 
-  query(action) { data["actions"][action] || {} }
+  query(action) { data["actions"][action] }
 
   default(actor, args) {
     var action = data["default"]

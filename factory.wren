@@ -62,9 +62,11 @@ class ItemFactory {
 
     item["default"] = data["default"]
     item["actions"] = Stateful.copyValue(data["actions"]) || {}
-    for (entry in data["actions"]) {
-      //item["actions"][entry.key] = Stateful.copyValue(entry.value)
-      System.print(entry.value)
+    if (data["actions"]) {
+      for (entry in item["actions"]) {
+        //item["actions"][entry.key] = Stateful.copyValue(entry.value)
+        System.print(entry.value)
+      }
     }
     for (entry in item["actions"]) {
       var actionName = entry.value["action"]

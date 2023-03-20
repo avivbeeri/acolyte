@@ -82,6 +82,12 @@ class Stateful {
     }
   }
 
+  assign(other) {
+    for (entry in other) {
+      data[entry.key] = Stateful.copyValue(entry.value)
+    }
+  }
+
   static copyValue(value) {
     if (value is Map) {
       var copy = {}

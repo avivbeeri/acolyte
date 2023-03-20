@@ -1,4 +1,10 @@
 {
+  "book": {
+    "id": "book",
+    "kind": "book",
+    "consumable": false,
+    "name": "Holy Book"
+  },
   "blink": {
     "id": "blink",
     "kind": "scroll",
@@ -9,6 +15,32 @@
     "actions": {
       "use": {
         "action": "blink"
+      }
+    }   
+  },
+  "slow": {
+    "id": "slow",
+    "kind": "potion",
+    "slot": null,
+    "consumable": true,
+    "name": "Slow Potion",
+    "default": "throw",
+    "actions": {
+      "throw": {
+        "action": "applyModifier", 
+        "target": "area",
+        "needEntity": false,
+        "range": 8,
+        "area": 2,
+        "damage": 5,
+        "modifier": {
+          "id": "slow",
+          "duration": 4,
+          "mult": {
+            "spd": -0.5
+          },
+          "positive": false
+        }
       }
     }   
   },

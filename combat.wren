@@ -184,8 +184,16 @@ class StatGroup {
     return M.max(0, total + total * multiplier)
   }
 
+  toString {
+    var s = "Stats { "
+    for (stat in _base) {
+      s = s + print(stat.key) + ", "
+    }
+    s = s + "}"
+    return s
+  }
   print(stat) {
-    return "%(stat)>%(base(stat)):%(get(stat))"
+    return "\"%(stat)\": %(get(stat)) (%(base(stat)))"
   }
 
   tick() {
@@ -251,8 +259,6 @@ class Modifier {
     _duration = duration || null
     _positive = positive || false
   }
-
-
 
   id { _id }
   add { _add }
