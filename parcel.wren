@@ -15,6 +15,9 @@ class Scheduler {
   }
 
   static defer(fn) {
+    if (!__tick) {
+      Scheduler.init()
+    }
     __deferred.add(Fiber.new {
       fn.call()
       runNext()
@@ -22,6 +25,9 @@ class Scheduler {
   }
 
   static deferBy(tick, fn) {
+    if (!__tick) {
+      Scheduler.init()
+    }
     __deferred.add(Fiber.new {
       fn.call()
       runNext()
@@ -152,10 +158,15 @@ class Event is Stateful {
   // and returns a reference to it.
   static create(name, members) {
     if (name.type != String || name == "") Fiber.abort("Name must be a non-empty string.")
-    if (members.isEmpty) Fiber.abort("An enum must have at least one member.")
+    if (!members) {
+      members = []
+    }
+    var originalName = name
     name = name +  "Event_"
     var args = members.join(", ")
-    var s = "class %(name) is Event {\n"
+    var s = ""
+    s = s + "#!component(id=\"%(originalName)\", group=\"event\")\n"
+    s = s + "class %(name) is Event {\n"
     s = s + "  construct new(%(args)) {\n"
     s = s + "    super() \n"
     for (member in members) {

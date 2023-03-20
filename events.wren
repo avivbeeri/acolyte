@@ -1,5 +1,5 @@
 import "parcel" for Event
-import "combat" for HealEvent, DefeatEvent, AttackEvent, KillEvent
+//import "combat" for HealEvent, DefeatEvent, AttackEvent, KillEvent
 import "meta" for Meta
 
 var ApplyModifier = Event.create("ApplyModifier", ["target", "modifierName"])
@@ -13,55 +13,17 @@ var EquipItemEvent = Event.create("EquipItem", ["src", "item"])
 var UseItemEvent = Event.create("UseItem", ["src", "item"])
 var DropEvent = Event.create("Drop", ["src", "item", "qty", "pos"])
 var PickupEvent = Event.create("Pickup", ["src", "item", "qty"])
+var MoveEvent = Event.create("Move", ["src", "origin"])
+var StatueAwakenEvent = Event.create("StatueAwaken", ["src"])
+var PrayEvent = Event.create("Pray", ["src"])
+var RestEvent = Event.create("Rest", ["src"])
+var DescendEvent = Event.create("Descend", [])
+var StoryEvent = Event.create("Story", ["moment"])
+var HealEvent = Event.create("Heal", ["target", "amount"])
+var DefeatEvent = Event.create("Defeat", ["src", "target"])
+var AttackEvent = Event.create("Attack", ["src", "target", "attack", "result", "damage"])
 
-class MoveEvent is Event {
-  construct new(src, origin) {
-    super()
-    data["src"] = src
-    data["origin"] = origin
-  }
-
-  src { data["src"] }
-  origin { data["origin"] }
-}
-class StatueAwakenEvent is Event {
-  construct new(src) {
-    super()
-    data["src"] = src
-  }
-
-  src { data["src"] }
-}
-class PrayEvent is Event {
-  construct new(src) {
-    super()
-    data["src"] = src
-  }
-
-  src { data["src"] }
-}
-class RestEvent is Event {
-  construct new(src) {
-    super()
-    data["src"] = src
-  }
-
-  src { data["src"] }
-}
-class DescendEvent is Event {
-  construct new() {
-    super()
-  }
-}
-class StoryEvent is Event {
-  construct new(moment) {
-    super()
-    data["moment"] = moment
-  }
-
-  moment { data["moment"] }
-}
-
+/*
 class Events {
   static story { StoryEvent }
   static rest { RestEvent }
@@ -83,3 +45,4 @@ class Events {
   static move { MoveEvent }
   static statueAwaken { StatueAwakenEvent }
 }
+*/

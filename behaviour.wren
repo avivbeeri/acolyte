@@ -195,7 +195,7 @@ class StatueBehaviour is SeekBehaviour {
     } else if (frozenBefore) {
       actor["name"] = "Gargoyle"
       actor["symbol"] = "G"
-      ctx.addEvent(Events.statueAwaken.new(actor))
+      ctx.addEvent(Components.events.statueAwaken.new(actor))
     }
     return super.update(ctx, actor)
   }
@@ -220,6 +220,7 @@ class LocalSeekBehaviour is SeekBehaviour {
   }
 }
 
-import "events" for Events
+//import "events" for Components.events
 import "actions" for BumpAction, SimpleMoveAction
 import "entities" for Player, Creature
+import "groups" for Components

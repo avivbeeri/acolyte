@@ -4,7 +4,7 @@ import "entities" for Creature
 import "math" for Vec
 import "messages" for Pronoun
 import "combat" for Condition
-import "groups" for Behaviours, Actions
+import "groups" for Components
 import "items" for GenericItem
 import "parcel" for DataFile, Reflect, Stateful
 
@@ -40,7 +40,7 @@ class CreatureFactory {
     for (behaviour in behaviours) {
       var id = behaviour[0]
       var args = behaviour.count > 1 ? behaviour[1..-1] : []
-      creature.behaviours.add(Reflect.get(Behaviours, id).new(args))
+      creature.behaviours.add(Reflect.get(Components.behaviours, id).new(args))
     }
 
 
@@ -70,7 +70,7 @@ class ItemFactory {
     }
     for (entry in item["actions"]) {
       var actionName = entry.value["action"]
-      var action = Reflect.get(Actions, actionName)
+      var action = Reflect.get(Components.actions, actionName)
       item["actions"][entry.key]["action"] = action
     }
     return item

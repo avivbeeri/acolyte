@@ -1,6 +1,7 @@
 import "math" for M
 import "parcel" for Action, ActionResult, Event, Stateful, RNG
 
+/*
 class HealEvent is Event {
   construct new(entity, amount) {
     super()
@@ -46,6 +47,7 @@ class AttackEvent is Event {
   result { data["result"] }
   damage { data["damage"] }
 }
+*/
 
 class Damage {
   static calculateLow(atk, def) {
@@ -285,7 +287,7 @@ class CombatProcessor {
     var ctx = src.ctx
     var result = AttackResult.success
     if (target["conditions"].containsKey("invulnerable")) {
-      ctx.addEvent(AttackEvent.new(src, target, "area", AttackResult.invulnerable, 0))
+      ctx.addEvent(Components.events.attack.new(src, target, "area", AttackResult.invulnerable, 0))
       return [false, false, 0]
     }
     if (damage == null) {
@@ -320,8 +322,9 @@ class CombatProcessor {
         }
       }
     }
-    ctx.addEvent(AttackEvent.new(src, target, "area", result, damage))
+    ctx.addEvent(Components.events.attack.new(src, target, "area", result, damage))
     return [defeat, kill]
   }
 
 }
+import "groups" for Components

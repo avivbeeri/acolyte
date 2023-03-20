@@ -35,9 +35,10 @@ import "./renderer" for
   Dialog
 
 import "./actions" for BumpAction, PrayAction, RestAction, DescendAction, StrikeAttackAction, InteractAction
-import "./events" for Events,RestEvent, PickupEvent, UseItemEvent, LightningEvent
+import "./events" for RestEvent, PickupEvent, UseItemEvent, LightningEvent
+import "./groups" for Components
 import "./generator" for WorldGenerator
-import "./combat" for AttackEvent, DefeatEvent, HealEvent, AttackResult
+import "./combat" for AttackResult
 import "./items" for ItemAction, PickupAction, Equipment, DropAction
 import "./oath" for OathBroken, OathTaken, OathStrike
 
@@ -534,7 +535,7 @@ class GameScene is Scene {
       _messages.add(message, INK["playerDie"], false)
       changeState(GameEndState.new().with([ [ message, "", "Press 'confirm' to try again" ], restart ]))
     }
-    if (event is Events.story) {
+    if (event is Components.events.story) {
       if (event.moment.startsWith("dialogue:")) {
         changeState(DialogueState.new().with(event.moment[9..-1]))
       } else if (event.moment == "bossWeaken") {
@@ -548,7 +549,7 @@ class GameScene is Scene {
       _messages.add("Welcome, acolyte, to the catacombs.", INK["welcome"], false)
       _messages.add("The mission has begun.", INK["welcome"], false)
     }
-    if (event is AttackEvent) {
+    if (event is Components.events.attack) {
       var srcName = event.src.name
       var noun = srcName
       if (event.src is Player) {
@@ -570,32 +571,32 @@ class GameScene is Scene {
         _messages.add("%(srcName) attacked %(targetName) for %(event.damage) damage.", INK["enemyAtk"], true)
       }
     }
-    if (event is Events.statueAwaken) {
+    if (event is Components.events.statueAwaken) {
       _messages.add("Stone cracks and flakes away as statues become %(event.src.name)s.", INK["orange"], true)
     }
     if (event is LightningEvent) {
       _messages.add("%(event.target) was struck by lightning.", INK["playerAtk"], false)
     }
-    if (event is Events.kill) {
+    if (event is Components.events.kill) {
       _messages.add("%(event.target) was killed.", INK["text"], false)
     }
-    if (event is DefeatEvent) {
+    if (event is Components.events.defeat) {
       _messages.add("%(event.target) was knocked unconscious.", INK["text"], false)
     }
-    if (event is HealEvent) {
+    if (event is Components.events.heal) {
       _messages.add("%(event.target) was healed for %(event.amount)", INK["healthRecovered"], false)
     }
-    if (event is Events.pray) {
+    if (event is Components.events.pray) {
       _messages.add("%(event.src) prayed.", INK["text"], true)
     }
     if (event is RestEvent) {
       _messages.add("%(event.src) rests.", INK["text"], true)
     }
-    if (event is Events.unequipItem) {
+    if (event is Components.events.unequipItem) {
       var itemName = _world["items"][event.item]["name"]
       _messages.add("%(event.src) removed the %(itemName)", INK["text"], false)
     }
-    if (event is Events.equipItem) {
+    if (event is Components.events.equipItem) {
       var itemName = _world["items"][event.item]["name"]
       _messages.add("%(event.src) equipped the %(itemName)", INK["text"], false)
     }
@@ -607,16 +608,16 @@ class GameScene is Scene {
       var itemName = _world["items"][event.item]["name"]
       _messages.add("%(event.src) used %(itemName)", INK["text"], false)
     }
-    if (event is Events.inflictCondition) {
+    if (event is Components.events.inflictCondition) {
       _messages.add("%(event.target) became confused.", INK["text"], false)
     }
-    if (event is Events.extendCondition) {
+    if (event is Components.events.extendCondition) {
       _messages.add("%(event.target)'s confusion was extended.", INK["text"], false)
     }
-    if (event is Events.clearCondition) {
+    if (event is Components.events.clearCondition) {
       _messages.add("%(event.target) recovered from %(event.condition).", INK["text"], false)
     }
-    if (event is Events.descend) {
+    if (event is Components.events.descend) {
       _messages.add("You descend down the stairs.", INK["text"], false)
     }
     if (event is OathTaken) {

@@ -63,7 +63,7 @@ class DropAction is Action {
       tile["items"].add(InventoryEntry.new(itemId, 1))
     }
 
-    ctx.addEvent(Events.drop.new(src, itemId, 1, src.pos))
+    ctx.addEvent(Components.events.drop.new(src, itemId, 1, src.pos))
     return ActionResult.success
   }
 }
@@ -93,7 +93,7 @@ class PickupAction is Action {
       } else {
         existing[0].add(item.qty)
       }
-      ctx.addEvent(Events.pickup.new(src, item.id, item.qty))
+      ctx.addEvent(Components.events.pickup.new(src, item.id, item.qty))
     }
     items.clear()
     return ActionResult.success
@@ -121,7 +121,7 @@ class UnequipItemAction is Action {
     var existingItemId = src["equipment"][_slot]
     var item = ctx["items"][existingItemId]
     item.onUnequip(src)
-    ctx.addEvent(Events.unequipItem.new(src, _itemId))
+    ctx.addEvent(Components.events.unequipItem.new(src, _itemId))
     src["equipment"][_slot] = null
     return ActionResult.success
   }
@@ -165,11 +165,11 @@ class EquipItemAction is Action {
     if (existingItemId != null) {
       var existingItem = ctx["items"][existingItemId]
       existingItem.onUnequip(src)
-      ctx.addEvent(Events.unequipItem.new(src, existingItemId))
+      ctx.addEvent(Components.events.unequipItem.new(src, existingItemId))
     }
 
     src["equipment"][item.slot] = _itemId
-    ctx.addEvent(Events.equipItem.new(src, _itemId))
+    ctx.addEvent(Components.events.equipItem.new(src, _itemId))
     item.onEquip(src)
     return ActionResult.success
   }
@@ -237,7 +237,7 @@ class ItemAction is Action {
 
     Log.d("%(src) using %(item.name)")
     Log.d("%(src): performing %(_itemAction)")
-    ctx.addEvent(Events.useItem.new(src, _itemId))
+    ctx.addEvent(Components.events.useItem.new(src, _itemId))
     return _itemAction.bind(src).perform()
   }
 }
@@ -498,5 +498,6 @@ class Items {
 */
 
 import "./actions" for HealAction, LightningAttackAction, InflictConfusionAction, AreaAttackAction
-import "./events" for Events
+//import "./events" for Components
+import "./groups" for Components
 import "./combat" for Modifier

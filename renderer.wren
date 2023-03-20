@@ -18,7 +18,8 @@ import "./ui" for
   TargetEvent,
   TargetBeginEvent,
   TargetEndEvent
-import "events" for Events
+//import "events" for Components
+import "groups" for Components
 
 import "./inputs" for VI_SCHEME as INPUT
 import "./entities" for Player, Creature
@@ -580,10 +581,10 @@ class HealthBar is Element {
   }
 
   process(event) {
-    if (event is Events.attack && event.target.id == _entity.id) {
+    if (event is Components.events.attack && event.target.id == _entity.id) {
       updateValue()
     }
-    if (event is Events.heal && event.target.id == _entity.id) {
+    if (event is Components.events.heal && event.target.id == _entity.id) {
       updateValue()
     }
   }

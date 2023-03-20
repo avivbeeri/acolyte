@@ -1,7 +1,10 @@
 import "meta" for Meta
+import "parcel" for Scheduler
 var ImportedNames = []
-var IGNORE_LIST = [
+var IGNORE_LIST = Meta.getModuleVariables("groups")
+/* [
   "Object",
+  "Meta",
   "Class",
   "Bool",
   "Fiber",
@@ -25,6 +28,7 @@ var IGNORE_LIST = [
   "System",
   "ClassAttributes"
 ]
+*/
 
 class ClassGroup {
   static imports {
@@ -81,16 +85,31 @@ class ClassGroup {
       s = s + "  static %(field) { %(entry.value) }\n"
     }
     s = s + "}\n"
-    System.print(s)
+    // System.print(s)
     s = s + "return %(name)"
     return Meta.compile(s).call()
   }
 }
 
+class Components {
+  static events { __events }
+  static events=(v) { __events = v }
 
-ClassGroup.scanModule("behaviour")
-ClassGroup.scanModule("actions")
-ClassGroup.scanModule("items")
+  static actions { __actions }
+  static actions=(v) { __actions = v }
 
-var Behaviours = ClassGroup.create("Behaviours", "behaviour")
-var Actions = ClassGroup.create("Actions", "action")
+  static behaviour { __behaviour }
+  static behaviour=(v) { __behaviour = v }
+}
+
+Scheduler.defer {
+
+  ClassGroup.scanModule("parcel")
+  ClassGroup.scanModule("behaviour")
+  ClassGroup.scanModule("actions")
+  ClassGroup.scanModule("items")
+
+  Components.events = ClassGroup.create("Events", "event")
+  Components.behaviours = ClassGroup.create("Behaviours", "behaviour")
+  Components.actions = ClassGroup.create("Actions", "action")
+}

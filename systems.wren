@@ -11,13 +11,13 @@ class StorySystem is GameSystem {
   process(ctx, event) {
     if (event is ChangeZoneEvent && event.floor == 6) {
       ctx["fightBegan"] = true
-      ctx.addEvent(Events.story.new("dialogue:beforeBoss"))
+      ctx.addEvent(Components.events.story.new("dialogue:beforeBoss"))
     }
-    if (ctx["fightBegan"] && event is Events.kill && event.target["kind"] == "gargoyle") {
+    if (ctx["fightBegan"] && event is Components.events.kill && event.target["kind"] == "gargoyle") {
       var stillGargoyles = ctx.entities().any {|entity| entity["kind"] == "gargoyle" }
 
       if (!event.target["frozen"] && stillGargoyles) {
-        ctx.addEvent(Events.story.new("bossWeaken"))
+        ctx.addEvent(Components.events.story.new("bossWeaken"))
       }
       if (!stillGargoyles) {
         var demon = ctx.entities().where {|entity| entity["kind"] == "demon" }.toList[0]
@@ -27,7 +27,7 @@ class StorySystem is GameSystem {
         demon["size"] = Vec.new(1, 1)
         demon["pos"] = demon["pos"] + Vec.new(1, 1)
         demon.behaviours.add(SeekBehaviour.new(null))
-        ctx.addEvent(Events.story.new("bossVulnerable"))
+        ctx.addEvent(Components.events.story.new("bossVulnerable"))
       }
     }
   }
@@ -36,7 +36,7 @@ class StorySystem is GameSystem {
 class ExperienceSystem is GameSystem {
   construct new() { super() }
   process(ctx, event) {
-    if (event is Events.defeat) {
+    if (event is Components.events.defeat) {
       // Count XP just in case
       event.src["stats"].increase("xp", 1)
     }
@@ -81,7 +81,7 @@ class ConditionSystem is GameSystem {
       condition.tick()
       if (condition.done) {
         actor["conditions"].remove(condition.id)
-        ctx.addEvent(Events.clearCondition.new(actor, condition.id))
+        ctx.addEvent(Components.events.clearCondition.new(actor, condition.id))
       }
     }
   }
@@ -89,12 +89,12 @@ class ConditionSystem is GameSystem {
 class DefeatSystem is GameSystem {
   construct new() { super() }
   process(ctx, event) {
-    if (event is Events.defeat || event is Events.kill) {
+    if (event is Components.events.defeat || event is Components.events.kill) {
       if (event.target["boss"]) {
         ctx.addEvent(GameEndEvent.new(true))
       }
     }
-    if (event is Events.defeat) {
+    if (event is Components.events.defeat) {
       event.target["killed"] = true
       event.target["solid"] = false
       event.target.behaviours.add(UnconsciousBehaviour.new(null))
@@ -143,4 +143,4 @@ class VisionSystem is GameSystem {
   }
 }
 
-import "events" for Events
+import "groups" for Components

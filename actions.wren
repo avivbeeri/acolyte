@@ -2,7 +2,7 @@ import "collections" for HashMap
 import "parcel" for Action, ActionResult, MAX_TURN_SIZE, Line, RNG
 import "math" for Vec
 import "./combat" for Damage, Condition, CombatProcessor, Modifier
-import "./events" for Events, RestEvent, LightningEvent
+import "./events" for RestEvent, LightningEvent
 
 #!component(id="pray", group="action")
 class PrayAction is Action {
@@ -33,7 +33,7 @@ class PrayAction is Action {
         System.print("your prayers were heard")
       }
     }
-    ctx.addEvent(Events.pray.new(src))
+    ctx.addEvent(Components.events.pray.new(src))
     return ActionResult.success
   }
 }
@@ -115,11 +115,11 @@ class InflictConfusionAction is Action {
     ctx.getEntitiesAtPosition(targetPos).each {|target|
       if (target["conditions"].containsKey("confusion")) {
         target["conditions"]["confusion"].extend(4)
-        ctx.addEvent(Events.extendCondition.new(target, "confusion"))
+        ctx.addEvent(Components.events.extendCondition.new(target, "confusion"))
       } else {
         target["conditions"]["confusion"] = Condition.new("confusion", 4, true)
         target.behaviours.add(ConfusedBehaviour.new(null))
-        ctx.addEvent(Events.inflictCondition.new(target, "confusion"))
+        ctx.addEvent(Components.events.inflictCondition.new(target, "confusion"))
       }
     }
 
@@ -151,7 +151,7 @@ class HealAction is Action {
     var hpMax = target["stats"].get("hpMax")
     var total = (amount * hpMax).ceil
     var amount = target["stats"].increase("hp", total, "hpMax")
-    ctx.addEvent(Events.heal.new(target, amount))
+    ctx.addEvent(Components.events.heal.new(target, amount))
 
     return ActionResult.success
   }
@@ -200,11 +200,11 @@ class LightningAttackAction is Action {
     var result = CombatProcessor.calculate(src, target, damage)
     ctx.addEvent(LightningEvent.new(target))
     if (result[0]) {
-      ctx.addEvent(Events.defeat.new(src, target))
+      ctx.addEvent(Components.events.defeat.new(src, target))
     }
     if (result[1]) {
       ctx.zone.map[target.pos]["blood"] = true
-      ctx.addEvent(Events.kill.new(src, target))
+      ctx.addEvent(Components.events.kill.new(src, target))
     }
     return ActionResult.success
   }
@@ -245,11 +245,11 @@ class AreaAttackAction is Action {
     for (target in targets.values) {
       var result = CombatProcessor.calculate(src, target, damage)
       if (result[0]) {
-        defeats.add(Events.defeat.new(src, target))
+        defeats.add(Components.events.defeat.new(src, target))
       }
       if (result[1]) {
         ctx.zone.map[target.pos]["blood"] = true
-        kills.add(Events.kill.new(src, target))
+        kills.add(Components.events.kill.new(src, target))
       }
     }
     for (event in defeats + kills) {
@@ -281,7 +281,7 @@ class StrikeAttackAction is Action {
       var result = CombatProcessor.calculate(src, target)
       if (result[1]) {
         ctx.zone.map[target.pos]["blood"] = true
-        ctx.addEvent(Events.kill.new(src, target))
+        ctx.addEvent(Components.events.kill.new(src, target))
       }
     }
 
@@ -315,11 +315,11 @@ class MeleeAttackAction is Action {
     for (target in targets) {
       var result = CombatProcessor.calculate(src, target)
       if (result[0]) {
-        ctx.addEvent(Events.defeat.new(src, target))
+        ctx.addEvent(Components.events.defeat.new(src, target))
       }
       if (result[1]) {
         ctx.zone.map[target.pos]["blood"] = true
-        ctx.addEvent(Events.kill.new(src, target))
+        ctx.addEvent(Components.events.kill.new(src, target))
       }
     }
 
@@ -365,7 +365,7 @@ class BlinkAction is Action {
     }
     var origin = src.pos
     src.pos = RNG.sample(options)
-    ctx.addEvent(Events.move.new(src, origin))
+    ctx.addEvent(Components.events.move.new(src, origin))
     return ActionResult.success
   }
 }
@@ -408,7 +408,7 @@ class SimpleMoveAction is Action {
   perform() {
     var origin = src.pos
     src.pos = src.pos + dir
-    ctx.addEvent(Events.move.new(src, origin))
+    ctx.addEvent(Components.events.move.new(src, origin))
     return ActionResult.success
   }
 
@@ -426,7 +426,7 @@ class DescendAction is Action {
   }
   perform() {
     src.zone = src.zone + 1
-    ctx.addEvent(Events.descend.new())
+    ctx.addEvent(Components.events.descend.new())
     var zone = ctx.loadZone(ctx.zoneIndex + 1, src.pos)
     src.pos = zone["start"]
     ctx.skipTo(Player)
@@ -477,3 +477,4 @@ class InteractAction is Action {
 import "./behaviour" for ConfusedBehaviour
 import "./entities" for Player
 import "./items" for PickupAction
+import "./groups" for Components

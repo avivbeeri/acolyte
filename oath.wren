@@ -1,5 +1,5 @@
 import "parcel" for Stateful, GameSystem, Event, Line, ChangeZoneEvent, RNG
-import "events" for Events
+import "groups" for Components
 import "entities" for Player
 import "combat" for Modifier
 
@@ -216,7 +216,7 @@ class Piety is Oath {
   }
 
   process(ctx, event) {
-    if (event is Events.pray) {
+    if (event is Components.events.pray) {
       data["floors"] = 0
     }
     super.process(ctx, event)
@@ -238,9 +238,9 @@ class Quietus is Oath {
         strike()
       }
       data["attacked"].clear()
-    } else if (event is Events.defeat && event.src is Player) {
+    } else if (event is Components.events.defeat && event.src is Player) {
       data["attacked"][event.target.id] = 4
-    } else if (event is Events.kill && event.src is Player) {
+    } else if (event is Components.events.kill && event.src is Player) {
       data["attacked"].remove(event.target.id)
     }
     super.process(ctx, event)
@@ -272,15 +272,15 @@ class SelfDefense is Oath {
     data["attackedBy"] = {}
   }
   shouldHardStrike(ctx, event) {
-    return (event is Events.kill && event.src is Player) &&
+    return (event is Components.events.kill && event.src is Player) &&
       !(data["attackedBy"][event.target.id])
   }
   shouldStrike(ctx, event) {
-    return (event is Events.attack && event.src is Player) &&
+    return (event is Components.events.attack && event.src is Player) &&
       !(data["attackedBy"][event.target.id])
   }
   process(ctx, event) {
-    if (event is Events.attack && event.target is Player) {
+    if (event is Components.events.attack && event.target is Player) {
       data["attackedBy"][event.src.id] = (data["attackedBy"][event.src.id] || 0) + 1
     }
     super.process(ctx, event)
@@ -291,10 +291,10 @@ class Pacifism is Oath {
     super("pacifism", 3, 0, Boon.new())
   }
   shouldHardStrike(ctx, event) {
-    return (event is Events.kill && event.src is Player)
+    return (event is Components.events.kill && event.src is Player)
   }
   shouldStrike(ctx, event) {
-    return (event is Events.defeat && event.src is Player)
+    return (event is Components.events.defeat && event.src is Player)
   }
 }
 
@@ -303,7 +303,7 @@ class Poverty is Oath {
     super("poverty", 1, Favor.new())
   }
   shouldStrike(ctx, event) {
-    return (event is Events.equipItem && event.src is Player)
+    return (event is Components.events.equipItem && event.src is Player)
   }
 }
 
@@ -313,7 +313,7 @@ class Indomitable is Oath {
     data["nearby"] = {}
   }
   shouldStrike(ctx, event) {
-    if (event is Events.move) {
+    if (event is Components.events.move) {
       if (event.src is Player) {
         for (id in data["nearby"].keys) {
           var enemy = ctx.getEntityById(id)
@@ -336,9 +336,9 @@ class Indomitable is Oath {
     // enemy moves to player - engage
     // player moves away from enemy - strike
     // Enemy moves away from player - fine
-    if (event is Events.defeat || event is Events.kill) {
+    if (event is Components.events.defeat || event is Components.events.kill) {
       data["nearby"].remove(event.target.id)
-    } else if (event is Events.move) {
+    } else if (event is Components.events.move) {
       var player = ctx.getEntityByTag("player")
       if (event.src is Player) {
         var enemies = ctx.entities().where {|entity| entity.pos }
