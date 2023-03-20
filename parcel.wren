@@ -410,7 +410,7 @@ class Action is Stateful {
   perform() {
     return ActionResult.success
   }
-  cost() { MAX_TURN_SIZE }
+  cost() { MAX_TURN_SIZE * src.speed }
 
   ctx { _source.ctx }
   src { _source }
@@ -802,8 +802,8 @@ class World is Stateful {
     actor.lastTurn = turn
     //if (actor.state == EntityState.active || actor.pos == null || actor.zone == originalZone) {
     if (actor.pos == null || actor.zone == originalZone && actor.state == EntityState.active) {
-      Log.d("%(actor): next turn is  %(turn + action.cost() * actor.speed)")
-      _queue.add(actorId, turn + action.cost() * actor.speed)
+      Log.d("%(actor): next turn is  %(turn + action.cost())")
+      _queue.add(actorId, turn + action.cost())
     }
 
     var outcome = result.succeeded
