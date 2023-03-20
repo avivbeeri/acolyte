@@ -35,6 +35,7 @@ class Creature is BehaviourEntity {
     this["pronoun"] = Pronoun.it
   }
   pronoun { this["pronoun"] }
+  speed { 1 / this["stats"]["spd"] }
 }
 
 class Player is Creature {

@@ -1,6 +1,6 @@
 import "json" for Json
 import "math" for Vec
-import "parcel" for TileMap8, Tile, Zone, Line, RNG, Entity, DIR_FOUR, Dijkstra, World, DIR_EIGHT, DataFile
+import "parcel" for TileMap8, Tile, Zone, Line, RNG, Entity, DIR_FOUR, Dijkstra, World, DIR_EIGHT, DataFile, Config
 import "factory" for CreatureFactory, ItemFactory
 
 var GeneratorData = DataFile.load("distribution", "data/tiers.json")
@@ -122,7 +122,7 @@ class WorldGenerator {
     world.systems.add(DefeatSystem.new())
 
     world.addEntity("player", Player.new())
-    var level = 0
+    var level = Config["level"] || 0
     var player = world.getEntityByTag("player")
     player.zone = level
 

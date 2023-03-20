@@ -411,10 +411,6 @@ class SimpleMoveAction is Action {
     ctx.addEvent(Components.events.move.new(src, origin))
     return ActionResult.success
   }
-
-  cost() {
-    return super.cost() * (1 / src["stats"]["spd"])
-  }
 }
 
 #!component(id="descend", group="action")

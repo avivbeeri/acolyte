@@ -222,6 +222,7 @@ class Entity is Stateful {
   pos=(v) { data["pos"] = v }
   size { data["size"] }
   size=(v) { data["size"] = v }
+  speed { 1 }
   lastTurn { _lastTurn }
   lastTurn=(v) { _lastTurn = v }
 
@@ -801,8 +802,8 @@ class World is Stateful {
     actor.lastTurn = turn
     //if (actor.state == EntityState.active || actor.pos == null || actor.zone == originalZone) {
     if (actor.pos == null || actor.zone == originalZone && actor.state == EntityState.active) {
-      Log.d("%(actor): next turn is  %(turn + action.cost())")
-      _queue.add(actorId, turn + action.cost())
+      Log.d("%(actor): next turn is  %(turn + action.cost() * actor.speed)")
+      _queue.add(actorId, turn + action.cost() * actor.speed)
     }
 
     var outcome = result.succeeded
