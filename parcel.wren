@@ -83,8 +83,27 @@ class Stateful {
   }
 
   assign(other) {
+    if (other is Stateful) {
+      other = other.data
+    }
+    if (!(other is Map)) {
+      Fiber.abort("Cannot assign %(other) to %(this)")
+    }
+
     for (entry in other) {
       data[entry.key] = Stateful.copyValue(entry.value)
+    }
+  }
+
+  static assign(first, other) {
+    if (first is Stateful) {
+      first = first.data
+    }
+    if (other is Stateful) {
+      other = other.data
+    }
+    for (entry in other) {
+      first[entry.key] = Stateful.copyValue(entry.value)
     }
   }
 
@@ -129,6 +148,27 @@ class Event is Stateful {
     _cancelled = true
   }
   cancelled { _cancelled }
+  // Creates a class for the Enum (with an underscore after the name to avoid duplicate definition)
+  // and returns a reference to it.
+  static create(name, members) {
+    if (name.type != String || name == "") Fiber.abort("Name must be a non-empty string.")
+    if (members.isEmpty) Fiber.abort("An enum must have at least one member.")
+    name = name +  "Event_"
+    var args = members.join(", ")
+    var s = "class %(name) is Event {\n"
+    s = s + "  construct new(%(args)) {\n"
+    s = s + "    super() \n"
+    for (member in members) {
+      s = s + "    data[\"%(member)\"] = %(member)\n"
+    }
+    s = s + "  }\n"
+    for (member in members) {
+      s = s + "  %(member) { data[\"%(member)\"] }\n"
+    }
+    s = s + "}\n"
+    s = s + "return %(name)\n"
+    return Meta.compile(s).call()
+  }
 }
 
 class EntityState {
@@ -1456,6 +1496,7 @@ class DataFile {
       Log.e("Error loading data file %(path): %(fiber.error)")
     }
   }
+  data { _data }
   keys { _data.keys }
   values { _data.values }
   [key] { _data[key] }
@@ -1472,13 +1513,16 @@ class ConfigData is DataFile {
       "scale": 2,
       "width": 768,
       "height": 576,
-      "integer": false
+      "integer": false,
+      "mute": false
     })
     Log.level = this["logLevel"]
     var Seed = this["seed"]
     Log.d("RNG Seed: %(Seed)")
     RNG = Random.new(Seed)
     SCALE = this["scale"]
+    var override = DataFile.load("overrides", "config-override.json")
+    Stateful.assign(data, override.data)
   }
 }
 var Config = ConfigData.load()

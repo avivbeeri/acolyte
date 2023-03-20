@@ -23,9 +23,11 @@ class StartScene is Scene {
     _t = 0
     _a = 0
 
-    Scheduler.deferBy(60) {
-      Jukebox.playMusic("soundTrack")
-      Window.color = INK["bg"]
+    if (!Config["mute"]) {
+      Scheduler.deferBy(60) {
+        Jukebox.playMusic("soundTrack")
+        Window.color = INK["bg"]
+      }
     }
 
     var start = 3 * 60

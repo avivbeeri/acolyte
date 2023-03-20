@@ -2,3 +2,4 @@ DOME-out.log
 dome
 **/.DS_Store
 screenshot*.png
+config-override.json

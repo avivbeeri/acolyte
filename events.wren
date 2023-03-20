@@ -1,97 +1,18 @@
 import "parcel" for Event
 import "combat" for HealEvent, DefeatEvent, AttackEvent, KillEvent
+import "meta" for Meta
 
-class ConditionEvent is Event {
-  construct new(target, condition) {
-    super()
-    data["src"] = target
-    data["condition"] = condition
-  }
-  target { data["src"] }
-  condition { data["condition"] }
-}
-class ClearConditionEvent is ConditionEvent {
-  construct new(target, condition) {
-    super(target, condition)
-  }
-}
-class ExtendConditionEvent is ConditionEvent {
-  construct new(target, condition) {
-    super(target, condition)
-  }
-}
-class InflictConditionEvent is ConditionEvent {
-  construct new(target, condition) {
-    super(target, condition)
-  }
-}
-
-class LightningEvent is Event {
-  construct new(target) {
-    super()
-    data["src"] = target
-  }
-  target { data["src"] }
-}
-
-class UnequipItemEvent is Event {
-  construct new(src, itemId) {
-    super()
-    data["src"] = src
-    data["item"] = itemId
-  }
-
-  src { data["src"] }
-  item { data["item"] }
-}
-class EquipItemEvent is Event {
-  construct new(src, itemId) {
-    super()
-    data["src"] = src
-    data["item"] = itemId
-  }
-
-  src { data["src"] }
-  item { data["item"] }
-}
-
-class UseItemEvent is Event {
-  construct new(src, itemId) {
-    super()
-    data["src"] = src
-    data["item"] = itemId
-  }
-
-  src { data["src"] }
-  item { data["item"] }
-}
-
-class DropEvent is Event {
-  construct new(src, itemId, qty, pos) {
-    super()
-    data["src"] = src
-    data["item"] = itemId
-    data["qty"] = qty
-    data["pos"] = pos
-  }
-
-  src { data["src"] }
-  pos { data["pos"] }
-  item { data["item"] }
-  qty { data["qty"] }
-}
-class PickupEvent is Event {
-  construct new(src, itemId, qty) {
-    super()
-    data["src"] = src
-    data["item"] = itemId
-    data["qty"] = qty
-  }
-
-  src { data["src"] }
-  item { data["item"] }
-  qty { data["qty"] }
-}
+var ApplyModifier = Event.create("ApplyModifier", ["target", "modifierName"])
+var ConditionEvent = Event.create("Condition", ["target", "condition"])
+var ClearConditionEvent = Event.create("ClearCondition", ["target", "condition"])
+var ExtendConditionEvent = Event.create("ExtendCondition", ["target", "condition"])
+var InflictConditionEvent = Event.create("InflictCondition", ["target", "condition"])
+var LightningEvent = Event.create("Lightning", ["target"])
+var UnequipItemEvent = Event.create("UnequipItem", ["src", "item"])
+var EquipItemEvent = Event.create("EquipItem", ["src", "item"])
+var UseItemEvent = Event.create("UseItem", ["src", "item"])
+var DropEvent = Event.create("Drop", ["src", "item", "qty", "pos"])
+var PickupEvent = Event.create("Pickup", ["src", "item", "qty"])
 
 class MoveEvent is Event {
   construct new(src, origin) {
