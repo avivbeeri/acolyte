@@ -1,12 +1,17 @@
 import "meta" for Meta
 import "dome" for Window, Process, Platform, Log
 import "graphics" for Canvas, Color, Font
+import "text" for TextSplitter
 import "collections" for PriorityQueue, Queue, Set, HashMap, Stack
 import "math" for Vec, Elegant, M
 import "json" for Json
 import "random" for Random
 import "jukebox" for Jukebox
 import "input" for Keyboard, Clipboard
+
+// This checks by time tick first, and then the lower ID goes first, to preserve turn order
+// If entities are not sorted in a stable manner they might get double-moves
+var TURN_ORDER_COMPARATOR = Fn.new {|a, b| a[0][0] < b[0][0] || (a[0][0] == b[0][0] && a[1] < b[1]) }
 
 class Scheduler {
   static init() {
@@ -36,20 +41,6 @@ class Scheduler {
       runNext()
     }, (__tick + tick).max(__tick + 1))
   }
-
-  /*
-  static defer() {
-    __deferred.add(Fiber.current, __tick + 1)
-    Fiber.yield()
-  }
-  */
-
-  /*
-  static deferBy(tick) {
-    __deferred.add(Fiber.current, (__tick + tick).max(__tick + 1))
-    Fiber.yield()
-  }
-  */
 
   static runNext() {
     if (!__deferred.isEmpty && __deferred.peekPriority() <= __tick) {
@@ -165,7 +156,7 @@ class Event is Stateful {
       members = []
     }
     var originalName = name
-    name = TextSplitter.capitalize(name +  "Event")
+    name = TextSplitter.capitalize(name +  "Event_")
     var args = members.join(", ")
     var s = ""
     s = s + "#!component(id=\"%(originalName)\", group=\"event\")\n"
@@ -184,6 +175,13 @@ class Event is Stateful {
     return Meta.compile(s).call()
   }
 }
+// Generate events for general use
+var TurnEvent = Event.create("turn", ["turn"])
+var GameEndEvent = Event.create("gameEnd", ["win"])
+var ChangeZoneEvent = Event.create("changeZone", ["floor"])
+var EntityAddedEvent = Event.create("entityAdded", ["entity"])
+var EntityRemovedEvent = Event.create("entityRemoved", ["entity"])
+
 
 class EntityState {
   static active { 2 }
@@ -297,50 +295,6 @@ class BehaviourEntity is Entity {
       }
     }
     return super.getAction()
-  }
-}
-
-
-class TurnEvent is Event {
-  construct new(turn) {
-    super()
-    data["turn"] = turn
-  }
-}
-
-class GameEndEvent is Event {
-  construct new(win) {
-    super()
-    data["win"] = win
-  }
-
-  win { data["win"] }
-}
-
-class ChangeZoneEvent is Event {
-  construct new(floor) {
-    super()
-    data["floor"] = floor
-  }
-  floor { data["floor"] }
-}
-class EntityEvent is Event {
-  construct new(entity) {
-    super()
-    data["source"] = entity
-  }
-
-  source { data["source"] }
-}
-
-class EntityAddedEvent is EntityEvent {
-  construct new(entity) {
-    super(entity)
-  }
-}
-class EntityRemovedEvent is EntityEvent {
-  construct new(entity) {
-    super(entity)
   }
 }
 
@@ -522,7 +476,7 @@ class World is Stateful {
     _zoneIndex = 0
     _step = 1
     _events = Queue.new()
-    _queue = PriorityQueue.min()
+    _queue = PriorityQueue.new(TURN_ORDER_COMPARATOR)
     _systems = []
     _turn = 0
     addEntity("turnMarker", Turn.new())
@@ -757,10 +711,12 @@ class World is Stateful {
         // If this entity needs to recalculate
         //Log.i("%(actor) %(actor.id) last acted %(actor.lastTurn), recalculating next turn from %(turn) to %(actor.nextTime + 1)")
         Log.i("%(actor) %(actor.id) last acted %(actor.lastTurn), recalculating...")
+        _queue.add(_queue.remove(), actor.nextTime)
+
         // actor.pushAction(Action.none)
         // We add 1 here so that the turn order is maintained, otherwise
         // there can be a slippage.
-        recalculateQueue()
+        //recalculateQueue()
         actor = null
         continue
       }
@@ -1676,4 +1632,4 @@ class Reflect {
     return false
   }
 }
-import "text" for TextSplitter
+

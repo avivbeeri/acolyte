@@ -565,7 +565,7 @@ class BossRoomGenerator {
     zone["entities"] = []
     zone["entities"].add(CreatureFactory.spawn("demon", level, Vec.new(14, 12)))
 
-    for (i in 0...1) {
+    for (i in 0...4) {
       var pos = (center + DIR_EIGHT[4 + i] * 4)
       pos.x = pos.x.round
       pos.y = pos.y.round

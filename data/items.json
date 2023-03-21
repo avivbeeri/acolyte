@@ -34,7 +34,7 @@
         "area": 2,
         "modifier": {
           "id": "slow",
-          "duration": 4,
+          "duration": 5,
           "mult": {
             "spd": -0.5
           },

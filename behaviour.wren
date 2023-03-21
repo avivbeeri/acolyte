@@ -11,6 +11,7 @@ import "parcel" for
   RNG,
   Action,
   Set
+
 class Behaviour is GameSystem {
   construct new(args) {
     super()
@@ -39,7 +40,7 @@ class ConfusedBehaviour is Behaviour {
       return false
     }
     var dir = RNG.sample(DIR_EIGHT)
-    actor.pushAction(BumpAction.new(dir))
+    actor.pushAction(Components.actions.bump.new(dir))
     return true
   }
 }
@@ -99,7 +100,7 @@ class RandomWalkBehaviour is Behaviour {
     var dy = M.mid(-1, dir.y, 1)
     dir.x = dx
     dir.y = dy
-    actor.pushAction(BumpAction.new(dir))
+    actor.pushAction(Components.actions.bump.new(dir))
     return true
   }
 }
@@ -110,12 +111,9 @@ class WanderBehaviour is RandomWalkBehaviour {
     super()
   }
   update(ctx, actor) {
-    // Pick a random place
-    // Calculate a path to it
-    // follow that path to it
-    // don't recalculate unless path is blocked
-    // when arrive/ clear the path
-    // repeat
+    // This is a weighted random walk
+    // We have a 75% chance of continuing in the direction of travel
+    // 25% to change direction, assuming the space is valid.
     var previous = actor["previousPosition"] || actor.pos
     var previousDir = actor["previousDir"] || Vec.new()
     var dir = previousDir
@@ -141,7 +139,7 @@ class WanderBehaviour is RandomWalkBehaviour {
     }
     actor["previousDir"] = dir
     actor["previousPosition"] = actor.pos
-    actor.pushAction(BumpAction.new(dir))
+    actor.pushAction(Components.actions.bump.new(dir))
     return true
   }
 }
@@ -169,7 +167,7 @@ class SeekBehaviour is Behaviour {
       // Stop swarms eating each other
       return false
     }
-    actor.pushAction(BumpAction.new(dir))
+    actor.pushAction(Components.actions.bump.new(dir))
     return true
   }
 }
@@ -220,7 +218,5 @@ class LocalSeekBehaviour is SeekBehaviour {
   }
 }
 
-//import "events" for Components.events
-import "actions" for BumpAction, SimpleMoveAction
 import "entities" for Player, Creature
 import "groups" for Components

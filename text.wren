@@ -1,6 +1,5 @@
 import "graphics" for Color, Canvas
 import "stringUtils" for StringUtils
-import "palette" for INK
 
 class TextSplitter {
   static leftPad(text, width) {
@@ -17,6 +16,7 @@ class TextSplitter {
     out = out + text[1..-1]
     return out
   }
+
   static getWidth(lines) {
     var max = 0
     for (line in lines) {

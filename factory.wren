@@ -5,7 +5,7 @@ import "math" for Vec
 import "messages" for Pronoun
 import "combat" for Condition
 import "groups" for Components
-import "items" for GenericItem
+import "items" for Item
 import "parcel" for DataFile, Reflect, Stateful
 
 var CreatureData = DataFile.load("creatures", "data/creatures.json")
@@ -52,7 +52,7 @@ class ItemFactory {
   static inflate(id) {
     var data = ItemData[id]
 
-    var item = GenericItem.new(data["id"], data["kind"])
+    var item = Item.new(data["id"], data["kind"])
 
     item["kind"] = data["kind"]
     item["name"] = data["name"]

@@ -1,8 +1,7 @@
+import "math" for Vec
 import "collections" for HashMap
 import "parcel" for Action, ActionResult, MAX_TURN_SIZE, Line, RNG
-import "math" for Vec
 import "./combat" for Damage, Condition, CombatProcessor, Modifier
-import "./events" for RestEvent, LightningEvent
 
 #!component(id="pray", group="action")
 class PrayAction is Action {
@@ -48,7 +47,7 @@ class RestAction is Action {
   }
 
   perform() {
-    ctx.addEvent(RestEvent.new(src))
+    ctx.addEvent(Components.events.rest.new(src))
     return ActionResult.success
   }
 }
@@ -88,6 +87,7 @@ class ApplyModifierAction is Action {
       var stats = target["stats"]
       var mod = Modifier.new(modifier["id"], modifier["add"], modifier["mult"], modifier["duration"], modifier["positive"])
       stats.addModifier(mod)
+      ctx.addEvent(Components.events.applyModifier.new(src, target, modifier["id"]))
       // TODO emit event
     }
 
@@ -117,7 +117,7 @@ class InflictConfusionAction is Action {
         ctx.addEvent(Components.events.extendCondition.new(target, "confusion"))
       } else {
         target["conditions"]["confusion"] = Condition.new("confusion", 4, true)
-        target.behaviours.add(ConfusedBehaviour.new(null))
+        target.behaviours.add(Components.behaviours.confused.new(null))
         ctx.addEvent(Components.events.inflictCondition.new(target, "confusion"))
       }
     }
@@ -197,7 +197,7 @@ class LightningAttackAction is Action {
     }
 
     var result = CombatProcessor.calculate(src, target, damage)
-    ctx.addEvent(LightningEvent.new(target))
+    ctx.addEvent(Components.events.lightning.new(target))
     if (result[0]) {
       ctx.addEvent(Components.events.defeat.new(src, target))
     }
@@ -459,7 +459,7 @@ class InteractAction is Action {
       return ActionResult.alternate(StrikeAttackAction.new())
     }
     if (tile["items"] && !tile["items"].isEmpty) {
-      return ActionResult.alternate(PickupAction.new())
+      return ActionResult.alternate(Components.actions.pickup.new())
     }
     if (tile["stairs"] == "down") {
       return ActionResult.alternate(DescendAction.new())
@@ -469,7 +469,5 @@ class InteractAction is Action {
   }
 }
 
-import "./behaviour" for ConfusedBehaviour
 import "./entities" for Player
-import "./items" for PickupAction
 import "./groups" for Components

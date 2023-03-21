@@ -27,6 +27,59 @@ class InventoryEntry is Stateful {
   qty=(v) { data["qty"] = v }
 }
 
+
+class Item is Stateful {
+  construct new(id, kind) {
+    super()
+    data["id"] = id
+    data["kind"] = kind
+  }
+
+  id { data["id"] }
+  kind { data["kind"] }
+
+  slot { data["slot"] }
+  consumable { data["consumable"] }
+
+  name { data["name"] || kind || this.type.name }
+  toString { TextSplitter.capitalize(name) }
+
+  query(action) { data["actions"][action] }
+
+  default(actor, args) {
+    var action = data["default"]
+    System.print("default action is %(action)")
+    return Reflect.call(this, action, args)
+  }
+  use(args) { data["actions"]["use"]["action"].new().withArgs(args) }
+  drink(args) { data["actions"]["drink"]["action"].new().withArgs(args) }
+  throw(args) { data["actions"]["throw"]["action"].new().withArgs(args) }
+  attack(args) { data["actions"]["attack"]["action"].new().withArgs(args) }
+  defend(args) { data["actions"]["defend"]["action"].new().withArgs(args) }
+
+  equip(args) {
+    return EquipItemAction.new(id)
+  }
+  unequip(args) {
+    return UnequipItemAction.new(slot)
+  }
+
+  onEquip(actor) {
+    var action = data["actions"]["equip"]
+    var stats = action["stats"]
+    actor["stats"].addModifier(Modifier.new(
+      slot,
+      stats["add"],
+      stats["mult"],
+      null,
+      true
+    ))
+  }
+  onUnequip(actor) {
+    actor["stats"].removeModifier(slot)
+  }
+}
+
 #!component(id="drop", group="action")
 class DropAction is Action {
   construct new(id) {
@@ -242,95 +295,5 @@ class ItemAction is Action {
   }
 }
 
-class GenericItem is Stateful {
-  construct new(id, kind) {
-    super()
-    data["id"] = id
-    data["kind"] = kind
-  }
-
-  static inflate(data) {
-    var item = GenericItem.new(data["id"], data["kind"])
-    for (entry in data) {
-      item[entry.key] = entry.value
-    }
-    return item
-  }
-
-  id { data["id"] }
-  kind { data["kind"] }
-
-  slot { data["slot"] }
-  consumable { data["consumable"] }
-
-  name { data["name"] || kind || this.type.name }
-  toString { name }
-
-  query(action) { data["actions"][action] }
-
-  default(actor, args) {
-    var action = data["default"]
-    System.print("default action is %(action)")
-    return Reflect.call(this, action, args)
-  }
-  use(args) { data["actions"]["use"]["action"].new().withArgs(args) }
-  drink(args) { data["actions"]["drink"]["action"].new().withArgs(args) }
-  throw(args) { data["actions"]["throw"]["action"].new().withArgs(args) }
-  attack(args) { data["actions"]["attack"]["action"].new().withArgs(args) }
-  defend(args) { data["actions"]["defend"]["action"].new().withArgs(args) }
-
-  equip(args) {
-    return EquipItemAction.new(id)
-  }
-  unequip(args) {
-    return UnequipItemAction.new(slot)
-  }
-
-  onEquip(actor) {
-    var action = data["actions"]["equip"]
-    var stats = action["stats"]
-    actor["stats"].addModifier(Modifier.new(
-      slot,
-      stats["add"],
-      stats["mult"],
-      null,
-      true
-    ))
-  }
-  onUnequip(actor) {
-    actor["stats"].removeModifier(slot)
-  }
-}
-
-class Item is Stateful {
-  construct new(id, kind) {
-    super()
-    data["id"] = id
-    data["kind"] = kind
-  }
-
-  id { data["id"] }
-  kind { data["kind"] }
-
-  slot { data["slot"] }
-  consumable { data["consumable"] }
-
-  name { data["name"] || this.type.name }
-//  toString { name }
-  query(action) { {} }
-
-  default(actor, args) { use(args) }
-
-  use(args) { Fiber.abort("%(name) doesn't support action 'use'") }
-  equip(args) { Fiber.abort("%(name) doesn't support action 'equip'") }
-  unequip(args) { Fiber.abort("%(name) doesn't support action 'equip'") }
-  attack(args) { Fiber.abort("%(name) doesn't support action 'attack'") }
-  defend(args) { Fiber.abort("%(name) doesn't support action 'defend'") }
-  drink(args) { Fiber.abort("%(name) doesn't support action 'drink'") }
-  throw(args) { Fiber.abort("%(name) doesn't support action 'throw'")}
-}
-
-import "./actions" for HealAction, LightningAttackAction, InflictConfusionAction, AreaAttackAction
-//import "./events" for Components
 import "./groups" for Components
 import "./combat" for Modifier

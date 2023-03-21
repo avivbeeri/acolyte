@@ -1,8 +1,6 @@
 import "parcel" for Event
-//import "combat" for HealEvent, DefeatEvent, AttackEvent, KillEvent
-import "meta" for Meta
 
-var ApplyModifier = Event.create("applyModifier", ["target", "modifierName"])
+var ApplyModifier = Event.create("applyModifier", ["src", "target", "modifierName"])
 var ConditionEvent = Event.create("condition", ["target", "condition"])
 var ClearConditionEvent = Event.create("clearCondition", ["target", "condition"])
 var ExtendConditionEvent = Event.create("extendCondition", ["target", "condition"])
@@ -24,26 +22,3 @@ var KillEvent = Event.create("kill", ["src", "target"])
 var DefeatEvent = Event.create("defeat", ["src", "target"])
 var AttackEvent = Event.create("attack", ["src", "target", "attack", "result", "damage"])
 
-/*
-class Events {
-  static story { StoryEvent }
-  static rest { RestEvent }
-  static pray { PrayEvent }
-  static pickup { PickupEvent }
-  static drop { DropEvent }
-  static useItem { UseItemEvent }
-  static equipItem { EquipItemEvent }
-  static unequipItem { UnequipItemEvent }
-  static extendCondition { ExtendConditionEvent }
-  static inflictCondition { InflictConditionEvent }
-  static clearCondition { ClearConditionEvent }
-  static lightningCondition { LightningEvent }
-  static descend { DescendEvent }
-  static attack { AttackEvent }
-  static heal { HealEvent }
-  static defeat { DefeatEvent }
-  static kill { KillEvent }
-  static move { MoveEvent }
-  static statueAwaken { StatueAwakenEvent }
-}
-*/
