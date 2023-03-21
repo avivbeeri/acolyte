@@ -84,7 +84,7 @@ class Item is Stateful {
 class DropAction is Action {
   construct new(id) {
     super()
-    _itemId = id
+    data["id"] = id
   }
 
   itemId { data["id"] }

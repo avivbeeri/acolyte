@@ -64,7 +64,6 @@ class GeneratorUtils {
 
   static isValidTileLocation(zone, position) {
     var tile = zone.map[position]
-    var entities = zone["entities"]
     return !tile["solid"] && !tile["stairs"] && !tile["altar"]
   }
   static isValidEntityLocation(zone, position) {
@@ -122,7 +121,7 @@ class WorldGenerator {
     world.systems.add(DefeatSystem.new())
 
     world.addEntity("player", Player.new())
-    var level = Config["level"] || 0
+    var level = Config["start"] || 0
     var player = world.getEntityByTag("player")
 
      /*
@@ -463,7 +462,7 @@ class BasicZoneGenerator {
 
       var pos = Vec.new(x, y )
 
-      if ((entities.isEmpty || !entities.any{|entity| entity.pos == pos }) && pos != startPos) {
+      if (GeneratorUtils.isValidEntityLocation(zone, pos) && pos != startPos) {
         var entity = GeneratorUtils.pickEnemy(level)
         if (entity == null) {
           continue
@@ -478,7 +477,7 @@ class BasicZoneGenerator {
 
       var pos = Vec.new(x, y)
 
-      if ((entities.isEmpty || !entities.any{|entity| entity.pos == pos }) && pos != startPos) {
+      if (GeneratorUtils.isValidEntityLocation(zone, pos) && pos != startPos) {
         //var itemId = RNG.sample(Items.findable).id
         var itemId = GeneratorUtils.pickItem(level) //RNG.sample(Items.findable).id
         if (itemId == null) {
@@ -489,8 +488,6 @@ class BasicZoneGenerator {
     }
   }
 }
-
-
 
 class StartRoomGenerator {
   static generate(args) {

@@ -279,5 +279,31 @@ class CombatProcessor {
     return [defeat, kill]
   }
 
+  static directDamage(src, target, damage) {
+    var ctx = target.ctx
+    var result = AttackResult.success
+    var defeat = false
+    var kill = false
+    var killThreshold = target["stats"]["hpMax"] * 2
+
+    if (damage >= killThreshold || target["conditions"].containsKey("unconscious")) {
+      result = AttackResult.overkill
+      kill = true
+      ctx.removeEntity(target)
+    } else {
+      target["stats"].decrease("hp", damage)
+      if (target["stats"].get("hp") <= 0) {
+        if (target["butter"] && target["stats"]["hp"] <= 0) {
+          kill = true
+          ctx.removeEntity(target)
+        } else {
+          target["stats"].set("hp", 0)
+          defeat = true
+        }
+      }
+    }
+    ctx.addEvent(Components.events.attack.new(src, target, "area", result, damage))
+    return [defeat, kill]
+  }
 }
 import "groups" for Components

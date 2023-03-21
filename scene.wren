@@ -112,6 +112,7 @@ class InventoryWindowState is SceneState {
       if (Keyboard[letter].justPressed) {
         if (_action == "drop") {
           player.pushAction(Components.actions.drop.new(entry.id))
+          System.print("drop")
           return PlayerInputState.new()
         } else if (_action == "use") {
           var query = item.query(item["default"])

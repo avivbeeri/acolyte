@@ -163,6 +163,7 @@ class LightningAttackAction is Action {
 
   range { data["range"] }
   damage { data["damage"] }
+
   evaluate() {
     _nearby = ctx.entities().where {|entity|
       return entity != src &&
@@ -196,7 +197,7 @@ class LightningAttackAction is Action {
       return acc
     }
 
-    var result = CombatProcessor.calculate(src, target, damage)
+    var result = CombatProcessor.directDamage(src, target, damage)
     ctx.addEvent(Components.events.lightning.new(target))
     if (result[0]) {
       ctx.addEvent(Components.events.defeat.new(src, target))
@@ -243,7 +244,7 @@ class AreaAttackAction is Action {
     }
 
     for (target in targets.values) {
-      var result = CombatProcessor.calculate(src, target, damage)
+      var result = CombatProcessor.directDamage(src, target, damage)
       if (result[0]) {
         defeats.add(Components.events.defeat.new(src, target))
       }
