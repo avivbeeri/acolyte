@@ -1,4 +1,5 @@
 import "meta" for Meta
+import "text" for TextSplitter
 
 var ImportedNames = []
 var IGNORE_LIST = Meta.getModuleVariables("registry")
@@ -62,7 +63,7 @@ class ClassRegistry {
       }
     }
 
-    name = name +  "Group_"
+    name = TextSplitter.capitalize(name +  "Registry_")
     var s = "class %(name) {\n"
     for (entry in members) {
       var field = entry.key

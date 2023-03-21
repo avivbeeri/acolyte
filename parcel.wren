@@ -131,6 +131,33 @@ class Stateful {
   }
 }
 
+class Parcel is Stateful {
+  static create(name, members, isReadOnly) {
+    if (name.type != String || name == "") Fiber.abort("Name must be a non-empty string.")
+    if (!members) {
+      members = []
+    }
+    var originalName = name
+    name = TextSplitter.capitalize(name + "_")
+    var args = members.join(", ")
+    var s = ""
+    s = s + "class %(name) is Parcel {\n"
+    s = s + "  construct new() {\n"
+    s = s + "    super() \n"
+    s = s + "  }\n"
+    for (member in members) {
+      s = s + "  %(member) { data[\"%(member)\"] }\n"
+      if (!isReadOnly) {
+        s = s + "  %(member)=(v) { data[\"%(member)\"] = v }\n"
+      }
+    }
+    s = s + "}\n"
+    System.print(s)
+    s = s + "return %(name)\n"
+    return Meta.compile(s).call()
+  }
+}
+
 class Event is Stateful {
   construct new() {
     super()
@@ -1607,10 +1634,16 @@ class TextInputReader {
 
 var RE = null
 var RE_args = null
+var RE_value = null
 class Reflect {
   static get(receiver, name) {
     RE = receiver
     return Meta.compileExpression("RE.%(name)").call()
+  }
+  static set(receiver, name, value) {
+    RE = receiver
+    RE_value = value
+    return Meta.compileExpression("RE.%(name) = RE_value").call()
   }
   static call(receiver, name) {
     RE = receiver

@@ -1,24 +1,31 @@
 import "registry" for ClassRegistry
+import "parcel" for DataFile, Parcel, Reflect
 
-class Components {
-  static events { __events }
-  static events=(v) { __events = v }
-
-  static actions { __actions }
-  static actions=(v) { __actions = v }
-
-  static behaviours { __behaviours }
-  static behaviours=(v) { __behaviours = v }
+var componentGroups = {
+  "modules": [
+    "parcel",
+    "actions",
+    "behaviours",
+    "items",
+    "oath",
+    "events"
+  ],
+  "groups": {
+    "events": "event",
+    "actions": "action",
+    "behaviours": "behaviour"
+  }
 }
+// Create a data class
+var Components = Parcel.create("Components", ["events", "actions", "behaviours"], false).new()
 
-ClassRegistry.scanModule("parcel")
-ClassRegistry.scanModule("actions")
-ClassRegistry.scanModule("behaviours")
-ClassRegistry.scanModule("items")
-ClassRegistry.scanModule("oath")
-ClassRegistry.scanModule("events")
+for (module in componentGroups["modules"]) {
+  ClassRegistry.scanModule(module)
+}
 ClassRegistry.buildImports()
 
-Components.events = ClassRegistry.create("Events", "event")
-Components.behaviours = ClassRegistry.create("Behaviours", "behaviour")
-Components.actions = ClassRegistry.create("Actions", "action")
+for (registry in componentGroups["groups"]) {
+  var id = registry.key
+  var kind = registry.value
+  Reflect.set(Components, id, ClassRegistry.create(id, kind))
+}
