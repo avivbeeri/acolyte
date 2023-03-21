@@ -60,7 +60,7 @@ class ApplyModifierAction is Action {
   modifier { data["modifier"] }
   origin { data["origin"] }
   range { data["range"] || 1 }
-  area { data["area"] || 1 }
+  area { data["area"] || 0 }
 
   evaluate() {
     if (Line.chebychev(src.pos, origin) > range) {
@@ -71,7 +71,7 @@ class ApplyModifierAction is Action {
 
   perform() {
     var hits = []
-    var dist = area - 1
+    var dist = area
     var targets = HashMap.new()
     for (dy in (-dist)..(dist)) {
       for (dx in (-dist)..(dist)) {
@@ -217,6 +217,7 @@ class AreaAttackAction is Action {
 
   origin { data["origin"] }
   range { data["range"] }
+  area { data["area"] }
   damage { data["damage"] }
 
   evaluate() {
@@ -228,7 +229,7 @@ class AreaAttackAction is Action {
     var targetPos = origin
     var defeats = []
     var kills = []
-    var dist = range - 1
+    var dist = area
     var targets = HashMap.new()
     for (dy in (-dist)..(dist)) {
       for (dx in (-dist)..(dist)) {

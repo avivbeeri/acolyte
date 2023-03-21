@@ -151,7 +151,7 @@ class TargetQueryState is SceneState {
 
     _query = Stateful.copyValue(query)
     _range = query["range"]
-    _area = query["area"] || 1
+    _area = query["area"] || 0
     _allowSolid = query.containsKey("allowSolid") ? query["allowSolid"] : false
     _needEntity = query.containsKey("needEntity") ? query["needEntity"] : true
     _needSight = query.containsKey("needSight") ? query["needSight"] : true

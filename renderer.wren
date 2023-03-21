@@ -447,11 +447,11 @@ class LogViewer is Element {
 }
 
 class Cursor is Element {
-  construct new(pos, cursor, range) {
+  construct new(pos, cursor, area) {
     super()
     _pos = pos
     _cursor = cursor
-    _range = range
+    _area = area
   }
 
   process(event) {
@@ -466,7 +466,7 @@ class Cursor is Element {
     var offset = Canvas.offset
     Canvas.offset(_pos.x,_pos.y)
 
-    var dist = _range - 1
+    var dist = _area
     for (dy in (-dist)..(dist)) {
       for (dx in (-dist)..(dist)) {
         var x = (_cursor.x + dx) * 16
