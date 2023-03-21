@@ -3,7 +3,6 @@ import "fov" for Vision2 as Vision
 import "parcel" for GameSystem, GameEndEvent, ChangeZoneEvent, Dijkstra
 import "./entities" for Player
 import "combat" for Condition
-import "behaviour" for UnconsciousBehaviour, SeekBehaviour
 
 class StorySystem is GameSystem {
   construct new() { super() }
@@ -25,7 +24,7 @@ class StorySystem is GameSystem {
         demon["symbol"] = "D"
         demon["size"] = Vec.new(1, 1)
         demon["pos"] = demon["pos"] + Vec.new(1, 1)
-        demon.behaviours.add(SeekBehaviour.new(null))
+        demon.behaviours.add(Components.behaviours.seek.new(null))
         ctx.addEvent(Components.events.story.new("bossVulnerable"))
       }
     }
@@ -98,7 +97,7 @@ class DefeatSystem is GameSystem {
     if (event is Components.events.defeat) {
       event.target["killed"] = true
       event.target["solid"] = false
-      event.target.behaviours.add(UnconsciousBehaviour.new(null))
+      event.target.behaviours.add(Components.behaviours.unconscious.new(null))
       event.target["conditions"]["unconscious"] = Condition.new("unconscious", 10, true)
     }
     if (event is GameEndEvent) {

@@ -2,33 +2,7 @@ import "meta" for Meta
 import "parcel" for Scheduler
 var ImportedNames = []
 var IGNORE_LIST = Meta.getModuleVariables("groups")
-/* [
-  "Object",
-  "Meta",
-  "Class",
-  "Bool",
-  "Fiber",
-  "Fn",
-  "Null",
-  "Num",
-  "Sequence",
-  "MapSequence",
-  "SkipSequence",
-  "TakeSequence",
-  "WhereSequence",
-  "List",
-  "String",
-  "StringByteSequence",
-  "StringCodePointSequence",
-  "Map",
-  "MapKeySequence",
-  "MapValueSequence",
-  "MapEntry",
-  "Range",
-  "System",
-  "ClassAttributes"
-]
-*/
+var Modules = []
 
 class ClassGroup {
   static imports {
@@ -38,6 +12,16 @@ class ClassGroup {
     return __imports
   }
   static scanModule(module) {
+    Modules.add(module)
+    Meta.compile("import \"%(module)\"").call()
+  }
+  static buildImports() {
+    for (module in Modules) {
+      buildImport(module)
+    }
+  }
+
+  static buildImport(module) {
     var moduleImports = []
     var members = {}
     for (variableName in Meta.getModuleVariables(module)) {
@@ -85,7 +69,7 @@ class ClassGroup {
       s = s + "  static %(field) { %(entry.value) }\n"
     }
     s = s + "}\n"
-    // System.print(s)
+    System.print(s)
     s = s + "return %(name)"
     return Meta.compile(s).call()
   }
@@ -102,14 +86,16 @@ class Components {
   static behaviours=(v) { __behaviours = v }
 }
 
-Scheduler.defer {
-  ClassGroup.scanModule("parcel")
-  ClassGroup.scanModule("behaviour")
-  ClassGroup.scanModule("actions")
-  ClassGroup.scanModule("items")
+ClassGroup.scanModule("parcel")
+ClassGroup.scanModule("actions")
+ClassGroup.scanModule("behaviours")
+ClassGroup.scanModule("items")
+ClassGroup.scanModule("oath")
+ClassGroup.scanModule("events")
 
+Scheduler.defer {
+  ClassGroup.buildImports()
   Components.events = ClassGroup.create("Events", "event")
   Components.behaviours = ClassGroup.create("Behaviours", "behaviour")
   Components.actions = ClassGroup.create("Actions", "action")
-  System.print("set up")
 }

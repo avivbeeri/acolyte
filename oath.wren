@@ -1,5 +1,4 @@
 import "parcel" for Stateful, GameSystem, Event, Line, ChangeZoneEvent, RNG
-import "groups" for Components
 import "entities" for Player
 import "combat" for Modifier
 
@@ -77,30 +76,9 @@ class OathSystem is GameSystem {
   }
 }
 
-class OathEvent is Event {
-  construct new(oath) {
-    super()
-    data["oath"] = oath
-  }
-  oath { data["oath"] }
-}
-class OathStrike is OathEvent {
-  construct new(oath) {
-    super(oath)
-  }
-}
-
-class OathTaken is OathEvent {
-  construct new(oath) {
-    super(oath)
-  }
-}
-
-class OathBroken is OathEvent {
-  construct new(oath) {
-    super(oath)
-  }
-}
+var OathTaken = Event.create("oathTaken", ["oath"])
+var OathBroken = Event.create("oathBroken", ["oath"])
+var OathStrike = Event.create("oathStrike", ["oath"])
 
 class Oath is Stateful {
   construct new(name, strikes, boon, grace) {
@@ -365,3 +343,5 @@ class Indomitable is Oath {
     super.process(ctx, event)
   }
 }
+
+import "groups" for Components

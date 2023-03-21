@@ -1,5 +1,5 @@
-import "parcel" for Entity, BehaviourEntity, GameSystem, Stateful, DIR_EIGHT, RNG, Action, Set, Dijkstra
-import "math" for Vec, M
+import "parcel" for BehaviourEntity, DIR_EIGHT, RNG, Action, Dijkstra
+import "math" for M
 
 class Creature is BehaviourEntity {
   construct new(stats) {

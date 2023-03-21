@@ -34,13 +34,8 @@ import "./renderer" for
   HintText,
   Dialog
 
-import "./actions" for BumpAction, PrayAction, RestAction, DescendAction, StrikeAttackAction, InteractAction
-import "./events" for RestEvent, PickupEvent, UseItemEvent, LightningEvent
-import "./groups" for Components
 import "./generator" for WorldGenerator
 import "./combat" for AttackResult
-import "./items" for ItemAction, PickupAction, DropAction
-import "./oath" for OathBroken, OathTaken, OathStrike
 
 class InventoryWindowState is SceneState {
   construct new() {
@@ -116,7 +111,7 @@ class InventoryWindowState is SceneState {
       var item = scene.world["items"][entry.id]
       if (Keyboard[letter].justPressed) {
         if (_action == "drop") {
-          player.pushAction(DropAction.new(entry.id))
+          player.pushAction(Components.actions.drop.new(entry.id))
           return PlayerInputState.new()
         } else if (_action == "use") {
           var query = item.query(item["default"])
@@ -125,7 +120,7 @@ class InventoryWindowState is SceneState {
           }
           if (!query["target"] || query["target"] == "random") {
             System.print("using item")
-            player.pushAction(ItemAction.new(entry.id, query))
+            player.pushAction(Components.actions.item.new(entry.id, query))
             return PlayerInputState.new()
           } else {
             query["item"] = entry.id
@@ -216,7 +211,7 @@ class TargetQueryState is SceneState {
       var query = _query
       query["origin"] = _cursorPos
       System.print(query)
-      player.pushAction(ItemAction.new(_query["item"], query))
+      player.pushAction(Components.actions.item.new(_query["item"], query))
       return PlayerInputState.new()
     }
 
@@ -457,30 +452,30 @@ class PlayerInputState is SceneState {
     var i = 0
     for (input in INPUT.list("dir")) {
       if (input.firing) {
-        player.pushAction(BumpAction.new(DIR_EIGHT[i]))
+        player.pushAction(Components.actions.bump.new(DIR_EIGHT[i]))
       }
       i = i + 1
     }
     if (INPUT["strike"].firing) {
-      player.pushAction(StrikeAttackAction.new())
+      player.pushAction(Components.actions.strikeAttack.new())
     }
     if (INPUT["pray"].firing) {
-      player.pushAction(PrayAction.new())
+      player.pushAction(Components.actions.pray.new())
     }
     if (INPUT["drop"].firing) {
       return InventoryWindowState.new().with("drop")
     }
     if (INPUT["interact"].firing) {
-      player.pushAction(InteractAction.new())
+      player.pushAction(Components.actions.interact.new())
     }
     if (INPUT["rest"].firing) {
-      player.pushAction(RestAction.new())
+      player.pushAction(Components.actions.rest.new())
     }
     if (INPUT["pickup"].firing) {
-      player.pushAction(PickupAction.new())
+      player.pushAction(Components.actions.pickup.new())
     }
     if (INPUT["descend"].justPressed) {
-      player.pushAction(DescendAction.new())
+      player.pushAction(Components.actions.descend.new())
     }
 
     return this
@@ -576,7 +571,7 @@ class GameScene is Scene {
     if (event is Components.events.statueAwaken) {
       _messages.add("Stone cracks and flakes away as statues become %(event.src.name)s.", INK["orange"], true)
     }
-    if (event is LightningEvent) {
+    if (event is Components.events.lightning) {
       _messages.add("%(event.target) was struck by lightning.", INK["playerAtk"], false)
     }
     if (event is Components.events.kill) {
@@ -591,7 +586,7 @@ class GameScene is Scene {
     if (event is Components.events.pray) {
       _messages.add("%(event.src) prayed.", INK["text"], true)
     }
-    if (event is RestEvent) {
+    if (event is Components.events.rest) {
       _messages.add("%(event.src) rests.", INK["text"], true)
     }
     if (event is Components.events.unequipItem) {
@@ -602,11 +597,11 @@ class GameScene is Scene {
       var itemName = _world["items"][event.item]["name"]
       _messages.add("%(event.src) equipped the %(itemName)", INK["text"], false)
     }
-    if (event is PickupEvent) {
+    if (event is Components.events.pickup) {
       var itemName = _world["items"][event.item]["name"]
       _messages.add("%(event.src) picked up %(event.qty) %(itemName)", INK["text"], true)
     }
-    if (event is UseItemEvent) {
+    if (event is Components.events.useItem) {
       var itemName = _world["items"][event.item]["name"]
       _messages.add("%(event.src) used %(itemName)", INK["text"], false)
     }
@@ -622,13 +617,13 @@ class GameScene is Scene {
     if (event is Components.events.descend) {
       _messages.add("You descend down the stairs.", INK["text"], false)
     }
-    if (event is OathTaken) {
+    if (event is Components.events.oathTaken) {
       _messages.add("You have sworn an oath of \"%(event.oath.name)\".", INK["text"], false)
     }
-    if (event is OathStrike) {
+    if (event is Components.events.oathStrike) {
       _messages.add("You have violated your oath of \"%(event.oath.name)\".", INK["text"], false)
     }
-    if (event is OathBroken) {
+    if (event is Components.events.oathBroken) {
       _messages.add("You have broken your oath of \"%(event.oath.name)\".", INK["text"], false)
     }
   }
@@ -700,3 +695,4 @@ class GameScene is Scene {
   }
 }
 import "./entities" for Player
+import "./groups" for Components

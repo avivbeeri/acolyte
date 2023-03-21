@@ -295,5 +295,5 @@ class ItemAction is Action {
   }
 }
 
-import "./groups" for Components
 import "./combat" for Modifier
+import "./groups" for Components

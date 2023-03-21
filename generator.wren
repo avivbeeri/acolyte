@@ -696,6 +696,6 @@ class DiamondRoom {
 }
 
 import "./entities" for Player
-import "./items" for InventoryEntry, EquipmentSlot
+import "./items" for InventoryEntry
 import "./systems" for VisionSystem, DefeatSystem, InventorySystem, ConditionSystem, ExperienceSystem, StorySystem
 import "./oath" for OathSystem

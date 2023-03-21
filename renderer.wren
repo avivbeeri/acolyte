@@ -18,8 +18,7 @@ import "./ui" for
   TargetEvent,
   TargetBeginEvent,
   TargetEndEvent
-//import "events" for Components
-import "groups" for Components
+
 
 import "./inputs" for VI_SCHEME as INPUT
 import "./entities" for Player, Creature
@@ -1004,3 +1003,4 @@ class TileRenderer is AsciiRenderer {
     Canvas.offset(offset.x, offset.y)
   }
 }
+import "groups" for Components
