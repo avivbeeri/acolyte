@@ -30,16 +30,21 @@ class StartScene is Scene {
       }
     }
 
+    _done = false
     var start = 3 * 60
     Scheduler.deferBy(start) {
-      var max = (3 * 60) // different from start
-      _a = ((_t - start) / max).clamp(0, 1)
+      while (!_done) {
+        var max = (3 * 60) // different from start
+        _a = ((_t - start) / max).clamp(0, 1)
+        Fiber.yield()
+      }
     }
   }
 
   update() {
     _t = _t + 1
     if (INPUT["confirm"].firing || Mouse["left"].justPressed) {
+      _done = true
       game.push("game")
     }
     if (INPUT["volUp"].firing) {

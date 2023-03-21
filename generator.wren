@@ -1,9 +1,23 @@
 import "json" for Json
 import "math" for Vec
-import "parcel" for TileMap8, Tile, Zone, Line, RNG, Entity, DIR_FOUR, Dijkstra, World, DIR_EIGHT, DataFile, Config
+import "parcel" for
+  DIR_FOUR,
+  DIR_EIGHT,
+  DataFile,
+  World,
+  TileMap8,
+  Tile,
+  Zone,
+  Entity,
+  RNG,
+  Line,
+  Dijkstra,
+  Config
+
 import "factory" for CreatureFactory, ItemFactory
 
 var GeneratorData = DataFile.load("distribution", "data/tiers.json")
+var TierData = GeneratorData["floors"]
 var TierMap = {}
 for (entry in GeneratorData["tiers"]) {
   TierMap[Num.fromString(entry.key)] = entry.value
@@ -11,6 +25,17 @@ for (entry in GeneratorData["tiers"]) {
 var Distribution = GeneratorData["distribution"]
 
 class GeneratorUtils {
+  static getFloorData(level) {
+    var result = null
+    for (data in TierData) {
+      if (level < data["minFloor"]) {
+        break
+      }
+      result = data
+    }
+    return result
+  }
+
   static pickEnemy(level) {
     var tier = TierMap[level]
     var table = Distribution[tier - 1]
@@ -156,22 +181,23 @@ class WorldGenerator {
     var startPos = args.count > 1 ? args[1] : null
 
     var zone = null
-
-    if (level < 1) {
+    var data = GeneratorUtils.getFloorData(level)
+    if (data["generator"] == "start") {
       zone = StartRoomGenerator.generate(args)
-    } else if (level < 3) {
+    } else if (data["generator"] == "basic") {
       zone = BasicZoneGenerator.generate(args)
-    } else if (level < 6) {
+    } else if (data["generator"] == "random") {
       zone = RandomZoneGenerator.generate(args)
-    } else {
+    } else if (data["generator"] == "boss") {
       zone = BossRoomGenerator.generate(args)
     }
+
     for (entity in zone["entities"]) {
       world.addEntity(entity)
       entity.zone = level
     }
     zone.data.remove("entities")
-    zone["title"] = "The Courtyard"
+    zone["title"] = data["title"]
     return zone
   }
 }
