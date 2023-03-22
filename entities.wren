@@ -1,5 +1,8 @@
-import "parcel" for BehaviourEntity, DIR_EIGHT, RNG, Action, Dijkstra
+import "parcel" for BehaviourEntity, DIR_EIGHT, RNG, Action, Dijkstra, DataFile
 import "math" for M
+
+var PlayerData = DataFile.load("playerData", "data/player.json")
+System.print(PlayerData)
 
 class Creature is BehaviourEntity {
   construct new(stats) {
@@ -40,26 +43,13 @@ class Creature is BehaviourEntity {
 
 class Player is Creature {
   construct new() {
-    super({
-      "hpMax": 10,
-      "hp": 10,
-      "piety": 5,
-      "pietyMax": 5
-    })
+    super(PlayerData["stats"])
     this["symbol"] = "@"
-    this["equipment"] = {
-      EquipmentSlot.weapon: "dagger",
-      EquipmentSlot.armor: "leather armor"
+    this["equipment"] = PlayerData["equipment"]
+    this["inventory"] = []
+    for (entry in PlayerData["inventory"]) {
+      this["inventory"].add(InventoryEntry.new(entry.key, entry.value))
     }
-    this["inventory"] = [
-      InventoryEntry.new("dagger", 1),
-      InventoryEntry.new("leather armor", 1),
-      InventoryEntry.new("book", 1),
-      InventoryEntry.new("slow", 1),
-      InventoryEntry.new("fireball", 1),
-      InventoryEntry.new("lightning", 1),
-      InventoryEntry.new("wand", 1),
-    ]
   }
   name { data["name"] || "Player" }
   pronoun { Pronoun.you }
