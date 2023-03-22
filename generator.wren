@@ -343,7 +343,7 @@ class BasicZoneGenerator {
 
   static generate(args) {
     var maxRooms = 18
-    var minSize = 5
+    var minSize = 6
     var maxSize = 10
     var monstersPerRoom = 2
     var itemsPerRoom = 1

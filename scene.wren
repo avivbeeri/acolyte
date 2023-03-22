@@ -10,10 +10,8 @@ import "parcel" for
   State,
   World,
   Entity,
-  TurnEvent,
-  ChangeZoneEvent,
   Line,
-  GameEndEvent
+  DataFile
 
 import "./palette" for INK
 import "./inputs" for VI_SCHEME as INPUT
@@ -327,26 +325,14 @@ class HelpState is ModalWindowState {
     return this
   }
 }
+var Dialogue = DataFile.load("dialogue", "data/dialogue.json")
 class DialogueState is ModalWindowState {
   construct new() {
     super()
   }
   onEnter() {
-    var message = {
-      "beforeBoss": [
-        ["????: Well well, you made it..."],
-        ["????: Yes, I've been expecting you."],
-        ["????: I scarcely remember if any of your kind have made it this far before."],
-        ["????: This ought to be amusing."]
-      ],
-      "freeBoss": [
-        ["????: Ha-ha-ha-ha ha! Free at last."],
-        ["????: Now My influence can truly spread..."],
-        ["????: ...starting with you!"]
-      ]
-    }
     var moment = arg(0)
-    _dialogue = message[moment]
+    _dialogue = Dialogue[moment]
     _index = 0
     super.onEnter()
     window = Dialog.new(_dialogue[_index] + ["", "Press 'confirm' to continue..."])
@@ -521,7 +507,7 @@ class GameScene is Scene {
     _state.process(event)
     super.process(event)
 
-    if (event is GameEndEvent) {
+    if (event is Components.events.gameEnd) {
       var message
       var restart = true
       if (event.win) {
@@ -543,7 +529,7 @@ class GameScene is Scene {
         changeState(DialogueState.new().with("freeBoss"))
       }
     }
-    if (event is ChangeZoneEvent && event.floor == 1) {
+    if (event is Components.events.changeZone && event.floor == 1) {
       _messages.add("Welcome, acolyte, to the catacombs.", INK["welcome"], false)
       _messages.add("The mission has begun.", INK["welcome"], false)
     }

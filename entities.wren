@@ -47,7 +47,6 @@ class Player is Creature {
     this["equipment"] = PlayerData["equipment"]
     this["inventory"] = []
     for (entry in PlayerData["inventory"]) {
-      System.print(entry)
       this["inventory"].add(InventoryEntry.new(entry[0], entry[1]))
     }
   }

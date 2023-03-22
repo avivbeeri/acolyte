@@ -575,11 +575,7 @@ class World is Stateful {
       }
       zone = addZone(_generator.generate(this, [ i, start ]))
     }
-    if (_started) {
-      changeZone(i)
-    } else {
-      _zoneIndex = i
-    }
+    changeZone(i)
     return _zones[i]
   }
 
