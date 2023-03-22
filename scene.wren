@@ -131,16 +131,6 @@ class InventoryWindowState is SceneState {
             player.pushAction(Components.actions.item.new(entry.id, actionSpec))
             return PlayerInputState.new()
           }
-          /*
-          if (!query["target"] || query["target"] == "random") {
-            System.print("using item")
-            player.pushAction(Components.actions.item.new(entry.id, query))
-            return PlayerInputState.new()
-          } else {
-            query["item"] = entry.id
-            return TargetQueryState.new().with(query)
-          }
-          */
         }
       }
       i = i + 1

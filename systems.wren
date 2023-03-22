@@ -59,20 +59,18 @@ class InventorySystem is GameSystem {
           "OFF_HAND": 3,
           "TRINKET": 4,
         }
-        if (itemEquippedA && itemEquippedB) {
-          return order[itemA.slot] < order[itemB.slot]
+        if (!itemEquipmentA && !itemEquipmentB) {
+          return true
+        } else if (!itemEquipmentA && itemEquipmentB) {
+          return false
+        } else if (itemEquipmentA && !itemEquipmentB) {
+          return true
         } else if (itemEquippedA && !itemEquippedB) {
           return true
         } else if (!itemEquippedA && itemEquippedB) {
           return false
-        } else if (itemEquipmentA && itemEquipmentB) {
-          return order[itemA.slot] < order[itemB.slot]
-        } else if (itemEquipmentA && !itemEquipmentB) {
-          return true
-        } else if (!itemEquipmentA && itemEquipmentB) {
-          return true
         } else {
-          return true
+          return order[itemA.slot] < order[itemB.slot]
         }
       }
     }
