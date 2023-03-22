@@ -61,8 +61,6 @@ class ApplyModifierAction is Action {
   target { data["target"] }
 
   origin { data["origin"] }
-  range { data["range"] || 1 }
-  area { data["area"] || 0 }
 
   evaluate() {
     if (target.entities(ctx, src).isEmpty) {
@@ -91,7 +89,6 @@ class InflictConfusionAction is Action {
   construct new() {
     super()
   }
-  targetPos { data["origin"] }
   target { data["target"] }
 
   evaluate() {
@@ -204,7 +201,6 @@ class AreaAttackAction is Action {
   }
 
   perform() {
-    var targetPos = target["origin"]
     var defeats = []
     var kills = []
     var targets = target.entities(ctx, src)
