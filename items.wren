@@ -102,6 +102,13 @@ class DropAction is Action {
     var existing = inventory.where {|entry| entry.id == itemId }.toList
 
     existing[0].subtract(1)
+    if (existing[0].qty <= 0) {
+      var item = ctx["items"][existing[0].id]
+      if (item.slot && src["equipment"][item.slot] == item.id) {
+        item.onUnequip(src)
+        src["equipment"][item.slot] = null
+      }
+    }
 
     var found = false
     for (entry in (tile["items"] || [])) {
