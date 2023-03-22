@@ -16,12 +16,8 @@ import "parcel" for
 
 import "factory" for CreatureFactory, ItemFactory
 
-var GeneratorData = DataFile.load("distribution", "data/tiers.json")
+var GeneratorData = DataFile.load("floorData", "data/tiers.json")
 var TierData = GeneratorData["floors"]
-var TierMap = {}
-for (entry in GeneratorData["tiers"]) {
-  TierMap[Num.fromString(entry.key)] = entry.value
-}
 var Distribution = GeneratorData["distribution"]
 
 class GeneratorUtils {
@@ -37,7 +33,7 @@ class GeneratorUtils {
   }
 
   static pickEnemy(level) {
-    var tier = TierMap[level]
+    var tier = getFloorData(level)["tier"]
     var table = Distribution[tier - 1]
     var enemyTable = table["enemies"]
 
@@ -62,7 +58,7 @@ class GeneratorUtils {
     return result
   }
   static pickItem(level) {
-    var tier = TierMap[level]
+    var tier = getFloorData(level)["tier"]
     var table = Distribution[tier - 1]
     var itemTable = table["items"]
 
