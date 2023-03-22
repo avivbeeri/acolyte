@@ -288,28 +288,28 @@ class ModalWindowState is SceneState {
 class HelpState is ModalWindowState {
   construct new() {
     super()
-    // super(scene, Dialog.new(message))
   }
+
   onEnter() {
     var message = [
-        "'Confirm' - Return, Space",
-        "'Reject' - Escape, Backspace, Delete",
-        "Move - HJKLYUNB, WASDQECZ, Arrow Keys, Numpad",
-        "    (Bump to attack)",
-        "Rest - Space",
-        "Pray - 'p'",
-        "",
-        "'Interact' - 'f', which can automatically do:",
-        "Coup-de-grace - 'x'",
-        "Pick-up item - 'g'",
-        "Descend to the next floor - ','",
-        "",
-        "Other commands",
-        "Inventory - 'i', then number to use/equip/unequip",
-        "Character Info - 't'",
-        "Open Log - 'v'",
-        "Drop from Inventory - 'r' then number"
-      ]
+      "'Confirm' - Return, Space",
+      "'Reject' - Escape, Backspace, Delete",
+      "Move - HJKLYUNB, WASDQECZ, Arrow Keys, Numpad",
+      "    (Bump to attack)",
+      "Rest - Space",
+      "Pray - 'p'",
+      "",
+      "'Interact' - 'f', which can automatically do:",
+      "Coup-de-grace - 'x'",
+      "Pick-up item - 'g'",
+      "Descend to the next floor - ','",
+      "",
+      "Other commands",
+      "Inventory - 'i', then number to use/equip/unequip",
+      "Character Info - 't'",
+      "Open Log - 'v'",
+      "Drop from Inventory - 'r' then number"
+    ]
 
     window = Dialog.new(message)
     window.center = false
@@ -325,6 +325,7 @@ class HelpState is ModalWindowState {
     return this
   }
 }
+
 var Dialogue = DataFile.load("dialogue", "data/dialogue.json")
 class DialogueState is ModalWindowState {
   construct new() {
@@ -376,6 +377,7 @@ class GameEndState is ModalWindowState {
     }
     _state = nextState
   }
+
   update() {
     if (_state) {
       var result = _state.update()
