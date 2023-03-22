@@ -48,7 +48,6 @@ class Item is Stateful {
 
   default(actor, args) {
     var action = data["default"]
-    System.print("default action is %(action)")
     return Reflect.call(this, action, args)
   }
   use(args) { data["actions"]["use"]["action"].new().withArgs(args) }

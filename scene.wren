@@ -10,6 +10,7 @@ import "parcel" for
   State,
   World,
   Entity,
+  TargetGroup,
   Line,
   DataFile
 
@@ -110,13 +111,27 @@ class InventoryWindowState is SceneState {
       if (Keyboard[letter].justPressed) {
         if (_action == "drop") {
           player.pushAction(Components.actions.drop.new(entry.id))
-          System.print("drop")
           return PlayerInputState.new()
         } else if (_action == "use") {
           var query = item.query(item["default"])
           if (query == null) {
+            // Item has no uses, do nothing
             return this
           }
+          var target = TargetGroup.new(query)
+          var actionSpec = {}
+          Stateful.assign(actionSpec, query)
+          actionSpec["item"] = entry.id
+          actionSpec["target"] = target
+          target.origin = player.pos
+
+          if (target.requireSelection) {
+            return TargetQueryState.new().with(actionSpec)
+          } else {
+            player.pushAction(Components.actions.item.new(entry.id, actionSpec))
+            return PlayerInputState.new()
+          }
+          /*
           if (!query["target"] || query["target"] == "random") {
             System.print("using item")
             player.pushAction(Components.actions.item.new(entry.id, query))
@@ -125,6 +140,7 @@ class InventoryWindowState is SceneState {
             query["item"] = entry.id
             return TargetQueryState.new().with(query)
           }
+          */
         }
       }
       i = i + 1
@@ -208,8 +224,7 @@ class TargetQueryState is SceneState {
     if ((INPUT["confirm"].firing || Mouse["left"].justPressed) && targetValid(_origin, _cursorPos)) {
       var player = scene.world.getEntityByTag("player")
       var query = _query
-      query["origin"] = _cursorPos
-      System.print(query)
+      query["target"].origin = _cursorPos
       player.pushAction(Components.actions.item.new(_query["item"], query))
       return PlayerInputState.new()
     }

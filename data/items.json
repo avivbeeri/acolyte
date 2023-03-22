@@ -67,14 +67,15 @@
     "actions": {
       "use": {
         "action": "lightningAttack", 
-        "target": "random",
-        "range": 8,
+        "target": "nearest",
+        "range": 0,
+        "area": 8,
         "damage": 3
       }
     }   
   },
-  "wand": {
-    "id": "wand",
+  "confusion": {
+    "id": "confusion",
     "kind": "scroll",
     "slot": null,
     "consumable": true,
@@ -83,7 +84,7 @@
     "actions": {
       "use": {
         "action": "inflictConfusion", 
-        "target": "one",
+        "target": "area",
         "needEntity": true,
         "range": 8,
         "area": 0

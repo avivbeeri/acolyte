@@ -58,12 +58,14 @@ class ApplyModifierAction is Action {
     super()
   }
   modifier { data["modifier"] }
+  target { data["target"] }
+
   origin { data["origin"] }
   range { data["range"] || 1 }
   area { data["area"] || 0 }
 
   evaluate() {
-    if (Line.chebychev(src.pos, origin) > range) {
+    if (target.entities(ctx, src).isEmpty) {
       return ActionResult.invalid
     }
     return ActionResult.valid
@@ -71,23 +73,11 @@ class ApplyModifierAction is Action {
 
   perform() {
     var hits = []
-    var dist = area
-    var targets = HashMap.new()
-    for (dy in (-dist)..(dist)) {
-      for (dx in (-dist)..(dist)) {
-        var x = (origin.x + dx)
-        var y = (origin.y + dy)
-        var tileEntities = ctx.getEntitiesAtPosition(x, y)
-        for (target in tileEntities) {
-          targets[target.id] = target
-        }
-      }
-    }
-    for (target in targets.values) {
-      var stats = target["stats"]
+    for (entity in target.entities(ctx, src)) {
+      var stats = entity["stats"]
       var mod = Modifier.new(modifier["id"], modifier["add"], modifier["mult"], modifier["duration"], modifier["positive"])
       stats.addModifier(mod)
-      ctx.addEvent(Components.events.applyModifier.new(src, target, modifier["id"]))
+      ctx.addEvent(Components.events.applyModifier.new(src, entity, modifier["id"]))
       // TODO emit event
     }
 
@@ -102,23 +92,24 @@ class InflictConfusionAction is Action {
     super()
   }
   targetPos { data["origin"] }
+  target { data["target"] }
 
   evaluate() {
-    if (ctx.getEntitiesAtPosition(targetPos).isEmpty) {
+    if (target.entities(ctx, src).isEmpty) {
       return ActionResult.invalid
     }
     return ActionResult.valid
   }
 
   perform() {
-    ctx.getEntitiesAtPosition(targetPos).each {|target|
-      if (target["conditions"].containsKey("confusion")) {
-        target["conditions"]["confusion"].extend(4)
-        ctx.addEvent(Components.events.extendCondition.new(target, "confusion"))
+    for (entity in target.entities(ctx, src)) {
+      if (entity["conditions"].containsKey("confusion")) {
+        entity["conditions"]["confusion"].extend(4)
+        ctx.addEvent(Components.events.extendCondition.new(entity, "confusion"))
       } else {
-        target["conditions"]["confusion"] = Condition.new("confusion", 4, true)
-        target.behaviours.add(Components.behaviours.confused.new(null))
-        ctx.addEvent(Components.events.inflictCondition.new(target, "confusion"))
+        entity["conditions"]["confusion"] = Condition.new("confusion", 4, true)
+        entity.behaviours.add(Components.behaviours.confused.new(null))
+        ctx.addEvent(Components.events.inflictCondition.new(entity, "confusion"))
       }
     }
 
@@ -137,20 +128,25 @@ class HealAction is Action {
 
   evaluate() {
     // Check if it's sensible to heal?
-    var hpMax = target["stats"].get("hpMax")
-    var hp = target["stats"].get("hp")
-    if (hpMax == hp) {
-      return ActionResult.invalid
+    var reasonable = false
+    for (entity in target.entities(ctx, src)) {
+      var hpMax = entity["stats"].get("hpMax")
+      var hp = entity["stats"].get("hp")
+      if (hpMax > hp) {
+        reasonable = true
+      }
     }
 
-    return ActionResult.valid
+    return reasonable ? ActionResult.valid : ActionResult.invalid
   }
 
   perform() {
-    var hpMax = target["stats"].get("hpMax")
-    var total = (amount * hpMax).ceil
-    var amount = target["stats"].increase("hp", total, "hpMax")
-    ctx.addEvent(Components.events.heal.new(target, amount))
+    for (entity in target.entities(ctx, src)) {
+      var hpMax = entity["stats"].get("hpMax")
+      var total = (amount * hpMax).ceil
+      var amount = entity["stats"].increase("hp", total, "hpMax")
+      ctx.addEvent(Components.events.heal.new(entity, amount))
+    }
 
     return ActionResult.success
   }
@@ -161,50 +157,33 @@ class LightningAttackAction is Action {
     super()
   }
 
-  range { data["range"] }
+  target { data["target"] }
   damage { data["damage"] }
 
   evaluate() {
-    _nearby = ctx.entities().where {|entity|
-      return entity != src &&
-             entity.has("stats") &&
-             distance(entity) <= range &&
-             ctx.zone.map[entity.pos]["visible"] == true
-    }.toList
-
-    if (_nearby.isEmpty) {
+    if (target.entities(ctx, src).isEmpty) {
       return ActionResult.invalid
     }
-
     return ActionResult.valid
   }
 
-  distance(entity) {
-    if (entity == null) {
-      return Num.infinity
-    }
-    return Line.chebychev(src.pos, entity.pos)
-  }
-
   perform() {
-    var target = _nearby.reduce(null) {|acc, item|
-      if (item == src) {
-        return acc
+    var attackEvents = []
+    var defeatEvents = []
+    var killEvents = []
+    for (entity in target.entities(ctx, src)) {
+      var result = CombatProcessor.directDamage(src, entity, damage)
+      attackEvents.add(Components.events.lightning.new(entity))
+      if (result[0]) {
+        defeatEvents.add(Components.events.defeat.new(src, entity))
       }
-      if (item == null || distance(acc) > distance(item)) {
-        return item
+      if (result[1]) {
+        ctx.zone.map[entity.pos]["blood"] = true
+        killEvents.add(Components.events.kill.new(src, entity))
       }
-      return acc
     }
-
-    var result = CombatProcessor.directDamage(src, target, damage)
-    ctx.addEvent(Components.events.lightning.new(target))
-    if (result[0]) {
-      ctx.addEvent(Components.events.defeat.new(src, target))
-    }
-    if (result[1]) {
-      ctx.zone.map[target.pos]["blood"] = true
-      ctx.addEvent(Components.events.kill.new(src, target))
+    for (event in attackEvents + defeatEvents + killEvents) {
+      ctx.addEvent(event)
     }
     return ActionResult.success
   }
@@ -216,9 +195,7 @@ class AreaAttackAction is Action {
     super()
   }
 
-  origin { data["origin"] }
-  range { data["range"] }
-  area { data["area"] }
+  target { data["target"] }
   damage { data["damage"] }
 
   evaluate() {
@@ -227,23 +204,12 @@ class AreaAttackAction is Action {
   }
 
   perform() {
-    var targetPos = origin
+    var targetPos = target["origin"]
     var defeats = []
     var kills = []
-    var dist = area
-    var targets = HashMap.new()
-    for (dy in (-dist)..(dist)) {
-      for (dx in (-dist)..(dist)) {
-        var x = (origin.x + dx)
-        var y = (origin.y + dy)
-        var tileEntities = ctx.getEntitiesAtPosition(x, y)
-        for (target in tileEntities) {
-          targets[target.id] = target
-        }
-      }
-    }
+    var targets = target.entities(ctx, src)
 
-    for (target in targets.values) {
+    for (target in targets) {
       var result = CombatProcessor.directDamage(src, target, damage)
       if (result[0]) {
         defeats.add(Components.events.defeat.new(src, target))
@@ -333,6 +299,8 @@ class BlinkAction is Action {
   construct new() {
     super()
   }
+
+  target { data["target"] }
 
   evaluate() {
     var options = []

@@ -404,6 +404,92 @@ class Action is Stateful {
 }
 var NoAction = Action.new()
 
+class TargetGroup is Stateful {
+  construct new(spec) {
+    super()
+    data["exclude"] = []
+    assign(spec)
+  }
+
+  area { data["area"] || 0 }
+  area=(v) { data["area"] = v }
+  origin { data["origin"] }
+  origin=(v) { data["origin"] = v }
+  mode { data["target"] }
+  mode=(v) { data["target"] }
+  exclude { data["exclude"] }
+  needSight { data["needSight"] }
+
+  requireSelection { mode == "area" }
+
+  spaces() {
+    // Return valid spaces for this target group
+    var spaces = []
+    for (dy in (-area)..(area)) {
+      for (dx in (-area)..(area)) {
+        var x = (origin.x + dx)
+        var y = (origin.y + dy)
+        var pos = Vec.new(x, y)
+        if (exclude.contains(pos)) {
+          continue
+        }
+        if (needSight && !ctx.zone.map["visible"]) {
+          continue
+        }
+        spaces.add(pos)
+      }
+    }
+    return spaces
+  }
+
+  distance(entity) {
+    if (entity == null) {
+      return Num.infinity
+    }
+    return Line.chebychev(origin, entity.pos)
+  }
+
+  entities(ctx, src) {
+    System.print(data)
+    var tileEntities = []
+    var tiles = [ src.pos ]
+    if (mode == "area" || mode == "nearest") {
+      tiles = spaces()
+    } else if (mode == "random") {
+      tiles = [ RNG.sample(spaces()) ]
+    }
+
+    for (space in tiles) {
+      tileEntities.addAll(ctx.getEntitiesAtPosition(space))
+    }
+    if (mode == "nearest") {
+      var nearestTarget = tileEntities.reduce(null) {|acc, item|
+        if (item == src) {
+          return acc
+        }
+        if (item == null || distance(acc) > distance(item)) {
+          return item
+        }
+        return acc
+      }
+      if (nearestTarget) {
+        tileEntities = [ nearestTarget ]
+      } else {
+        tileEntities = []
+      }
+    }
+
+    var targets = HashMap.new()
+    for (target in tileEntities) {
+      targets[target.id] = target
+    }
+    System.print(tiles)
+    System.printAll(tileEntities)
+
+    return targets.values.toList
+  }
+}
+
 class Turn is Entity {
   construct new() {
     super()
