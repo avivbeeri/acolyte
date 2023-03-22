@@ -2,7 +2,6 @@ import "parcel" for BehaviourEntity, DIR_EIGHT, RNG, Action, Dijkstra, DataFile
 import "math" for M
 
 var PlayerData = DataFile.load("playerData", "data/player.json")
-System.print(PlayerData)
 
 class Creature is BehaviourEntity {
   construct new(stats) {
@@ -48,7 +47,8 @@ class Player is Creature {
     this["equipment"] = PlayerData["equipment"]
     this["inventory"] = []
     for (entry in PlayerData["inventory"]) {
-      this["inventory"].add(InventoryEntry.new(entry.key, entry.value))
+      System.print(entry)
+      this["inventory"].add(InventoryEntry.new(entry[0], entry[1]))
     }
   }
   name { data["name"] || "Player" }

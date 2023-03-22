@@ -70,7 +70,7 @@ class ClassRegistry {
       s = s + "  static %(field) { %(entry.value) }\n"
     }
     s = s + "}\n"
-    System.print(s)
+    // System.print(s)
     s = s + "return %(name)"
     return Meta.compile(s).call()
   }

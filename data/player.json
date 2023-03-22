@@ -9,9 +9,9 @@
     "WEAPON": "dagger",
     "ARMOR": "leather armor"
   },
-  "inventory": {
-    "dagger": 1,
-    "leather armor": 1,
-    "book": 1
-  }
+  "inventory": [
+    [ "dagger", 1 ],
+    [ "leather armor", 1 ],
+    [ "book", 1 ]
+  ]
 }

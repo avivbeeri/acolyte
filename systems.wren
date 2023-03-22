@@ -52,6 +52,13 @@ class InventorySystem is GameSystem {
         var itemEquipmentB = (itemB.slot)
         var itemEquippedA = (itemEquipmentA && actor["equipment"][itemA.slot] == itemA.id)
         var itemEquippedB = (itemEquipmentB && actor["equipment"][itemB.slot] == itemB.id)
+        var order = {
+          "PRIORITY": 0,
+          "WEAPON": 1,
+          "ARMOR": 2,
+          "OFF_HAND": 3,
+          "TRINKET": 4,
+        }
         if (itemEquippedA && !itemEquippedB) {
           return true
         } else if (!itemEquippedA && itemEquippedB) {
@@ -61,7 +68,7 @@ class InventorySystem is GameSystem {
         } else if (!itemEquipmentA && itemEquipmentB) {
           return true
         } else {
-          return true
+          return order[itemA.slot] < order[itemB.slot]
         }
       }
     }

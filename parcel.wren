@@ -152,7 +152,7 @@ class Parcel is Stateful {
       }
     }
     s = s + "}\n"
-    System.print(s)
+    // System.print(s)
     s = s + "return %(name)\n"
     return Meta.compile(s).call()
   }
@@ -1478,15 +1478,18 @@ class TextUtils {
 var RNG
 class DataFile {
   construct load(name, path) {
-    init_(name, path, {})
+    init_(name, path, {}, false)
   }
 
   construct load(name, path, default) {
-    init_(name, path, default)
+    init_(name, path, default, false)
+  }
+  construct load(name, path, default, optional) {
+    init_(name, path, default, optional)
   }
 
   toString { _data.toString }
-  init_(name, path, default) {
+  init_(name, path, default, optional) {
     if (!__cache) {
       __cache = {}
     }
@@ -1499,7 +1502,7 @@ class DataFile {
       }
     }
     var error = fiber.try()
-    if (fiber.error) {
+    if (!optional && fiber.error) {
       Log.e("Error loading data file %(path): %(fiber.error)")
     }
   }
@@ -1523,7 +1526,7 @@ class ConfigData is DataFile {
       "integer": false,
       "mute": false
     })
-    var override = DataFile.load("overrides", "config-override.json")
+    var override = DataFile.load("overrides", "config-override.json", {}, true)
     Stateful.assign(data, override.data)
 
     Log.level = this["logLevel"]
