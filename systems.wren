@@ -79,6 +79,12 @@ class InventorySystem is GameSystem {
 
 class ConditionSystem is GameSystem {
   construct new() { super() }
+  process(ctx, event) {
+    if (event is Components.events.inflictCondition && event.condition == "confusion") {
+      event.target.behaviours.add(Components.behaviours.confused.new(null))
+    }
+
+  }
   postUpdate(ctx, actor) {
     if (actor["stats"]) {
       actor["stats"].tick()

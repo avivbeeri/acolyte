@@ -8,16 +8,18 @@ var componentGroups = {
     "behaviours",
     "items",
     "oath",
-    "events"
+    "events",
+    "effects",
   ],
   "groups": {
     "events": "event",
     "actions": "action",
+    "effects": "effect",
     "behaviours": "behaviour"
   }
 }
 // Create a data class
-var Components = Parcel.create("Components", ["events", "actions", "behaviours"], false).new()
+var Components = Parcel.create("Components", componentGroups["groups"].keys, false).new()
 
 for (module in componentGroups["modules"]) {
   ClassRegistry.scanModule(module)

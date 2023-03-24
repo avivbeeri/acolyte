@@ -450,7 +450,6 @@ class TargetGroup is Stateful {
   }
 
   entities(ctx, src) {
-    System.print(data)
     var tileEntities = []
     var tiles = [ src.pos ]
     if (mode == "area" || mode == "nearest") {
@@ -483,8 +482,6 @@ class TargetGroup is Stateful {
     for (target in tileEntities) {
       targets[target.id] = target
     }
-    System.print(tiles)
-    System.printAll(tileEntities)
 
     return targets.values.toList
   }
@@ -677,6 +674,16 @@ class World is Stateful {
   getEntityByTag(tag) { _entities[_tagged[tag]] }
   getEntitiesAtPosition(x, y) { getEntitiesAtPosition(Vec.new(x, y)) }
   getEntitiesAtPosition(vec) { entities().where {|entity| entity.occupies(vec) }.toList }
+
+  addEvents(events) {
+    _events.addAll(events)
+    for (event in events) {
+      event.turn = _turn
+      if (_started) {
+        process(event)
+      }
+    }
+  }
 
   addEvent(event) {
     _events.add(event)

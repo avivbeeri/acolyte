@@ -70,13 +70,14 @@ class ApplyModifierAction is Action {
   }
 
   perform() {
-    var hits = []
     for (entity in target.entities(ctx, src)) {
-      var stats = entity["stats"]
-      var mod = Modifier.new(modifier["id"], modifier["add"], modifier["mult"], modifier["duration"], modifier["positive"])
-      stats.addModifier(mod)
-      ctx.addEvent(Components.events.applyModifier.new(src, entity, modifier["id"]))
-      // TODO emit event
+      var effect = Components.effects.applyModifier.new(ctx, {
+        "target": entity,
+        "src": src,
+        "modifier": modifier
+      })
+      effect.perform()
+      ctx.addEvents(effect.events)
     }
 
     return ActionResult.success
@@ -84,12 +85,13 @@ class ApplyModifierAction is Action {
 
 }
 
-#!component(id="inflictConfusion", group="action")
-class InflictConfusionAction is Action {
+#!component(id="inflictCondition", group="action")
+class InflictConditionAction is Action {
   construct new() {
     super()
   }
   target { data["target"] }
+  condition { data["condition"] }
 
   evaluate() {
     if (target.entities(ctx, src).isEmpty) {
@@ -100,14 +102,13 @@ class InflictConfusionAction is Action {
 
   perform() {
     for (entity in target.entities(ctx, src)) {
-      if (entity["conditions"].containsKey("confusion")) {
-        entity["conditions"]["confusion"].extend(4)
-        ctx.addEvent(Components.events.extendCondition.new(entity, "confusion"))
-      } else {
-        entity["conditions"]["confusion"] = Condition.new("confusion", 4, true)
-        entity.behaviours.add(Components.behaviours.confused.new(null))
-        ctx.addEvent(Components.events.inflictCondition.new(entity, "confusion"))
-      }
+      var effect = Components.effects.applyCondition.new(ctx, {
+        "target": entity,
+        "condition": condition,
+        "src": src
+      })
+      effect.perform()
+      ctx.addEvents(effect.events)
     }
 
     return ActionResult.success
@@ -139,10 +140,11 @@ class HealAction is Action {
 
   perform() {
     for (entity in target.entities(ctx, src)) {
-      var hpMax = entity["stats"].get("hpMax")
-      var total = (amount * hpMax).ceil
-      var amount = entity["stats"].increase("hp", total, "hpMax")
-      ctx.addEvent(Components.events.heal.new(entity, amount))
+      var effect = Components.effects.heal.new(ctx, {
+        "target": entity, "amount": amount
+      })
+      effect.perform()
+      ctx.addEvents(effect.events)
     }
 
     return ActionResult.success

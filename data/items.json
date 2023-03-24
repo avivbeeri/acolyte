@@ -83,7 +83,13 @@
     "default": "use",
     "actions": {
       "use": {
-        "action": "inflictConfusion", 
+        "action": "inflictCondition", 
+        "condition": {
+          "id": "confusion",
+          "duration": 5,
+          "positive": false,
+          "curable": true
+        },
         "target": "area",
         "needEntity": true,
         "range": 8,
