@@ -1,6 +1,6 @@
 import "parcel" for Stateful
 import "groups" for Components
-import "combat" for Condition, Modifier
+import "combat" for Condition, Modifier, CombatProcessor
 
 class Effect is Stateful {
   construct new(ctx, args) {
@@ -14,6 +14,57 @@ class Effect is Stateful {
 
   perform() { Fiber.abort("Abstract effect has no perform action") }
   addEvent(event) { _events.add(event) }
+  addEvents(events) { _events.addAll(events) }
+}
+
+#!component(id="meleeDamage", group="effect")
+class MeleeDamageEffect is Effect {
+  construct new(ctx, args) {
+    super(ctx, args)
+  }
+
+  damage { data["damage"] }
+  target { data["target"] }
+  src { data["src"] }
+
+  perform() {
+    var defeatEvents = []
+    var killEvents = []
+    var result = CombatProcessor.calculate(src, target)
+    if (result[0]) {
+      defeatEvents.add(Components.events.defeat.new(src, target))
+    }
+    if (result[1]) {
+      ctx.zone.map[target.pos]["blood"] = true
+      killEvents.add(Components.events.kill.new(src, target))
+    }
+    addEvents(defeatEvents + killEvents)
+  }
+}
+
+#!component(id="directDamage", group="effect")
+class DirectDamageEffect is Effect {
+  construct new(ctx, args) {
+    super(ctx, args)
+  }
+
+  damage { data["damage"] }
+  target { data["target"] }
+  src { data["src"] }
+
+  perform() {
+    var defeatEvents = []
+    var killEvents = []
+    var result = CombatProcessor.directDamage(src, target, damage)
+    if (result[0]) {
+      defeatEvents.add(Components.events.defeat.new(src, target))
+    }
+    if (result[1]) {
+      ctx.zone.map[target.pos]["blood"] = true
+      killEvents.add(Components.events.kill.new(src, target))
+    }
+    addEvents(defeatEvents + killEvents)
+  }
 }
 
 // Heals <target> for <amount> (percentage of their total)

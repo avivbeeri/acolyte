@@ -150,43 +150,6 @@ class HealAction is Action {
     return ActionResult.success
   }
 }
-#!component(id="lightningAttack", group="action")
-class LightningAttackAction is Action {
-  construct new() {
-    super()
-  }
-
-  target { data["target"] }
-  damage { data["damage"] }
-
-  evaluate() {
-    if (target.entities(ctx, src).isEmpty) {
-      return ActionResult.invalid
-    }
-    return ActionResult.valid
-  }
-
-  perform() {
-    var attackEvents = []
-    var defeatEvents = []
-    var killEvents = []
-    for (entity in target.entities(ctx, src)) {
-      var result = CombatProcessor.directDamage(src, entity, damage)
-      attackEvents.add(Components.events.lightning.new(entity))
-      if (result[0]) {
-        defeatEvents.add(Components.events.defeat.new(src, entity))
-      }
-      if (result[1]) {
-        ctx.zone.map[entity.pos]["blood"] = true
-        killEvents.add(Components.events.kill.new(src, entity))
-      }
-    }
-    for (event in attackEvents + defeatEvents + killEvents) {
-      ctx.addEvent(event)
-    }
-    return ActionResult.success
-  }
-}
 
 #!component(id="areaAttack", group="action")
 class AreaAttackAction is Action {
@@ -203,27 +166,44 @@ class AreaAttackAction is Action {
   }
 
   perform() {
-    var defeats = []
-    var kills = []
-    var targets = target.entities(ctx, src)
-
-    for (target in targets) {
-      var result = CombatProcessor.directDamage(src, target, damage)
-      if (result[0]) {
-        defeats.add(Components.events.defeat.new(src, target))
-      }
-      if (result[1]) {
-        ctx.zone.map[target.pos]["blood"] = true
-        kills.add(Components.events.kill.new(src, target))
-      }
+    var attackEvents = []
+    var resultEvents = []
+    for (entity in target.entities(ctx, src)) {
+      var effect = Components.effects.directDamage.new(ctx, {
+        "src": src,
+        "target": entity,
+        "damage": damage
+      })
+      effect.perform()
+      resultEvents.addAll(effect.events)
     }
-    for (event in defeats + kills) {
-      ctx.addEvent(event)
-    }
-
+    ctx.addEvents(attackEvents + resultEvents)
     return ActionResult.success
   }
 }
+
+#!component(id="lightningAttack", group="action")
+class LightningAttackAction is AreaAttackAction {
+  construct new() {
+    super()
+  }
+
+  evaluate() {
+    if (target.entities(ctx, src).isEmpty) {
+      return ActionResult.invalid
+    }
+    return ActionResult.valid
+  }
+
+  perform() {
+    var attackEvents = []
+    for (entity in target.entities(ctx, src)) {
+      attackEvents.add(Components.events.lightning.new(entity))
+    }
+    return super.perform()
+  }
+}
+
 #!component(id="strikeAttack", group="action")
 class StrikeAttackAction is Action {
   construct new() {
@@ -243,11 +223,12 @@ class StrikeAttackAction is Action {
       if (target == src) {
         continue
       }
-      var result = CombatProcessor.calculate(src, target)
-      if (result[1]) {
-        ctx.zone.map[target.pos]["blood"] = true
-        ctx.addEvent(Components.events.kill.new(src, target))
-      }
+      var effect = Components.effects.meleeDamage.new(ctx, {
+        "target": target,
+        "src": src
+      })
+      effect.perform()
+      ctx.addEvents(effect.events)
     }
 
     return ActionResult.success
@@ -278,14 +259,12 @@ class MeleeAttackAction is Action {
     var targetPos = src.pos + _dir
     var targets = ctx.getEntitiesAtPosition(targetPos)
     for (target in targets) {
-      var result = CombatProcessor.calculate(src, target)
-      if (result[0]) {
-        ctx.addEvent(Components.events.defeat.new(src, target))
-      }
-      if (result[1]) {
-        ctx.zone.map[target.pos]["blood"] = true
-        ctx.addEvent(Components.events.kill.new(src, target))
-      }
+      var effect = Components.effects.meleeDamage.new(ctx, {
+        "target": target,
+        "src": src
+      })
+      effect.perform()
+      ctx.addEvents(effect.events)
     }
 
     return ActionResult.success
