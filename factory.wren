@@ -61,6 +61,7 @@ class ItemFactory {
     item["consumable"] = data["consumable"]
 
     item["default"] = data["default"]
+    item["effects"] = Stateful.copyValue(data["effects"]) || []
     item["actions"] = Stateful.copyValue(data["actions"]) || {}
     for (entry in item["actions"]) {
       var actionName = entry.value["action"]

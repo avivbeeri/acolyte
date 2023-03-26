@@ -1,4 +1,5 @@
-import "parcel" for Stateful
+import "math" for Vec
+import "parcel" for Stateful, RNG, Line
 import "groups" for Components
 import "combat" for Condition, Modifier, CombatProcessor
 
@@ -126,5 +127,34 @@ class ApplyConditionEffect is Effect {
       target["conditions"][id] = Condition.new(id, duration, curable)
       addEvent(Components.events.inflictCondition.new(target, id))
     }
+  }
+}
+// Applies a condition to <target>
+#!component(id="blink", group="effect")
+class BlinkEffect is Effect {
+  construct new(ctx, args) {
+    super(ctx, args)
+  }
+
+  target { data["target"] }
+
+  perform() {
+    var options = []
+    var map = ctx.zone.map
+    for (y in map.yRange) {
+      for (x in map.xRange) {
+        var pos = Vec.new(x, y)
+        if (!map.isFloor(pos) || target.pos == pos || !ctx.getEntitiesAtPosition(pos).isEmpty) {
+          continue
+        }
+        if (Line.chebychev(target.pos, pos) < 4) {
+          continue
+        }
+        options.add(Vec.new(x, y))
+      }
+    }
+    var origin = target.pos
+    target.pos = RNG.sample(options)
+    ctx.addEvent(Components.events.move.new(target, origin))
   }
 }

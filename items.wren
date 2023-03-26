@@ -235,6 +235,37 @@ class EquipItemAction is Action {
   }
 }
 
+#!component(id="effect", group="action")
+class ItemEffectAction is Action {
+  construct new() {
+    super()
+  }
+
+  itemId { data["item"] }
+  target { data["target"] }
+
+  evaluate() {
+    return ActionResult.valid
+  }
+
+  perform() {
+    var item = ctx["items"][itemId]
+    // Execute effects
+    for (effectData in item["effects"]) {
+      var args = {}
+      Stateful.assign(args, data)
+      var effect = Reflect.get(Components.effects, effectData[0]).new(ctx, args)
+      effect["src"] = src
+      for (entity in target.entities(ctx, src)) {
+        effect["target"] = entity
+        effect.perform()
+        ctx.addEvents(effect.events)
+      }
+    }
+
+    return ActionResult.success
+  }
+}
 #!component(id="item", group="action")
 class ItemAction is Action {
   construct new(id) {

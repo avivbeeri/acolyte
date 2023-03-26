@@ -14,9 +14,12 @@
     "consumable": true,
     "name": "Blink Scroll",
     "default": "use",
+    "effects": [ 
+      [ "blink" ]
+    ],
     "actions": {
       "use": {
-        "action": "blink"
+        "action": "effect"
       }
     }   
   },

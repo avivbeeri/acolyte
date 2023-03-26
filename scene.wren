@@ -90,6 +90,9 @@ class InventoryWindowState is SceneState {
   }
   onExit() {
     scene.removeElement(_window)
+    if (_dialog) {
+      scene.removeElement(_dialog)
+    }
   }
   getKey(i) {
     var letter = i.toString
@@ -147,6 +150,7 @@ class InventoryWindowState is SceneState {
         if (target.requireSelection) {
           return TargetQueryState.new().with(actionSpec)
         } else {
+          System.print("hi")
           player.pushAction(Components.actions.item.new(entry.id, actionSpec))
           return PlayerInputState.new()
         }
@@ -157,6 +161,7 @@ class InventoryWindowState is SceneState {
       if (_selectedIndex != null) {
         _selectedIndex = null
         scene.removeElement(_dialog)
+        _dialog = null
         return this
       } else {
         return scene.world.complete ? previous : PlayerInputState.new()
