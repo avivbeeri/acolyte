@@ -3,11 +3,13 @@
     "id": "book",
     "kind": "book",
     "consumable": false,
-    "name": "Holy Book"
+    "name": "Holy Book",
+    "description": "Your book of holy scriptures and rites."
   },
   "blink": {
     "id": "blink",
     "kind": "scroll",
+    "description": "Transports the user... somewhere.",
     "slot": null,
     "consumable": true,
     "name": "Blink Scroll",
@@ -24,6 +26,7 @@
     "slot": null,
     "consumable": true,
     "name": "Slow Potion",
+    "description": "A thick substance that slows down those covered in it.",
     "default": "throw",
     "actions": {
       "throw": {
@@ -49,6 +52,7 @@
     "slot": null,
     "consumable": true,
     "name": "Health Potion",
+    "description": "Drink this to feel a little better.",
     "default": "drink",
     "actions": {
       "drink": {
@@ -63,6 +67,7 @@
     "slot": null,
     "consumable": true,
     "name": "Lightning Scroll",
+    "description": "Strike a bolt of lightning at the nearest enemy.",
     "default": "use",
     "actions": {
       "use": {
@@ -80,6 +85,7 @@
     "slot": null,
     "consumable": true,
     "name": "Confusion Scroll",
+    "description": "Weave a fog of confusion over a target, muddling it's motivations.",
     "default": "use",
     "actions": {
       "use": {
@@ -103,6 +109,7 @@
     "slot": null,
     "consumable": true,
     "name": "Fireball Scroll",
+    "description": "Conjures a ball of fire at the chosen location, burning all within to a crisp.",
     "default": "use",
     "actions": {
       "use": {
@@ -121,6 +128,7 @@
     "slot": "WEAPON",
     "consumable": false,
     "name": "Dagger",
+    "description": "A small handheld blade.",
     "default": "equip",
     "actions": {
       "equip": {
@@ -139,6 +147,7 @@
     "slot": "WEAPON",
     "consumable": false,
     "name": "Shortsword",
+    "description": "A reasonable blade of length, easy enough to wield.",
     "default": "equip",
     "actions": {
       "equip": {
@@ -157,6 +166,7 @@
     "slot": "WEAPON",
     "consumable": false,
     "name": "Longsword",
+    "description": "A well balanced blade with a broad hilt.",
     "default": "equip",
     "actions": {
       "equip": {
@@ -175,6 +185,7 @@
     "slot": "ARMOR",
     "consumable": false,
     "name": "Leather Armor",
+    "description": "Lightweight armor made of thick leather.",
     "default": "equip",
     "actions": {
       "equip": {
@@ -193,6 +204,7 @@
     "slot": "ARMOR",
     "consumable": false,
     "name": "Chainmail",
+    "description": "Medium-weight armor composed of thourands of iron rings.",
     "default": "equip",
     "actions": {
       "equip": {
@@ -211,6 +223,7 @@
     "slot": "ARMOR",
     "consumable": false,
     "name": "Platemail",
+    "description": "Heavy armor, carefully crafted from sheets of steel.",
     "default": "equip",
     "actions": {
       "equip": {
@@ -229,6 +242,7 @@
     "slot": "OFF_HAND",
     "consumable": false,
     "name": "Buckler",
+    "description": "A small shield which can be strapped to your arm.",
     "default": "equip",
     "actions": {
       "equip": {

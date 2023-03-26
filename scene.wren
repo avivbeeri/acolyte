@@ -44,6 +44,7 @@ class InventoryWindowState is SceneState {
   onEnter() {
     _action = arg(0) || "use"
     _title = _action == "drop" ? "(to drop)" : ""
+    _selectedIndex = null
 
     var border = 24
     var world = scene.world
@@ -93,7 +94,7 @@ class InventoryWindowState is SceneState {
   getKey(i) {
     var letter = i.toString
     if (i > 9) {
-      letter = String.fromByte(97 + i)
+      letter = String.fromByte(97 + (i - 10))
     }
     if (i > 9 + 26) {
       Fiber.abort("inventory is huge")
@@ -104,39 +105,62 @@ class InventoryWindowState is SceneState {
     var player = scene.world.getEntityByTag("player")
     var playerItems = player["inventory"]
 
-    var i = 1
-    for (entry in playerItems) {
-      var letter = getKey(i)
+    if (_selectedIndex == null) {
+      var i = 1
+      for (entry in playerItems) {
+        var item = scene.world["items"][entry.id]
+        var letter = getKey(i)
+        if (Keyboard[letter].justPressed) {
+          _selectedIndex = i - 1
+          _dialog = scene.addElement(Dialog.new([ item.name, "", item.description ]))
+          _dialog.center = false
+        }
+        i = i + 1
+      }
+    }
+    if (_selectedIndex) {
+      var entry = playerItems[_selectedIndex]
       var item = scene.world["items"][entry.id]
-      if (Keyboard[letter].justPressed) {
-        if (_action == "drop") {
-          player.pushAction(Components.actions.drop.new(entry.id))
-          return PlayerInputState.new()
-        } else if (_action == "use") {
-          var query = item.query(item["default"])
-          if (query == null) {
-            // Item has no uses, do nothing
-            return this
-          }
-          var target = TargetGroup.new(query)
-          var actionSpec = {}
-          Stateful.assign(actionSpec, query)
-          actionSpec["item"] = entry.id
-          actionSpec["target"] = target
-          target.origin = player.pos
+      if (INPUT["drop"].firing) {
+        _action = "drop"
+      } else if (INPUT["confirm"].firing) {
+        _action = "use"
+      } else {
+        _action = null
+      }
+      if (_action == "drop") {
+        player.pushAction(Components.actions.drop.new(entry.id))
+        return PlayerInputState.new()
+      } else if (_action == "use") {
+        var query = item.query(item["default"])
+        if (query == null) {
+          // Item has no uses, do nothing
+          return this
+        }
+        var target = TargetGroup.new(query)
+        var actionSpec = {}
+        Stateful.assign(actionSpec, query)
+        actionSpec["item"] = entry.id
+        actionSpec["target"] = target
+        target.origin = player.pos
 
-          if (target.requireSelection) {
-            return TargetQueryState.new().with(actionSpec)
-          } else {
-            player.pushAction(Components.actions.item.new(entry.id, actionSpec))
-            return PlayerInputState.new()
-          }
+        if (target.requireSelection) {
+          return TargetQueryState.new().with(actionSpec)
+        } else {
+          player.pushAction(Components.actions.item.new(entry.id, actionSpec))
+          return PlayerInputState.new()
         }
       }
-      i = i + 1
+      // TODO
     }
     if (INPUT["reject"].firing || INPUT["confirm"].firing) {
-      return scene.world.complete ? previous : PlayerInputState.new()
+      if (_selectedIndex != null) {
+        _selectedIndex = null
+        scene.removeElement(_dialog)
+        return this
+      } else {
+        return scene.world.complete ? previous : PlayerInputState.new()
+      }
     }
     return this
   }

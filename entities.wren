@@ -49,8 +49,8 @@ class Player is Creature {
     for (entry in PlayerData["inventory"]) {
       this["inventory"].add(InventoryEntry.new(entry[0], entry[1]))
     }
-    System.print(data)
   }
+
   name { data["name"] || "Player" }
   pronoun { Pronoun.you }
   pushAction(action) {

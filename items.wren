@@ -37,6 +37,7 @@ class Item is Stateful {
 
   id { data["id"] }
   kind { data["kind"] }
+  description { data["description"] }
 
   slot { data["slot"] }
   consumable { data["consumable"] }

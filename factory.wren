@@ -57,6 +57,7 @@ class ItemFactory {
     item["kind"] = data["kind"]
     item["name"] = data["name"]
     item["slot"] = data["slot"]
+    item["description"] = data["description"]
     item["consumable"] = data["consumable"]
 
     item["default"] = data["default"]
