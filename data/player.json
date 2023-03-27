@@ -17,6 +17,7 @@
     [ "lightning", 1 ],
     [ "blink", 1 ],
     [ "slow", 1 ],
-    [ "confusion", 1 ]
+    [ "confusion", 1 ],
+    [ "test", 1 ]
   ]
 }

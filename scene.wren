@@ -140,17 +140,19 @@ class InventoryWindowState is SceneState {
           // Item has no uses, do nothing
           return this
         }
-        var target = TargetGroup.new(query)
         var actionSpec = {}
         Stateful.assign(actionSpec, query)
         actionSpec["item"] = entry.id
-        actionSpec["target"] = target
-        target.origin = player.pos
+        if (!item["effects"].isEmpty) {
+          if (item["effects"].any{|effect| effect.count > 1 && effect[1]["target"] == "area" }) {
+            actionSpec["target"] = "area"
+          }
+        }
+        actionSpec["origin"] = player.pos
 
-        if (target.requireSelection) {
+        if (actionSpec["target"] == "area") {
           return TargetQueryState.new().with(actionSpec)
         } else {
-          System.print("hi")
           player.pushAction(Components.actions.item.new(entry.id, actionSpec))
           return PlayerInputState.new()
         }
@@ -243,7 +245,7 @@ class TargetQueryState is SceneState {
     if ((INPUT["confirm"].firing || Mouse["left"].justPressed) && targetValid(_origin, _cursorPos)) {
       var player = scene.world.getEntityByTag("player")
       var query = _query
-      query["target"].origin = _cursorPos
+      query["origin"] = _cursorPos
       player.pushAction(Components.actions.item.new(_query["item"], query))
       return PlayerInputState.new()
     }

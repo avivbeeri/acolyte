@@ -6,6 +6,28 @@
     "name": "Holy Book",
     "description": "Your book of holy scriptures and rites."
   },
+  "test": {
+    "id": "test",
+    "kind": "scroll",
+    "description": "A combo meal of effects",
+    "slot": null,
+    "consumable": true,
+    "name": "Staff of effects",
+    "default": "use",
+    "effects": [ 
+      [ "directDamage", { "damage": 4, "target": "area" } ],
+      [ "applyModifier", { "modifier": { "id": "test", "duration": 4, "add": { "str": 1 } }, "target": "self" } ],
+      [ "blink", { "target": "self" } ]
+    ],
+    "actions": {
+      "use": {
+        "action": "effect",
+        "needEntity": false,
+        "range": 8,
+        "area": 1
+      }
+    }   
+  },
   "blink": {
     "id": "blink",
     "kind": "scroll",

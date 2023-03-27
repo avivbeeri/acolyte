@@ -1,4 +1,4 @@
-import "parcel" for Action, ActionResult, Stateful, Log, Reflect
+import "parcel" for Action, ActionResult, Stateful, Log, Reflect, TargetGroup
 import "text" for TextSplitter
 
 class EquipmentSlot {
@@ -254,9 +254,13 @@ class ItemEffectAction is Action {
     for (effectData in item["effects"]) {
       var args = {}
       Stateful.assign(args, data)
+      if (effectData.count > 1) {
+        Stateful.assign(args, effectData[1])
+      }
+      var targetGroup = TargetGroup.new(args)
       var effect = Reflect.get(Components.effects, effectData[0]).new(ctx, args)
       effect["src"] = src
-      for (entity in target.entities(ctx, src)) {
+      for (entity in targetGroup.entities(ctx, src)) {
         effect["target"] = entity
         effect.perform()
         ctx.addEvents(effect.events)
