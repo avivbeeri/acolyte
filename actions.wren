@@ -1,6 +1,6 @@
 import "math" for Vec
 import "collections" for HashMap
-import "parcel" for Action, ActionResult, MAX_TURN_SIZE, Line, RNG
+import "parcel" for Action, ActionResult, MAX_TURN_SIZE, Line, RNG, TargetGroup
 import "./combat" for Damage, Condition, CombatProcessor, Modifier
 
 #!component(id="pray", group="action")
@@ -58,11 +58,10 @@ class ApplyModifierAction is Action {
     super()
   }
   modifier { data["modifier"] }
-  target { data["target"] }
-
   origin { data["origin"] }
 
   evaluate() {
+    var target = TargetGroup.new(data)
     if (target.entities(ctx, src).isEmpty) {
       return ActionResult.invalid
     }
@@ -70,6 +69,7 @@ class ApplyModifierAction is Action {
   }
 
   perform() {
+    var target = TargetGroup.new(data)
     for (entity in target.entities(ctx, src)) {
       var effect = Components.effects.applyModifier.new(ctx, {
         "target": entity,
@@ -90,10 +90,10 @@ class InflictConditionAction is Action {
   construct new() {
     super()
   }
-  target { data["target"] }
   condition { data["condition"] }
 
   evaluate() {
+    var target = TargetGroup.new(data)
     if (target.entities(ctx, src).isEmpty) {
       return ActionResult.invalid
     }
@@ -101,6 +101,7 @@ class InflictConditionAction is Action {
   }
 
   perform() {
+    var target = TargetGroup.new(data)
     for (entity in target.entities(ctx, src)) {
       var effect = Components.effects.applyCondition.new(ctx, {
         "target": entity,
@@ -121,11 +122,11 @@ class HealAction is Action {
     super()
   }
 
-  target { data["target"] || src }
   amount { data["amount"] }
 
   evaluate() {
     // Check if it's sensible to heal?
+    var target = TargetGroup.new(data)
     var reasonable = false
     for (entity in target.entities(ctx, src)) {
       var hpMax = entity["stats"].get("hpMax")
@@ -139,6 +140,7 @@ class HealAction is Action {
   }
 
   perform() {
+    var target = TargetGroup.new(data)
     for (entity in target.entities(ctx, src)) {
       var effect = Components.effects.heal.new(ctx, {
         "target": entity, "amount": amount
@@ -157,15 +159,16 @@ class AreaAttackAction is Action {
     super()
   }
 
-  target { data["target"] }
   damage { data["damage"] }
 
   evaluate() {
     // TODO: check if origin is solid and visible
+    var target = TargetGroup.new(data)
     return ActionResult.valid
   }
 
   perform() {
+    var target = TargetGroup.new(data)
     var attackEvents = []
     var resultEvents = []
     for (entity in target.entities(ctx, src)) {
@@ -189,6 +192,7 @@ class LightningAttackAction is AreaAttackAction {
   }
 
   evaluate() {
+    var target = TargetGroup.new(data)
     if (target.entities(ctx, src).isEmpty) {
       return ActionResult.invalid
     }
@@ -196,6 +200,7 @@ class LightningAttackAction is AreaAttackAction {
   }
 
   perform() {
+    var target = TargetGroup.new(data)
     var attackEvents = []
     for (entity in target.entities(ctx, src)) {
       attackEvents.add(Components.events.lightning.new(entity))
@@ -210,6 +215,7 @@ class StrikeAttackAction is Action {
     super()
   }
   evaluate() {
+    var target = TargetGroup.new(data)
     if (!ctx.entities().any{|other| other != src && other.occupies(src.pos) && other["conditions"]["unconscious"] }) {
       return ActionResult.invalid
     }
