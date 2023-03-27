@@ -53,21 +53,20 @@
     "name": "Slow Potion",
     "description": "A thick substance that slows down those covered in it.",
     "default": "throw",
+    "effects": [ 
+      [ "applyModifier", { "modifier": { "id": "slow", "duration": 5, "positive": true, "mult": { "spd": -0.5 } } } ]
+    ],
     "actions": {
+      "drink": { 
+        "action": "effect",
+        "target": "self"
+      },
       "throw": {
-        "action": "applyModifier", 
+        "action": "effect", 
         "target": "area",
         "needEntity": false,
         "range": 8,
-        "area": 1,
-        "modifier": {
-          "id": "slow",
-          "duration": 5,
-          "mult": {
-            "spd": -0.5
-          },
-          "positive": false
-        }
+        "area": 1
       }
     }   
   },
@@ -79,10 +78,12 @@
     "name": "Health Potion",
     "description": "Drink this to feel a little better.",
     "default": "drink",
+    "effects": [ 
+      [ "heal", { "amount": 0.3 }]
+    ],
     "actions": {
       "drink": {
-        "action": "heal", 
-        "amount": 0.3
+        "action": "effect"
       }
     }   
   },
@@ -94,13 +95,14 @@
     "name": "Lightning Scroll",
     "description": "Strike a bolt of lightning at the nearest enemy.",
     "default": "use",
+    "effects": [
+      ["directDamage", { "damage": 3, "target": "nearest" }
+    ],
     "actions": {
       "use": {
-        "action": "lightningAttack", 
-        "target": "nearest",
+        "action": "effect", 
         "range": 0,
-        "area": 8,
-        "damage": 3
+        "area": 8
       }
     }   
   },
@@ -112,15 +114,17 @@
     "name": "Confusion Scroll",
     "description": "Weave a fog of confusion over a target, muddling it's motivations.",
     "default": "use",
+    "effects": [
+      ["applyCondition", { "condition": {
+        "id": "confusion",
+        "duration": 5,
+        "positive": false,
+        "curable": true
+      }, "target": "nearest" }
+    ],
     "actions": {
       "use": {
-        "action": "inflictCondition", 
-        "condition": {
-          "id": "confusion",
-          "duration": 5,
-          "positive": false,
-          "curable": true
-        },
+        "action": "effect", 
         "target": "area",
         "needEntity": true,
         "range": 8,
