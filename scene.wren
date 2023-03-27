@@ -10,7 +10,6 @@ import "parcel" for
   State,
   World,
   Entity,
-  TargetGroup,
   Line,
   DataFile
 
