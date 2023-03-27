@@ -79,7 +79,7 @@
     "description": "Drink this to feel a little better.",
     "default": "drink",
     "effects": [ 
-      [ "heal", { "amount": 0.3 }]
+      [ "heal", { "amount": 0.3 } ]
     ],
     "actions": {
       "drink": {
@@ -96,11 +96,12 @@
     "description": "Strike a bolt of lightning at the nearest enemy.",
     "default": "use",
     "effects": [
-      ["directDamage", { "damage": 3, "target": "nearest" }
+      ["directDamage", { "damage": 3 }
     ],
     "actions": {
       "use": {
         "action": "effect", 
+        "target": "nearest",
         "range": 0,
         "area": 8
       }
@@ -118,9 +119,8 @@
       ["applyCondition", { "condition": {
         "id": "confusion",
         "duration": 5,
-        "positive": false,
         "curable": true
-      }, "target": "nearest" }
+      } }
     ],
     "actions": {
       "use": {
@@ -140,14 +140,16 @@
     "name": "Fireball Scroll",
     "description": "Conjures a ball of fire at the chosen location, burning all within to a crisp.",
     "default": "use",
+    "effects": [
+      [ "directDamage", { "damage": 5 } ]
+    ],
     "actions": {
       "use": {
         "action": "areaAttack", 
         "target": "area",
         "needEntity": false,
         "range": 8,
-        "area": 1,
-        "damage": 5
+        "area": 1
       }
     }   
   },
