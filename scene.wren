@@ -86,6 +86,7 @@ class InventoryWindowState is SceneState {
     var x = Canvas.width - (max * 8 + 8)
     _window = LineViewer.new(Vec.new(x, border), Vec.new(Canvas.width - border*2, Canvas.height - border*2), items.count, items)
     scene.addElement(_window)
+    _previousMouse = Mouse.pos
   }
   onExit() {
     scene.removeElement(_window)
@@ -108,21 +109,24 @@ class InventoryWindowState is SceneState {
     var playerItems = player["inventory"]
 
     var mouse = Mouse.pos
-
-    var i = 1
-    _mouseIndex = ((mouse.y - (_window.pos.y + 30)) / 10).floor
-    if (_mouseIndex < 0 || _mouseIndex >= playerItems.count) {
-      _mouseIndex = null
+    if (mouse != _previousMouse) {
+      _mouseIndex = ((mouse.y - (_window.pos.y + 30)) / 10).floor
+      if (_mouseIndex < 0 || _mouseIndex >= playerItems.count || mouse.x < _window.pos.x) {
+        _mouseIndex = null
+      }
+      _selectedIndex = _mouseIndex
     }
+    _previousMouse = mouse
+    var i = 1
     for (entry in playerItems) {
       var item = scene.world["items"][entry.id]
       var letter = getKey(i)
       if (Keyboard[letter].justPressed) {
         _keyboardIndex = i - 1
+        _selectedIndex = _keyboardIndex
       }
       i = i + 1
     }
-    _selectedIndex = _keyboardIndex || _mouseIndex
     if (_dialog) {
       scene.removeElement(_dialog)
       _dialog = null
@@ -172,16 +176,7 @@ class InventoryWindowState is SceneState {
       // TODO
     }
     if (INPUT["reject"].firing || INPUT["confirm"].firing) {
-      if (_selectedIndex != null) {
-        _selectedIndex = null
-        _keyboardIndex = null
-        _mouseIndex = null
-        scene.removeElement(_dialog)
-        _dialog = null
-        return this
-      } else {
-        return scene.world.complete ? previous : PlayerInputState.new()
-      }
+      return scene.world.complete ? previous : PlayerInputState.new()
     }
     return this
   }
