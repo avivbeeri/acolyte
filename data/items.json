@@ -11,12 +11,12 @@
     "kind": "scroll",
     "description": "A combo meal of effects",
     "slot": null,
-    "consumable": true,
+    "consumable": false,
     "name": "Staff of effects",
     "default": "use",
     "effects": [ 
       [ "directDamage", { "damage": 4, "target": "area" } ],
-      [ "applyModifier", { "modifier": { "id": "test", "duration": 4, "add": { "str": 1 } }, "target": "self" } ],
+      [ "applyModifier", { "modifier": { "id": "test", "duration": 4, "mult": { "spd": -0.8 } }, "target": "self" } ],
       [ "blink", { "target": "self" } ]
     ],
     "actions": {
