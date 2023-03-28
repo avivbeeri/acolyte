@@ -96,7 +96,7 @@
     "description": "Strike a bolt of lightning at the nearest enemy.",
     "default": "use",
     "effects": [
-      ["directDamage", { "damage": 3 }
+      ["directDamage", { "damage": 3 } ]
     ],
     "actions": {
       "use": {
@@ -120,7 +120,7 @@
         "id": "confusion",
         "duration": 5,
         "curable": true
-      } }
+      } } ]
     ],
     "actions": {
       "use": {
@@ -145,7 +145,7 @@
     ],
     "actions": {
       "use": {
-        "action": "areaAttack", 
+        "action": "effect", 
         "target": "area",
         "needEntity": false,
         "range": 8,
