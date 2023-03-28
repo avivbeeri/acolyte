@@ -21,7 +21,7 @@
     ],
     "actions": {
       "use": {
-        "action": "effect",
+        "action": "itemEffect",
         "needEntity": false,
         "range": 8,
         "area": 1
@@ -41,7 +41,7 @@
     ],
     "actions": {
       "use": {
-        "action": "effect"
+        "action": "itemEffect"
       }
     }   
   },
@@ -58,11 +58,11 @@
     ],
     "actions": {
       "drink": { 
-        "action": "effect",
+        "action": "itemEffect",
         "target": "self"
       },
       "throw": {
-        "action": "effect", 
+        "action": "itemEffect", 
         "target": "area",
         "needEntity": false,
         "range": 8,
@@ -83,7 +83,7 @@
     ],
     "actions": {
       "drink": {
-        "action": "effect"
+        "action": "itemEffect"
       }
     }   
   },
@@ -100,7 +100,7 @@
     ],
     "actions": {
       "use": {
-        "action": "effect", 
+        "action": "itemEffect", 
         "target": "nearest",
         "range": 0,
         "area": 8
@@ -124,7 +124,7 @@
     ],
     "actions": {
       "use": {
-        "action": "effect", 
+        "action": "itemEffect", 
         "target": "area",
         "needEntity": true,
         "range": 8,
@@ -145,7 +145,7 @@
     ],
     "actions": {
       "use": {
-        "action": "effect", 
+        "action": "itemEffect", 
         "target": "area",
         "needEntity": false,
         "range": 8,

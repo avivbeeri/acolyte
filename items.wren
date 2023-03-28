@@ -1,4 +1,4 @@
-import "parcel" for Action, ActionResult, Stateful, Log, Reflect, TargetGroup
+import "parcel" for Action, ActionResult, Stateful, Log, Reflect
 import "text" for TextSplitter
 
 class EquipmentSlot {
@@ -235,7 +235,7 @@ class EquipItemAction is Action {
   }
 }
 
-#!component(id="effect", group="action")
+#!component(id="itemEffect", group="action")
 class ItemEffectAction is Action {
   construct new() {
     super()
@@ -245,28 +245,14 @@ class ItemEffectAction is Action {
   target { data["target"] }
 
   evaluate() {
-    return ActionResult.valid
+    var action = Components.actions.effect.new()
+    action.withArgs(data)
+    var item = ctx["items"][itemId]
+    action["effects"] = item["effects"]
+    return ActionResult.alternate(action)
   }
 
   perform() {
-    var item = ctx["items"][itemId]
-    // Execute effects
-    for (effectData in item["effects"]) {
-      var args = {}
-      Stateful.assign(args, data)
-      if (effectData.count > 1) {
-        Stateful.assign(args, effectData[1])
-      }
-      var targetGroup = TargetGroup.new(args)
-      var effect = Reflect.get(Components.effects, effectData[0]).new(ctx, args)
-      effect["src"] = src
-      for (entity in targetGroup.entities(ctx, src)) {
-        effect["target"] = entity
-        effect.perform()
-        ctx.addEvents(effect.events)
-      }
-    }
-
     return ActionResult.success
   }
 }

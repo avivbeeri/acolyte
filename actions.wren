@@ -1,6 +1,6 @@
 import "math" for Vec
 import "collections" for HashMap
-import "parcel" for Action, ActionResult, MAX_TURN_SIZE, Line, RNG, TargetGroup
+import "parcel" for Action, ActionResult, MAX_TURN_SIZE, Line, RNG, TargetGroup, Reflect, Stateful
 import "./combat" for Damage, Condition, CombatProcessor, Modifier
 
 #!component(id="pray", group="action")
@@ -37,6 +37,41 @@ class PrayAction is Action {
   }
 }
 
+#!component(id="effect", group="action")
+class EffectAction is Action {
+  construct new() {
+    super()
+  }
+
+  effects { data["effects"] }
+  target { data["target"] }
+
+  evaluate() {
+    return ActionResult.valid
+  }
+
+  perform() {
+    // Execute effects
+    for (effectData in effects) {
+      var args = {}
+      Stateful.assign(args, data)
+      if (effectData.count > 1) {
+        Stateful.assign(args, effectData[1])
+      }
+      var targetGroup = TargetGroup.new(args)
+      var effect = Reflect.get(Components.effects, effectData[0]).new(ctx, args)
+      effect["src"] = src
+      for (entity in targetGroup.entities(ctx, src)) {
+        effect["target"] = entity
+        effect.perform()
+        ctx.addEvents(effect.events)
+      }
+    }
+
+    return ActionResult.success
+  }
+}
+
 #!component(id="rest", group="action")
 class RestAction is Action {
   construct new() {
@@ -48,107 +83,6 @@ class RestAction is Action {
 
   perform() {
     ctx.addEvent(Components.events.rest.new(src))
-    return ActionResult.success
-  }
-}
-
-#!component(id="applyModifier", group="action")
-class ApplyModifierAction is Action {
-  construct new() {
-    super()
-  }
-  modifier { data["modifier"] }
-  origin { data["origin"] }
-
-  evaluate() {
-    var target = TargetGroup.new(data)
-    if (target.entities(ctx, src).isEmpty) {
-      return ActionResult.invalid
-    }
-    return ActionResult.valid
-  }
-
-  perform() {
-    var target = TargetGroup.new(data)
-    for (entity in target.entities(ctx, src)) {
-      var effect = Components.effects.applyModifier.new(ctx, {
-        "target": entity,
-        "src": src,
-        "modifier": modifier
-      })
-      effect.perform()
-      ctx.addEvents(effect.events)
-    }
-
-    return ActionResult.success
-  }
-
-}
-
-#!component(id="inflictCondition", group="action")
-class InflictConditionAction is Action {
-  construct new() {
-    super()
-  }
-  condition { data["condition"] }
-
-  evaluate() {
-    var target = TargetGroup.new(data)
-    if (target.entities(ctx, src).isEmpty) {
-      return ActionResult.invalid
-    }
-    return ActionResult.valid
-  }
-
-  perform() {
-    var target = TargetGroup.new(data)
-    for (entity in target.entities(ctx, src)) {
-      var effect = Components.effects.applyCondition.new(ctx, {
-        "target": entity,
-        "condition": condition,
-        "src": src
-      })
-      effect.perform()
-      ctx.addEvents(effect.events)
-    }
-
-    return ActionResult.success
-  }
-}
-
-#!component(id="heal", group="action")
-class HealAction is Action {
-  construct new() {
-    super()
-  }
-
-  amount { data["amount"] }
-
-  evaluate() {
-    // Check if it's sensible to heal?
-    var target = TargetGroup.new(data)
-    var reasonable = false
-    for (entity in target.entities(ctx, src)) {
-      var hpMax = entity["stats"].get("hpMax")
-      var hp = entity["stats"].get("hp")
-      if (hpMax > hp) {
-        reasonable = true
-      }
-    }
-
-    return reasonable ? ActionResult.valid : ActionResult.invalid
-  }
-
-  perform() {
-    var target = TargetGroup.new(data)
-    for (entity in target.entities(ctx, src)) {
-      var effect = Components.effects.heal.new(ctx, {
-        "target": entity, "amount": amount
-      })
-      effect.perform()
-      ctx.addEvents(effect.events)
-    }
-
     return ActionResult.success
   }
 }
@@ -182,30 +116,6 @@ class AreaAttackAction is Action {
     }
     ctx.addEvents(attackEvents + resultEvents)
     return ActionResult.success
-  }
-}
-
-#!component(id="lightningAttack", group="action")
-class LightningAttackAction is AreaAttackAction {
-  construct new() {
-    super()
-  }
-
-  evaluate() {
-    var target = TargetGroup.new(data)
-    if (target.entities(ctx, src).isEmpty) {
-      return ActionResult.invalid
-    }
-    return ActionResult.valid
-  }
-
-  perform() {
-    var target = TargetGroup.new(data)
-    var attackEvents = []
-    for (entity in target.entities(ctx, src)) {
-      attackEvents.add(Components.events.lightning.new(entity))
-    }
-    return super.perform()
   }
 }
 
@@ -277,50 +187,6 @@ class MeleeAttackAction is Action {
   }
 }
 
-#!component(id="blink", group="action")
-class BlinkAction is Action {
-  construct new() {
-    super()
-  }
-
-  target { data["target"] }
-
-  evaluate() {
-    var options = []
-    var map = ctx.zone.map
-    for (y in map.yRange) {
-      for (x in map.xRange) {
-        var pos = Vec.new(x, y)
-        if (!map.isFloor(pos) || src.pos == pos || !ctx.getEntitiesAtPosition(pos).isEmpty) {
-          continue
-        }
-        options.add(Vec.new(x, y))
-      }
-    }
-    if (options.isEmpty) {
-      ActionResult.invalid
-    }
-    return ActionResult.valid
-  }
-
-  perform() {
-    var options = []
-    var map = ctx.zone.map
-    for (y in map.yRange) {
-      for (x in map.xRange) {
-        var pos = Vec.new(x, y)
-        if (!map.isFloor(pos) || src.pos == pos || !ctx.getEntitiesAtPosition(pos).isEmpty) {
-          continue
-        }
-        options.add(Vec.new(x, y))
-      }
-    }
-    var origin = src.pos
-    src.pos = RNG.sample(options)
-    ctx.addEvent(Components.events.move.new(src, origin))
-    return ActionResult.success
-  }
-}
 #!component(id="simpleMove", group="action")
 class SimpleMoveAction is Action {
   construct new(dir) {
