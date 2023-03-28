@@ -717,7 +717,6 @@ class AsciiRenderer is Element {
     var offset = Canvas.offset
     Canvas.offset(_pos.x,_pos.y)
     var map = _world.zone.map
-    super.draw()
     var player = _world.getEntityByTag("player")
 
     for (y in map.yRange) {
@@ -822,6 +821,7 @@ class AsciiRenderer is Element {
         printEntity(symbol, space, color)
       }
     }
+    super.draw()
 
     Canvas.offset(offset.x, offset.y)
   }

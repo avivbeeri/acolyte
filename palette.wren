@@ -13,6 +13,7 @@ INK.addColor("red", Color.hex("#9C173B"))
 
 INK.addColor("lilac", Color.hex("#AB9AA1"))
 INK.addColor("purple", Color.hex("#4F3A54"))
+INK.addColor("purpleTransparent", Color.hex("#4F3A5460"))
 
 INK.addColor("bronze", Color.hex("#855504"))
 INK.addColor("gold", Color.hex("#D19B11"))
@@ -25,13 +26,14 @@ INK.addColor("blue", Color.hex("#3A8CC7"))
 
 INK.addColor("deeppurple", Color.hex("#65276A"))
 INK.addColor("pastelpurple", Color.hex("#9A649E"))
+INK.addColor("pastelpurpleTransparent", Color.hex("#9A649E60"))
 
 INK.addColor("orange", Color.hex("#CC751F"))
 INK.addColor("gray", Color.hex("#C5B26D"))
 
 
-INK.setPurpose("targetArea", "pastelpurple")
-INK.setPurpose("targetCursor", "purple")
+INK.setPurpose("targetArea", "pastelpurpleTransparent")
+INK.setPurpose("targetCursor", "purpleTransparent")
 INK.setPurpose("targetBorder", "red")
 INK.setPurpose("wall", "lilac")
 INK.setPurpose("obscured", "purple")
