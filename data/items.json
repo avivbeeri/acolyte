@@ -15,9 +15,8 @@
     "name": "Staff of effects",
     "default": "use",
     "effects": [ 
-      [ "directDamage", { "damage": 4, "target": "area" } ],
-      [ "applyModifier", { "modifier": { "id": "test", "duration": 4, "mult": { "spd": -0.8 } }, "target": "self" } ],
-      [ "blink", { "target": "self" } ]
+      [ "push", { "target": "area", "distance": 2 } ],
+      [ "directDamage", { "damage": 1, "target": "area" } ]
     ],
     "actions": {
       "use": {

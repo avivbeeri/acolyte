@@ -18,6 +18,38 @@ class Effect is Stateful {
   addEvents(events) { _events.addAll(events) }
 }
 
+#!component(id="push", group="effect")
+class PushEffect is Effect {
+  construct new(ctx, args) {
+    super(ctx, args)
+  }
+
+  target { data["target"] }
+  src { data["src"] }
+  distance { data["distance"] }
+
+  perform() {
+    var origin = target.pos
+    var d = (target.pos - src.pos)
+    d.x = d.x.clamp(-1, 1)
+    d.y = d.y.clamp(-1, 1)
+
+    var current = target.pos
+    for (i in 0...distance) {
+      var next = current + d
+      if (ctx.zone.map.neighbours(current).contains(next)) {
+        target.pos = next
+        // TODO: if the space is occupied already?
+        // TODO: if hit a wall, stun? extra damage?
+      } else {
+        break
+      }
+      current = next
+    }
+
+    ctx.addEvent(Components.events.move.new(target, origin))
+  }
+}
 #!component(id="meleeDamage", group="effect")
 class MeleeDamageEffect is Effect {
   construct new(ctx, args) {
