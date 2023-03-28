@@ -314,6 +314,7 @@ class LineViewer is Element {
     _max = size
     _lines = lines || []
   }
+  pos { _pos }
   lines=(v) { _lines = v }
   lines { _lines }
 

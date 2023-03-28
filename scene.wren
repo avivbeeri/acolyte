@@ -107,25 +107,38 @@ class InventoryWindowState is SceneState {
     var player = scene.world.getEntityByTag("player")
     var playerItems = player["inventory"]
 
-    if (_selectedIndex == null) {
-      var i = 1
-      for (entry in playerItems) {
-        var item = scene.world["items"][entry.id]
-        var letter = getKey(i)
-        if (Keyboard[letter].justPressed) {
-          _selectedIndex = i - 1
-          _dialog = scene.addElement(Dialog.new([ item.name, "", item.description ]))
-          _dialog.center = false
-        }
-        i = i + 1
+    var mouse = Mouse.pos
+
+    var i = 1
+    _mouseIndex = ((mouse.y - (_window.pos.y + 30)) / 10).floor
+    if (_mouseIndex < 0 || _mouseIndex >= playerItems.count) {
+      _mouseIndex = null
+    }
+    for (entry in playerItems) {
+      var item = scene.world["items"][entry.id]
+      var letter = getKey(i)
+      if (Keyboard[letter].justPressed) {
+        _keyboardIndex = i - 1
       }
+      i = i + 1
+    }
+    _selectedIndex = _keyboardIndex || _mouseIndex
+    if (_dialog) {
+      scene.removeElement(_dialog)
+      _dialog = null
+    }
+    if (_selectedIndex) {
+      var entry = playerItems[_selectedIndex]
+      var item = scene.world["items"][entry.id]
+      _dialog = scene.addElement(Dialog.new([ item.name, "", item.description ]))
+      _dialog.center = false
     }
     if (_selectedIndex) {
       var entry = playerItems[_selectedIndex]
       var item = scene.world["items"][entry.id]
       if (INPUT["drop"].firing) {
         _action = "drop"
-      } else if (INPUT["confirm"].firing) {
+      } else if (INPUT["confirm"].firing || Mouse["left"].justPressed) {
         _action = "use"
       } else {
         _action = null
@@ -161,6 +174,8 @@ class InventoryWindowState is SceneState {
     if (INPUT["reject"].firing || INPUT["confirm"].firing) {
       if (_selectedIndex != null) {
         _selectedIndex = null
+        _keyboardIndex = null
+        _mouseIndex = null
         scene.removeElement(_dialog)
         _dialog = null
         return this
