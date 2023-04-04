@@ -19,10 +19,10 @@ import "./ui" for
   TargetBeginEvent,
   TargetEndEvent
 
-
 import "./inputs" for VI_SCHEME as INPUT
-import "./entities" for Player, Creature
+import "./entities" for Player
 import "./text" for TextSplitter
+import "groups" for Components
 
 var DEBUG = false
 
@@ -1004,4 +1004,3 @@ class TileRenderer is AsciiRenderer {
     Canvas.offset(offset.x, offset.y)
   }
 }
-import "groups" for Components

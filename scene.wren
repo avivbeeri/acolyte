@@ -16,7 +16,7 @@ import "parcel" for
 import "./palette" for INK
 import "./inputs" for VI_SCHEME as INPUT
 import "./messages" for MessageLog, Pronoun
-import "./ui" for TextComplete, TextChanged, TargetEvent, TargetBeginEvent, TargetEndEvent, HoverEvent, SceneState
+import "./ui" for TargetEvent, TargetBeginEvent, TargetEndEvent, HoverEvent, SceneState
 import "./text" for TextSplitter
 import "./renderer" for
   //AsciiRenderer as Renderer,
@@ -525,10 +525,6 @@ class GameScene is Scene {
     _messages = MessageLog.new()
 
     var world = _world = WorldGenerator.create()
-
-    _name = ""
-    _currentText = ""
-
     var player = world.getEntityByTag("player")
     changeState(PlayerInputState.new())
     _renderer = addElement(Renderer.new(Vec.new((Canvas.width - (32 * 16))/2, 16)))
@@ -685,15 +681,6 @@ class GameScene is Scene {
 
     _state.events.clear()
     var nextState = _state.update()
-    for (event in _state.events) {
-      if (event is TextComplete) {
-        _currentText = ""
-        _name = event.text
-      }
-      if (event is TextChanged) {
-        _currentText = event.text
-      }
-    }
 
     if (nextState != _state) {
       changeState(nextState)
@@ -724,8 +711,6 @@ class GameScene is Scene {
     Canvas.cls(color)
     Canvas.offset()
     super.draw()
-
-    Canvas.print(_name, 0, Canvas.height - 17, Color.white)
   }
 }
 import "./entities" for Player

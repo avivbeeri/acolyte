@@ -1,4 +1,3 @@
-import "graphics" for Color, Canvas
 import "stringUtils" for StringUtils
 
 class TextSplitter {
@@ -60,3 +59,4 @@ class TextSplitter {
     return outputLines
   }
 }
+
