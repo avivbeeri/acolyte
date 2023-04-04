@@ -4,6 +4,12 @@ import "./ui/pane" for Pane
 import "./text" for TextSplitter
 import "./palette" for INK
 
+/*
+  A pane that will display a list of strings
+  The text can be left or center aligned.
+  The pane is always at the center of the screen
+*/
+
 class Dialog is Pane {
   construct new(message) {
     super()

@@ -20,6 +20,7 @@ class Pane is Element {
   size=(v) {
     _size = v
   }
+
   pos { _pos }
   pos=(v) {
     _pos = v
