@@ -18,8 +18,10 @@ import "./inputs" for VI_SCHEME as INPUT
 import "./messages" for MessageLog, Pronoun
 import "./ui" for TargetEvent, TargetBeginEvent, TargetEndEvent, HoverEvent, SceneState
 import "./text" for TextSplitter
+
+import "./ui/renderer" for Renderer
+import "./ui/dialog" for Dialog
 import "./renderer" for
-  Renderer,
   HealthBar,
   PietyBar,
   LineViewer,
@@ -28,8 +30,7 @@ import "./renderer" for
   CharacterViewer,
   HoverText,
   Pane,
-  HintText,
-  Dialog
+  HintText
 
 import "./generator" for WorldGenerator
 import "./combat" for AttackResult
