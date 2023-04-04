@@ -19,7 +19,6 @@ import "./messages" for MessageLog, Pronoun
 import "./ui" for TargetEvent, TargetBeginEvent, TargetEndEvent, HoverEvent, SceneState
 import "./text" for TextSplitter
 import "./renderer" for
-  //AsciiRenderer as Renderer,
   Renderer,
   HealthBar,
   PietyBar,

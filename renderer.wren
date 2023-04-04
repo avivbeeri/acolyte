@@ -1,7 +1,6 @@
 import "graphics" for Color, Canvas, SpriteSheet, ImageData
 import "math" for Vec
 import "input" for Mouse
-import "messages" for Pronoun
 import "./parcel" for
   Config,
   Scheduler,
@@ -10,8 +9,12 @@ import "./parcel" for
   Entity,
   ChangeZoneEvent,
   Palette
-import "./palette" for INK
+import "messages" for Pronoun
+import "./entities" for Player
+import "groups" for Components
 import "./items" for Item, EquipmentSlot
+
+import "./palette" for INK
 import "./ui" for
   Animation,
   HoverEvent,
@@ -20,9 +23,7 @@ import "./ui" for
   TargetEndEvent
 
 import "./inputs" for VI_SCHEME as INPUT
-import "./entities" for Player
 import "./text" for TextSplitter
-import "groups" for Components
 
 var DEBUG = false
 

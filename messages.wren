@@ -1,4 +1,3 @@
-import "parcel" for Reflect
 import "dome" for Log
 
 class Pronoun {
