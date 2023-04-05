@@ -15,11 +15,13 @@ class Vision {
     _map = map
     _depth = null
     _origin = origin
+    _result = []
   }
   construct new(map, origin, maxDepth) {
     _map = map
     _maxDepth = maxDepth
     _origin = origin
+    _result = []
   }
 
   compute() {
@@ -62,8 +64,11 @@ class Vision {
     if (!_map.inBounds(x, y)) {
       return
     }
+    _result.add(Vec.new(x.floor, y.floor))
     _map[x.floor, y.floor]["visible"] = true
   }
+
+  result { _result }
 }
 
 class Quadrant {
@@ -129,13 +134,14 @@ class Vision2 {
     _map = map
     _maxDepth = null
     _origin = origin
+    _result = []
   }
   construct new(map, origin, maxDepth) {
     _map = map
     _maxDepth = maxDepth
     _origin = origin
+    _result = []
   }
-
 
   compute() {
     makeVisible(_origin)
@@ -144,8 +150,8 @@ class Vision2 {
       var row = Row.new(1, F.new(-1, 1), F.new(1, 1))
       scan(quadrant, row)
     }
+    return _result
   }
-
 
   isBlocking(quadrant, tile) {
     if (tile == null) {
@@ -206,23 +212,7 @@ class Vision2 {
     if (!_map.inBounds(x, y)) {
       return
     }
-    _map[x.floor, y.floor]["visible"] = true
-    var pos = Vec.new(x.floor, y.floor)
-    var diag = [
-      Vec.new(-1, -1),
-      Vec.new(-1, 1),
-      Vec.new(1, 1),
-      Vec.new(1, -1)
-    ]
-
-/*
-    for (dir in diag) {
-      if (_map[pos + dir]["solid"] && _map[pos + dir]["visible"]) {
-        _map[pos.x + dir.x, pos.y]["visible"] = true
-        _map[pos.x, pos.y + dir.y]["visible"] = true
-      }
-    }
-    */
+    _result.add(Vec.new(x.floor, y.floor))
   }
 }
 
